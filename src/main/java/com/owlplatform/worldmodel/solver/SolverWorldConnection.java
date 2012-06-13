@@ -337,6 +337,6 @@ public class SolverWorldConnection {
 	}
 
 	public boolean isConnectionLive() {
-		return !this.terminated;
+		return this.wmi.isReady();
 	}
 }
