@@ -1,0 +1,113 @@
+/*
+ * Owl Platform World Model Library for Java
+ * Copyright (C) 2012 Robert Moore and the Owl Platform
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation; either version 2.1 of the License, or
+ * (at your option) any later version.
+ *  
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *  
+ * You should have received a copy of the GNU Lesser General Public License along
+ * with this program; if not, write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ */
+
+package com.owlplatform.worldmodel.client.protocol.messages;
+
+import java.io.UnsupportedEncodingException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+/**
+ * The Attribute Alias message is sent from the World Model server to the client
+ * to provide efficient representations of attribute names in Data Response
+ * messages. Each UTF-16 URI value is bound to a 4-byte integer alias to avoid
+ * repeatedly sending long URI values.
+ * 
+ * <a href=
+ * "http://sourceforge.net/apps/mediawiki/grailrtls/index.php?title=Client-World_Model_protocol"
+ * >Documentation is available</a> on the project Wiki.
+ * 
+ * @author Robert Moore
+ * 
+ */
+public class AttributeAliasMessage {
+
+	/**
+	 * Logging facility for this class.
+	 */
+	private static final Logger log = LoggerFactory
+			.getLogger(AttributeAliasMessage.class);
+
+	/**
+	 * Message type for the Attribute Alias message.
+	 */
+	public static final byte MESSAGE_TYPE = 4;
+
+	/**
+	 * The attribute aliases contained in this message.
+	 */
+	protected AttributeAlias[] aliases = null;
+
+	public int getMessageLength() {
+		// Message type
+		int messageLength = 1;
+
+		// Number of aliases
+		messageLength += 4;
+
+		if (this.aliases != null) {
+			for (AttributeAlias alias : this.aliases) {
+				// Alias number, name length
+				messageLength += 8;
+				try {
+					messageLength += alias.aliasName.getBytes("UTF-16BE").length;
+				} catch (UnsupportedEncodingException e) {
+					log.error("Unable to encode strings into UTF-16.");
+					e.printStackTrace();
+				}
+			}
+		}
+
+		return messageLength;
+	}
+
+	public byte getMessageType() {
+		return MESSAGE_TYPE;
+	}
+
+	public AttributeAlias[] getAliases() {
+		return aliases;
+	}
+
+	public void setAliases(AttributeAlias[] aliases) {
+		this.aliases = aliases;
+	}
+
+	public static class AttributeAlias {
+		public final int aliasNumber;
+		public final String aliasName;
+
+		public AttributeAlias(int aliasNumber, String aliasName) {
+			this.aliasNumber = aliasNumber;
+			this.aliasName = aliasName;
+		}
+	}
+
+	public String toString() {
+		StringBuffer sb = new StringBuffer("Attribute Alias Message\n");
+		if (this.aliases != null) {
+			for (AttributeAlias alias : this.aliases) {
+				sb.append(Integer.valueOf(alias.aliasNumber)).append("->")
+						.append(alias.aliasName).append('\n');
+			}
+		}
+		return sb.toString();
+	}
+}
