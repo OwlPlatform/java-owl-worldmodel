@@ -338,6 +338,9 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
 	@Override
 	public void sessionIdle(IoSession session, IdleStatus status) {
+	  if(session == null){
+	    return;
+	  }
 	  if(status.equals(IdleStatus.READER_IDLE)){
 	    log.error("World Model timed-out. Disconnecting.");
 	    this.disconnect();
@@ -346,8 +349,8 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 		if (status.equals(IdleStatus.WRITER_IDLE)
 				|| status.equals(IdleStatus.BOTH_IDLE)) {
 			log.debug("Writing Keep-Alive message to World Model at {}",
-					this.session.getRemoteAddress());
-			this.session.write(KeepAliveMessage.MESSAGE);
+					session.getRemoteAddress());
+			session.write(KeepAliveMessage.MESSAGE);
 		}
 	}
 
