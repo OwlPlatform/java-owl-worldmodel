@@ -39,7 +39,6 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sign>false</sign>
 	</properties>
 
 	<reporting>
@@ -185,7 +184,7 @@
 		<dependency>
 			<groupId>com.owlplatform</groupId>
 			<artifactId>owl-common</artifactId>
-			<version>1.0.1</version>
+			<version>1.0.2-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
 	</dependencies>
