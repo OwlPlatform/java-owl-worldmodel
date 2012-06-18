@@ -123,17 +123,21 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   private HandshakeMessage receivedHandshake = null;
 
   /**
-   * Flag to indicate that the connection is ready for solvers to interact with the World Model.
+   * Flag to indicate that the connection is ready for solvers to interact with
+   * the World Model.
    */
   private boolean connectionReady = false;
-  
+
   /**
-   * Indicates whether or not this World Model Interface is ready for solvers to interact with the World Model.
-   * Specifically, it will return true when the local handshake has been sent and the remote (World Model) handshake
-   * has been received.
-   * @return {@code true} if the connection is ready for interaction, else {@code false}.
+   * Indicates whether or not this World Model Interface is ready for solvers to
+   * interact with the World Model. Specifically, it will return true when the
+   * local handshake has been sent and the remote (World Model) handshake has
+   * been received.
+   * 
+   * @return {@code true} if the connection is ready for interaction, else
+   *         {@code false}.
    */
-  public boolean isReady(){
+  public boolean isReady() {
     return this.connectionReady;
   }
 
@@ -370,18 +374,12 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     if (this.stayConnected) {
       log.info("Reconnecting to World Model (solver) at {}:{}", this.host,
           this.port);
-      Thread reconnectThread =
 
-      new Thread("Reconnect Thread") {
+      if (this.doConnectionSetup()) {
+        return;
+      }
+      SolverWorldModelInterface.this.finishConnection();
 
-        public void run() {
-          if (SolverWorldModelInterface.this.doConnectionSetup()) {
-            return;
-          }
-          SolverWorldModelInterface.this.finishConnection();
-        }
-      };
-      reconnectThread.start();
     } else {
       this.finishConnection();
     }
