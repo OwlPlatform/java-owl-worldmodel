@@ -20,53 +20,81 @@
 package com.owlplatform.worldmodel.client.protocol.messages;
 
 import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Provides the World Model with a list of preferred origins for the client.
+ * Preferred origins will be provided to the client in order of preference and
+ * availability. This means that of the available origins for an Attribute
+ * value, the one with the highest preference value is returned. By default, all
+ * origins have a preference value of 0.
+ * 
  * @author Robert Moore
- *
+ * 
  */
-public class OriginPreferenceMessage
-{
-    /**
-     * Logging facility for this class.
-     */
-    private static final Logger log = LoggerFactory.getLogger(OriginPreferenceMessage.class);
-    
-    /**
-     * The message type for the Origin Preference message.
-     */
-    public static final byte MESSAGE_TYPE = 11;
-    
-    /**
-     * Mapping of origin strings to weight values.
-     */
-    private final HashMap<String,Integer> weights = new HashMap<String, Integer>();
-    
-    public int getMessageLength(){
-        // Message ID
-        int length = 1;
-        
-        for(String origin : this.weights.keySet()){
-            // String prefix, weight
-            length += 8;
-            try {
-                length += origin.getBytes("UTF-16BE").length;
-            }
-            catch(UnsupportedEncodingException uee){
-                log.error("Unable to encode to UTF-16BE.");
-            }
+public class OriginPreferenceMessage {
+  /**
+   * Logging facility for this class.
+   */
+  private static final Logger log = LoggerFactory
+      .getLogger(OriginPreferenceMessage.class);
+
+  /**
+   * The message type for the Origin Preference message.
+   */
+  public static final byte MESSAGE_TYPE = 11;
+
+  /**
+   * Mapping of origin strings to weight values.
+   */
+  private Map<String, Integer> weights;
+
+  /**
+   * Sets the new origin preference values for this message.
+   * 
+   * @param weights
+   *          the new origin preference values.
+   *          
+   */
+  public void setWeights(final Map<String, Integer> weights) {
+    this.weights = weights;
+  }
+
+  /**
+   * Returns the length of this message when encoded according to the
+   * Client-World Model protocol.
+   * 
+   * @return the length, in bytes, of the encoded form of this message.
+   */
+  public int getMessageLength() {
+    // Message ID
+    int length = 1;
+
+    if (this.weights != null) {
+      for (String origin : this.weights.keySet()) {
+        // String prefix, weight
+        length += 8;
+        try {
+          length += origin.getBytes("UTF-16BE").length;
+        } catch (UnsupportedEncodingException uee) {
+          log.error("Unable to encode to UTF-16BE.");
         }
-        
-        return length;
+      }
     }
 
-    public HashMap<String, Integer> getWeights()
-    {
-        return weights;
-    }
+    return length;
+  }
+
+  /**
+   * Returns the mapping of Origin name to weight value for this message.
+   * 
+   * @return the map of origin weights for this message, or {@code null} if none
+   *         have been set.
+   */
+  public Map<String, Integer> getWeights() {
+    return this.weights;
+  }
 }
