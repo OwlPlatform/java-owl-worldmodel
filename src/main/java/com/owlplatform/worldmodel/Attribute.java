@@ -16,24 +16,21 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-package com.owlplatform.worldmodel.client.protocol.messages;
+package com.owlplatform.worldmodel;
 
 import java.util.Date;
-
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.owlplatform.common.util.NumericUtils;
 import com.owlplatform.worldmodel.types.DataConverter;
 
+/**
+ * Represents an Attribute of an Identifier within the World Model.  Attributes represent
+ * characteristics of Identifiers, change over time, and can have multiple origins (sources).
+ * @author Robert Moore
+ *
+ */
 public class Attribute {
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory
-			.getLogger(Attribute.class);
-
+	
 	/**
 	 * 32 bit unsigned integer specifying an alias for this attribute's
 	 * name.
@@ -41,14 +38,13 @@ public class Attribute {
 	private int attributeNameAlias;
 
 	/**
-	 * The actual UTF-16 representation of the attribute name. This is only
-	 * used internally and not transmitted over the network.
+	 * The actual UTF-16 representation of the attribute name.
 	 */
 	private String attributeName;
 
 	/**
 	 * A signed 64 bit integer specifying an offset from the epoch, 1970,
-	 * when this attribute was created.
+	 * when this attribute value was created.
 	 */
 	private long creationDate;
 
@@ -60,7 +56,7 @@ public class Attribute {
 	private long expirationDate;
 
 	/**
-	 * 32 bit unsigned integer specifying an alias for this the origin of
+	 * 32 bit unsigned integer specifying an alias for the origin of
 	 * this attribute.
 	 */
 	private int originNameAlias;
@@ -77,6 +73,10 @@ public class Attribute {
 	 */
 	private byte[] data = null;
 
+	/**
+	 * Returns the length of this attribute, in bytes, as encoded according to the Client-World Model protocol.
+	 * @return the length of the encoded form of this attribute object
+	 */
 	public int getLength() {
 		// Attribute name alias, creation date, expiration date, Origin name
 		// alias, data length
@@ -88,62 +88,119 @@ public class Attribute {
 		return length;
 	}
 
+	/**
+	 * Returns the alias value for this attribute's name, or 0 if it has not been set.
+	 * @return the alias value for this attribute's name, or 0 if it has not been set.
+	 */
 	public int getAttributeNameAlias() {
-		return attributeNameAlias;
+		return this.attributeNameAlias;
 	}
 
+	/**
+	 * Sets the alias value for this attribute's name.
+	 * @param attributeNameAlias the new alias value.
+	 */
 	public void setAttributeNameAlias(int attributeNameAlias) {
 		this.attributeNameAlias = attributeNameAlias;
 	}
 
+	/**
+	 * Returns this attribute value's creation timestamp.
+	 * @return this attribute value's creation timestamp.
+	 */
 	public long getCreationDate() {
-		return creationDate;
+		return this.creationDate;
 	}
 
+	/**
+	 * Sets the new creation timestamp for this attribute value.
+	 * @param creationDate the new creation timestamp value.
+	 */
 	public void setCreationDate(long creationDate) {
 		this.creationDate = creationDate;
 	}
 
+	/**
+	 * Returns this attribute value's expiration timestamp, or 0 if it is not set.
+	 * @return this attribute value's expriation timestamp.
+	 */
 	public long getExpirationDate() {
-		return expirationDate;
+		return this.expirationDate;
 	}
 
+	/**
+	 * Sets the new expiration timestamp for this attribute value.
+	 * @param expirationDate the new expiration timestamp value.
+	 */
 	public void setExpirationDate(long expirationDate) {
 		this.expirationDate = expirationDate;
 	}
 
+	/**
+	 * Returns this attribute value's origin name alias value.
+	 * @return this attribute vlaue's origin name alias.
+	 */
 	public int getOriginNameAlias() {
-		return originNameAlias;
+		return this.originNameAlias;
 	}
 
+	/**
+	 * Sets this attribute value's origin name.
+	 * @param originNameAlias the new origin name value.
+	 */
 	public void setOriginNameAlias(int originNameAlias) {
 		this.originNameAlias = originNameAlias;
 	}
 
+	/**
+	 * Returns the data for this attribute value, if any. 
+	 * @return the data for this attribute value, or {@code null} if there is none.
+	 */
 	public byte[] getData() {
-		return data;
+		return this.data;
 	}
 
+	/**
+	 * Sets the data for this attribute value.
+	 * @param data the new data for this attribute value.
+	 */
 	public void setData(byte[] data) {
 		this.data = data;
 	}
 
+	/**
+	 * Returns the name of this attribute.
+	 * @return the name of this attribute.
+	 */
 	public String getAttributeName() {
-		return attributeName;
+		return this.attributeName;
 	}
 
+	/**
+	 * Sets the name of this attribute.
+	 * @param attributeName the new name of this attribute.
+	 */
 	public void setAttributeName(String attributeName) {
 		this.attributeName = attributeName;
 	}
 
+	/**
+	 * Returns the name of this attribute.
+	 * @return the name of this attribute, or {@code null} if it has not been set.
+	 */
 	public String getOriginName() {
-		return originName;
+		return this.originName;
 	}
 
+	/**
+	 * Sets the origin for this attribute value.
+	 * @param originName the new origin for this attribute value.
+	 */
 	public void setOriginName(String originName) {
 		this.originName = originName;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer();
 		if (this.attributeName == null) {

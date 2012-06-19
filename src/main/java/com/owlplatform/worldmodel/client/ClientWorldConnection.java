@@ -30,10 +30,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.owlplatform.worldmodel.Attribute;
 import com.owlplatform.worldmodel.client.listeners.ConnectionListener;
 import com.owlplatform.worldmodel.client.listeners.DataListener;
 import com.owlplatform.worldmodel.client.protocol.messages.AbstractRequestMessage;
-import com.owlplatform.worldmodel.client.protocol.messages.Attribute;
 import com.owlplatform.worldmodel.client.protocol.messages.AttributeAliasMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.DataResponseMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.OriginAliasMessage;
@@ -404,7 +404,7 @@ public class ClientWorldConnection {
       for (Attribute a : message.getAttributes()) {
         attribList.add(a);
       }
-      ws.addState(message.getUri(), attribList);
+      ws.addState(message.getId(), attribList);
       return;
     }
 
@@ -423,7 +423,7 @@ public class ClientWorldConnection {
         attribList.add(a);
       }
     }
-    ws.addState(message.getUri(), attribList);
+    ws.addState(message.getId(), attribList);
     resp.addState(ws);
     return;
   }

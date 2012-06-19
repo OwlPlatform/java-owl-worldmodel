@@ -18,23 +18,17 @@
  */
 package com.owlplatform.worldmodel.client.protocol.messages;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * This message cancels a streaming request using its ticket number. Other
- * requests cannot be canceled as they are executed and completed immediately
- * after receiving the request message before receiving any new messages.
+ * This message cancels a request using its ticket number. Not all requests
+ * can be cancelled, and not all cancel requests can be honored.  For instance, a snapshot
+ * request may not be able to be cancelled if it was already fulfilled by the world model
+ * and in-flight across the network.
  * 
  * @author Robert Moore
  * 
  */
 public class CancelRequestMessage {
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory
-			.getLogger(CancelRequestMessage.class);
 
 	/**
 	 * Message type value for Request Ticket messages.
@@ -48,10 +42,18 @@ public class CancelRequestMessage {
 	 */
 	private long ticketNumber;
 
+	/**
+	 * Returns the 32-bit unsigned integer ticket number.
+	 * @return the 32-bit unsigned integer ticket number
+	 */
 	public long getTicketNumber() {
-		return ticketNumber & 0xFFFFFFFFL;
+		return this.ticketNumber & 0xFFFFFFFFL;
 	}
 
+	/**
+	 * Sets the 32-bit unsigned integer ticket number for this message.
+	 * @param ticketNumber the new ticket number for this message.
+	 */
 	public void setTicketNumber(long ticketNumber) {
 		this.ticketNumber = ticketNumber & 0xFFFFFFFFL;
 	}

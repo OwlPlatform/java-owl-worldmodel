@@ -28,11 +28,7 @@ import org.slf4j.LoggerFactory;
  * The Attribute Alias message is sent from the World Model server to the client
  * to provide efficient representations of attribute names in Data Response
  * messages. Each UTF-16 URI value is bound to a 4-byte integer alias to avoid
- * repeatedly sending long URI values.
- * 
- * <a href=
- * "http://sourceforge.net/apps/mediawiki/grailrtls/index.php?title=Client-World_Model_protocol"
- * >Documentation is available</a> on the project Wiki.
+ * repeatedly sending long Identifier values.
  * 
  * @author Robert Moore
  * 
@@ -55,6 +51,11 @@ public class AttributeAliasMessage {
 	 */
 	protected AttributeAlias[] aliases = null;
 
+	/**
+	 * Returns the length of this message as encoded according to the
+	 * Client-World Model protocol.
+	 * @return the length of the encoded form of this message, in bytes.
+	 */
 	public int getMessageLength() {
 		// Message type
 		int messageLength = 1;
@@ -67,7 +68,7 @@ public class AttributeAliasMessage {
 				// Alias number, name length
 				messageLength += 8;
 				try {
-					messageLength += alias.aliasName.getBytes("UTF-16BE").length;
+					messageLength += alias.attributeName.getBytes("UTF-16BE").length;
 				} catch (UnsupportedEncodingException e) {
 					log.error("Unable to encode strings into UTF-16.");
 					e.printStackTrace();
@@ -78,34 +79,63 @@ public class AttributeAliasMessage {
 		return messageLength;
 	}
 
+	/**
+	 * Returns the type value for this message.
+	 * @return {@link #MESSAGE_TYPE}.
+	 */
 	public byte getMessageType() {
 		return MESSAGE_TYPE;
 	}
 
+	/**
+	 * Returns the array of attribute aliases contained in this message.
+	 * @return the attribute aliases for this message, or {@code null} if there are none.
+	 */
 	public AttributeAlias[] getAliases() {
-		return aliases;
+		return this.aliases;
 	}
 
+	/**
+	 * Sets the new set of attribute aliases for this message.
+	 * @param aliases the new attribute aliases for this message.
+	 */
 	public void setAliases(AttributeAlias[] aliases) {
 		this.aliases = aliases;
 	}
 
+	/**
+	 * Simple class for binding attribute names to alias values.
+	 * @author Robert Moore
+	 *
+	 */
 	public static class AttributeAlias {
+	  /**
+	   * The alias value for the attribute.
+	   */
 		public final int aliasNumber;
-		public final String aliasName;
+		/**
+		 * The attribute name.
+		 */
+		public final String attributeName;
 
-		public AttributeAlias(int aliasNumber, String aliasName) {
+		/**
+		 * Creates a new {@code AttributeAlias} with the provided alias value and attribute name.
+		 * @param aliasNumber the alias value for the attribute.
+		 * @param attributesName the attribute name.
+		 */
+		public AttributeAlias(int aliasNumber, String attributesName) {
 			this.aliasNumber = aliasNumber;
-			this.aliasName = aliasName;
+			this.attributeName = attributesName;
 		}
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer("Attribute Alias Message\n");
 		if (this.aliases != null) {
 			for (AttributeAlias alias : this.aliases) {
 				sb.append(Integer.valueOf(alias.aliasNumber)).append("->")
-						.append(alias.aliasName).append('\n');
+						.append(alias.attributeName).append('\n');
 			}
 		}
 		return sb.toString();

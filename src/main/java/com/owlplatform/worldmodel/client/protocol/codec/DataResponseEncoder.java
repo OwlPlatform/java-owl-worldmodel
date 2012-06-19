@@ -25,7 +25,7 @@ import org.apache.mina.filter.codec.demux.MessageEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.client.protocol.messages.Attribute;
+import com.owlplatform.worldmodel.Attribute;
 import com.owlplatform.worldmodel.client.protocol.messages.DataResponseMessage;
 
 public class DataResponseEncoder implements MessageEncoder<DataResponseMessage> {
@@ -47,8 +47,8 @@ public class DataResponseEncoder implements MessageEncoder<DataResponseMessage> 
 		buffer.put(DataResponseMessage.MESSAGE_TYPE);
 
 		// Message URI (this really shouldn't be null)
-		if (message.getUri() != null) {
-			byte[] uriBytes = message.getUri().getBytes("UTF-16BE");
+		if (message.getId() != null) {
+			byte[] uriBytes = message.getId().getBytes("UTF-16BE");
 			buffer.putInt(uriBytes.length);
 			buffer.put(uriBytes);
 		} else {

@@ -23,6 +23,8 @@ import java.io.UnsupportedEncodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.owlplatform.worldmodel.Attribute;
+
 /**
  * This message contains data requested by the client and is sent by the server
  * in response to a request message.
@@ -43,7 +45,7 @@ public class DataResponseMessage {
 	/**
 	 * The subject of the data, identified as a UTF-16BE string.
 	 */
-	private String uri;
+	private String identifier;
 
 	/**
 	 * The ticket number used to identify which request this data is associated
@@ -56,14 +58,18 @@ public class DataResponseMessage {
 	 */
 	private Attribute[] attributes;
 
+	/**
+	 * Returns the length of this message when encoded according to the Client-World Model protocol.
+	 * @return the length, in bytes, of the encoded form of this message.
+	 */
 	public int getMessageLength() {
 		// Message Type, URI length
 		int length = 1 + 4;
 
-		// URI bytes
-		if (this.uri != null) {
+		// Identifier bytes
+		if (this.identifier != null) {
 			try {
-				length += this.uri.getBytes("UTF-16BE").length;
+				length += this.identifier.getBytes("UTF-16BE").length;
 			} catch (UnsupportedEncodingException e) {
 				log.error("UTF-16BE is unsupported in this environment.");
 			}
@@ -85,35 +91,60 @@ public class DataResponseMessage {
 		return length;
 	}	
 
-	public String getUri() {
-		return uri;
+	/**
+	 * Returns the identifier for this message.
+	 * @return the identifier for this message.
+	 */
+	public String getId() {
+		return this.identifier;
 	}
 
-	public void setUri(String uri) {
-		this.uri = uri;
+	/**
+	 * Sets the identifier for this message.
+	 * @param identifier the new identifier for this message.
+	 */
+	public void setId(String identifier) {
+		this.identifier = identifier;
 	}
 
+	/**
+	 * The ticket number of the request that this message was sent in response to.
+	 * @return the ticket number of the request that produced this message.
+	 */
 	public long getTicketNumber() {
-		return ticketNumber;
+		return this.ticketNumber;
 	}
 
+	/**
+	 * Sets the ticket number for this message.
+	 * @param ticketNumber the new ticket number, the same ticket number as the request that generated this message.
+	 */
 	public void setTicketNumber(long ticketNumber) {
 		this.ticketNumber = ticketNumber;
 	}
 
+	/**
+	 * Returns the attributes in this message.
+	 * @return the attributes in this message, or {@code null} if there are none.
+	 */
 	public Attribute[] getAttributes() {
-		return attributes;
+		return this.attributes;
 	}
 
+	/**
+	 * Sets the attributes for this message.
+	 * @param attributes the new attributes for this message.
+	 */
 	public void setAttributes(Attribute[] attributes) {
 		this.attributes = attributes;
 	}
 
+	@Override
 	public String toString() {
 
 		StringBuffer sb = new StringBuffer("Data Response Message (");
-		if (this.uri != null) {
-			sb.append(this.uri);
+		if (this.identifier != null) {
+			sb.append(this.identifier);
 		} else {
 			sb.append("NULL");
 		}

@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.owlplatform.worldmodel.client.protocol.messages.Attribute;
+import com.owlplatform.worldmodel.Attribute;
 
 
 public class WorldState {

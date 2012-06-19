@@ -48,7 +48,7 @@ public class AttributeAliasEncoder implements MessageEncoder<AttributeAliasMessa
 			buffer.putInt(aliases.length);
 			for(AttributeAlias alias : aliases){
 				buffer.putInt(alias.aliasNumber);
-				byte[] aliasBytes = alias.aliasName.getBytes("UTF-16BE");
+				byte[] aliasBytes = alias.attributeName.getBytes("UTF-16BE");
 				buffer.putInt(aliasBytes.length);
 				buffer.put(aliasBytes);
 			}

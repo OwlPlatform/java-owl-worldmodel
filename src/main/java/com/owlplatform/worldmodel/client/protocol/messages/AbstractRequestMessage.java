@@ -19,6 +19,12 @@
 
 package com.owlplatform.worldmodel.client.protocol.messages;
 
+/**
+ * Abstract class containing the ticket number for request messages
+ * in the Solver-World Model protocol.
+ * @author Robert Moore
+ *
+ */
 public abstract class AbstractRequestMessage {
 
     /**
@@ -27,13 +33,22 @@ public abstract class AbstractRequestMessage {
      * {@link RequestCompleteMessage}) or by the client to cancel a request
      * (via {@link CancelRequestMessage}).
      */
-    protected long ticketNumber = 0;
+    protected long ticketNumber = Long.MIN_VALUE;
 
+    /**
+     * Returns the ticket number assigned to this request.
+     * @return the ticket number assigned to this request, or {@code Long#MIN_VALUE} if none
+     * has been assigned.
+     */
     public long getTicketNumber()
     {
-        return ticketNumber;
+        return this.ticketNumber;
     }
 
+    /**
+     * Sets the ticket number for this request.
+     * @param ticketNumber the new ticket number for this request.
+     */
     public void setTicketNumber(long ticketNumber)
     {
         this.ticketNumber = ticketNumber&0xFFFFFFFF;

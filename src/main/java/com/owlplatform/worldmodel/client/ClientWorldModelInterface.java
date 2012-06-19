@@ -38,11 +38,11 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.owlplatform.worldmodel.Attribute;
 import com.owlplatform.worldmodel.client.listeners.ConnectionListener;
 import com.owlplatform.worldmodel.client.listeners.DataListener;
 import com.owlplatform.worldmodel.client.protocol.codec.WorldModelClientProtocolCodecFactory;
 import com.owlplatform.worldmodel.client.protocol.messages.AbstractRequestMessage;
-import com.owlplatform.worldmodel.client.protocol.messages.Attribute;
 import com.owlplatform.worldmodel.client.protocol.messages.AttributeAliasMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.CancelRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.DataResponseMessage;
@@ -484,8 +484,8 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 		} else {
 			for (AttributeAlias alias : aliases) {
 				this.attributeAliasValues.put(
-						Integer.valueOf(alias.aliasNumber), alias.aliasName);
-				log.debug("Attribute ({})->{}", alias.aliasName,
+						Integer.valueOf(alias.aliasNumber), alias.attributeName);
+				log.debug("Attribute ({})->{}", alias.attributeName,
 						alias.aliasNumber);
 			}
 		}

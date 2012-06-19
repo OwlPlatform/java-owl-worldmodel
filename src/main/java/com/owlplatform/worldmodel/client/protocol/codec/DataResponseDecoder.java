@@ -28,7 +28,7 @@ import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.client.protocol.messages.Attribute;
+import com.owlplatform.worldmodel.Attribute;
 import com.owlplatform.worldmodel.client.protocol.messages.DataResponseMessage;
 
 public class DataResponseDecoder implements MessageDecoder {
@@ -81,7 +81,7 @@ public class DataResponseDecoder implements MessageDecoder {
 		messageLength -= uriLength;
 		
 		String uri = new String(uriBytes,"UTF-16BE");
-		message.setUri(uri);
+		message.setId(uri);
 		
 		int ticketNumber = buffer.getInt();
 		messageLength -= 4;
