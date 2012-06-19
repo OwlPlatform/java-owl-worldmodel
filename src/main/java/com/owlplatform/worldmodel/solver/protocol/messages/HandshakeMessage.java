@@ -194,6 +194,12 @@ public class HandshakeMessage {
 		return super.equals(o);
 	}
 	
+	/**
+	 * Compares handshake messages based on the version number, reserved bits, and
+	 * protocol string.
+	 * @param message the other handshake message.
+	 * @return {@code true} if they are equal, else {@code false}.
+	 */
 	public boolean equals(HandshakeMessage message)
 	{
 		if(this.versionNumber != message.versionNumber)

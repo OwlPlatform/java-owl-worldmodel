@@ -19,25 +19,16 @@
 
 package com.owlplatform.worldmodel.client.protocol.messages;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Keep-Alive messages are exchanged across a World Model client connection when no other message has been
  * sent for 30 seconds, or to actively check if a connection is still live.
- * 
- * <a href="http://sourceforge.net/apps/mediawiki/grailrtls/index.php?title=Client-World_Model_protocol">Documentation is available</a> on the project Wiki.
  * 
  * @author Robert Moore
  *
  */
 public class KeepAliveMessage {
 
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(KeepAliveMessage.class);
-	
 	/**
 	 * Static reference to an immutable KeepAlive message object.  Since all Keep Alive messages look the same, there's no real 
 	 * reason to be able to create multiple instances.

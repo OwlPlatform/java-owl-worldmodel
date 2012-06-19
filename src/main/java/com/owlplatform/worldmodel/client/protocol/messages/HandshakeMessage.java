@@ -32,8 +32,6 @@ import com.owlplatform.common.util.NumericUtils;
  * ensure that both sides are speaking the same protocol, and eventually, the same version of the
  * protocol.
  * 
- * <a href="http://sourceforge.net/apps/mediawiki/grailrtls/index.php?title=Client-World_Model_protocol">Documentation is available</a>
- * on the project Wiki.
  * 
  * @author Robert Moore
  *
@@ -194,6 +192,11 @@ public class HandshakeMessage {
 		return super.equals(o);
 	}
 	
+	/**
+	 * Compares this handshake message to another based on the version numbers, reserved bits, and protocol string.
+	 * @param message another handshake message.
+	 * @return {@code true} if they are the same (version, reserved bits, protocol string), else {@code false}.
+	 */
 	public boolean equals(HandshakeMessage message)
 	{
 		if(this.versionNumber != message.versionNumber)
@@ -215,4 +218,16 @@ public class HandshakeMessage {
 		}
 		return true;
 	}
+	
+	@Override
+  public int hashCode() {
+
+    int hash = Arrays.hashCode(new byte[] { this.versionNumber,
+        this.reservedBits });
+    if (this.protocolString != null) {
+      hash ^= this.stringLength;
+      hash ^= this.protocolString.hashCode();
+    }
+    return hash;
+  }
 }

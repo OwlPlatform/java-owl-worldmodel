@@ -55,7 +55,7 @@ public class OriginAliasEncoder implements
 			buffer.putInt(aliases.length);
 			for(OriginAlias alias : aliases){
 				buffer.putInt(alias.aliasNumber);
-				byte[] aliasNameByte = alias.aliasName.getBytes("UTF-16BE");
+				byte[] aliasNameByte = alias.origin.getBytes("UTF-16BE");
 				buffer.putInt(aliasNameByte.length);
 				buffer.put(aliasNameByte);
 			}

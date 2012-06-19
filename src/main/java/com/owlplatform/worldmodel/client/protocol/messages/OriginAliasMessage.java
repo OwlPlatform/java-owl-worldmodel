@@ -33,10 +33,6 @@ import org.slf4j.LoggerFactory;
  * alias message will be sent to define aliases for the new attribute names and
  * origins.
  * 
- * <a href=
- * "http://sourceforge.net/apps/mediawiki/grailrtls/index.php?title=Client-World_Model_protocol"
- * >Documentation is available</a> on the project Wiki.
- * 
  * @author Robert Moore
  * 
  */
@@ -58,6 +54,10 @@ public class OriginAliasMessage {
 	 */
 	protected OriginAlias[] aliases;
 
+	/**
+	 * Returns the length of this message when encoded according to the Client-World Model protocol.
+	 * @return the length, in bytes, of the encoded form of this message.
+	 */
 	public int getMessageLength() {
 		// Message type
 		int messageLength = 1;
@@ -70,7 +70,7 @@ public class OriginAliasMessage {
 				// Alias number, name length
 				messageLength += 8;
 				try {
-					messageLength += alias.aliasName.getBytes("UTF-16BE").length;
+					messageLength += alias.origin.getBytes("UTF-16BE").length;
 				} catch (UnsupportedEncodingException e) {
 					log.error("Unable to encode strings into UTF-16.");
 					e.printStackTrace();
@@ -81,32 +81,61 @@ public class OriginAliasMessage {
 		return messageLength;
 	}
 
+	/**
+	 * Returns the message type value for this message ({@link #MESSAGE_TYPE}).
+	 * @return the message type of this message.
+	 */
 	public byte getMessageType() {
 		return MESSAGE_TYPE;
 	}
 
+	/**
+	 * Returns the origin aliases for this message.
+	 * @return the origin aliases in this message, or {@code null} if there are none.
+	 */
 	public OriginAlias[] getAliases() {
-		return aliases;
+		return this.aliases;
 	}
 
+	/**
+	 * Sets the origin aliases for this message.
+	 * @param aliases the new origin aliases for this message.
+	 */
 	public void setAliases(OriginAlias[] aliases) {
 		this.aliases = aliases;
 	}
 
+	/**
+	 * Simple class to encapsulate an origin alias binding.
+	 * @author Robert Moore
+	 *
+	 */
 	public static class OriginAlias {
+	  /**
+	   * The numeric alias value.
+	   */
 		public final int aliasNumber;
-		public final String aliasName;
+		/**
+		 * The origin name.
+		 */
+		public final String origin;
 
-		public OriginAlias(int aliasNumber, String aliasName) {
+		/**
+		 * Creates a new origin alias object using the provided alias value and origin name.
+		 * @param aliasNumber the alias value.
+		 * @param origin the origin name.
+		 */
+		public OriginAlias(int aliasNumber, String origin) {
 			this.aliasNumber = aliasNumber;
-			this.aliasName = aliasName;
+			this.origin = origin;
 		}
 	}
 	
+	@Override
 	public String toString(){
 		StringBuffer sb = new StringBuffer("Origin Alias\n");
 		for(OriginAlias alias : this.aliases){
-			sb.append(alias.aliasNumber).append("->").append(alias.aliasName).append('\n');
+			sb.append(alias.aliasNumber).append("->").append(alias.origin).append('\n');
 		}
 		return sb.toString();
 	}

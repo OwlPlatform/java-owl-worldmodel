@@ -507,8 +507,8 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 		} else {
 			for (OriginAlias alias : aliases) {
 				this.originAliasValues.put(Integer.valueOf(alias.aliasNumber),
-						alias.aliasName);
-				log.debug("Origin ({})->{}", alias.aliasName, alias.aliasNumber);
+						alias.origin);
+				log.debug("Origin ({})->{}", alias.origin, alias.aliasNumber);
 			}
 		}
 
