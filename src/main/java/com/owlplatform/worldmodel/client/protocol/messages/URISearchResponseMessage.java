@@ -46,16 +46,20 @@ public class URISearchResponseMessage {
 	/**
 	 * Array of URIs that matched the URI Search message's regular expression.
 	 */
-	private String[] matchingUris = null;
+	private String[] matchingIds = null;
 
+	/**
+	 * Gets the length of this message when encoded according to the Client-World Model protocol.
+	 * @return the length, in bytes, of the encoded form of this message
+	 */
 	public int getMessageLength() {
 		int length = 1;
 
-		if (this.matchingUris != null) {
-			for (String uri : this.matchingUris) {
+		if (this.matchingIds != null) {
+			for (String id : this.matchingIds) {
 				try {
 					length += 4;
-					length += uri.getBytes("UTF-16BE").length;
+					length += id.getBytes("UTF-16BE").length;
 				} catch (UnsupportedEncodingException uee) {
 					log.error("Unable to encode UTF-16BE String: {}", uee);
 				}
@@ -64,18 +68,27 @@ public class URISearchResponseMessage {
 		return length;
 	}
 
-	public String[] getMatchingUris() {
-		return matchingUris;
+	/**
+	 * Returns the Identifier values that matched the search request.
+	 * @return the matching identifiers.
+	 */
+	public String[] getMatchingIds() {
+		return this.matchingIds;
 	}
 
-	public void setMatchingUris(String[] matchingUris) {
-		this.matchingUris = matchingUris;
+	/**
+	 * Sets the Identifier values that matched the search request.
+	 * @param matchingIds the matching identifiers.
+	 */
+	public void setMatchingUris(String[] matchingIds) {
+		this.matchingIds = matchingIds;
 	}
 
+	@Override
 	public String toString() {
 		StringBuffer sb = new StringBuffer("URI Search Response:");
-		if (this.matchingUris != null) {
-			for (String s : this.matchingUris) {
+		if (this.matchingIds != null) {
+			for (String s : this.matchingIds) {
 				sb.append(s).append("\n");
 			}
 		}

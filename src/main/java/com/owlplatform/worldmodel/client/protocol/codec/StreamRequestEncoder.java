@@ -45,11 +45,11 @@ public class StreamRequestEncoder implements
 		buffer.put(StreamRequestMessage.MESSAGE_TYPE);
 		buffer.putInt((int)message.getTicketNumber());
 		
-		byte[] uriQueryByte = message.getQueryURI().getBytes("UTF-16BE");
+		byte[] uriQueryByte = message.getIdRegex().getBytes("UTF-16BE");
 		buffer.putInt(uriQueryByte.length);
 		buffer.put(uriQueryByte);
 		
-		String[] attributes = message.getQueryAttributes();
+		String[] attributes = message.getAttributeRegexes();
 		
 		if(attributes == null){
 			buffer.putInt(0);

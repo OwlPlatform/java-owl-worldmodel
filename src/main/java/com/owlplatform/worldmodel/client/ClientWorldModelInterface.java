@@ -713,7 +713,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 		synchronized (this.sentUriSearch) {
 			if (this.sentUriSearch.get()) {
 				URISearchMessage message = new URISearchMessage();
-				message.setUriRegex(searchUri);
+				message.setIdRegex(searchUri);
 				this.session.write(message);
 			}
 		}
@@ -726,7 +726,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 		}
 		for (String uri : this.registeredSearchUris) {
 			URISearchMessage message = new URISearchMessage();
-			message.setUriRegex(uri);
+			message.setIdRegex(uri);
 			this.session.write(message);
 		}
 	}
@@ -746,7 +746,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 				}
 			}
 			URISearchMessage message = new URISearchMessage();
-			message.setUriRegex(uriRegex);
+			message.setIdRegex(uriRegex);
 			this.session.write(message);
 			log.debug("Sent {}", message);
 		}

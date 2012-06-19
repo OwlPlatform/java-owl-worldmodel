@@ -44,32 +44,45 @@ public class URISearchMessage {
 	/**
 	 * A regular expression pattern represented as a UTF-16BE String.
 	 */
-	private String uriRegex;
+	private String identifierRegex;
 	
+	/**
+	 * Returns the length of this message when encoded according to the Client-World Model protocol.
+	 * @return the length, in bytes, of the encoded form of this message.
+	 */
 	public int getMessageLength(){
-		if(this.uriRegex == null){
+		if(this.identifierRegex == null){
 			return 1;
 		}
 		try {
-			return this.uriRegex.getBytes("UTF-16BE").length + 1;
+			return this.identifierRegex.getBytes("UTF-16BE").length + 1;
 		} catch (UnsupportedEncodingException e) {
 			log.error("Unable to decode UTF-16BE String: {}", e);
 			return 1;
 		}
 	}
 
-	public String getUriRegex() {
-		return uriRegex;
+	/**
+	 * Gets the identifier regular expression for this message.
+	 * @return the identifier regular expression for this message.
+	 */
+	public String getIdRegex() {
+		return this.identifierRegex;
 	}
 
-	public void setUriRegex(String uriRegex) {
-		this.uriRegex = uriRegex;
+	/**
+	 * Sets the identifier regular expression for this message.
+	 * @param idRegex the new identifier regular expression.
+	 */
+	public void setIdRegex(String idRegex) {
+		this.identifierRegex = idRegex;
 	}
 	
+	@Override
 	public String toString(){
 		StringBuffer sb = new StringBuffer();
 		
-		sb.append("URI Search (").append(this.uriRegex).append(")");
+		sb.append("URI Search (").append(this.identifierRegex).append(")");
 		
 		return sb.toString();
 	}

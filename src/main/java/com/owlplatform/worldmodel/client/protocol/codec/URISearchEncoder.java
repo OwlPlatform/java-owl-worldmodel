@@ -41,8 +41,8 @@ public class URISearchEncoder implements MessageEncoder<URISearchMessage> {
 		IoBuffer buffer = IoBuffer.allocate(message.getMessageLength() + 4);
 		buffer.putInt(message.getMessageLength());
 		buffer.put(URISearchMessage.MESSAGE_TYPE);
-		if (message.getUriRegex() != null) {
-			byte[] uriRegexByte = message.getUriRegex().getBytes("UTF-16BE");
+		if (message.getIdRegex() != null) {
+			byte[] uriRegexByte = message.getIdRegex().getBytes("UTF-16BE");
 			buffer.put(uriRegexByte);
 		}
 

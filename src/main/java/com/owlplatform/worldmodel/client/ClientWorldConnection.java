@@ -276,11 +276,11 @@ public class ClientWorldConnection {
   public StepResponse getStreamRequest(final String uriRegex, final long start,
       final long interval, String... attributes) {
     StreamRequestMessage req = new StreamRequestMessage();
-    req.setQueryURI(uriRegex);
+    req.setIdRegex(uriRegex);
     req.setBeginTimestamp(start);
     req.setUpdateInterval(interval);
     if (attributes != null) {
-      req.setQueryAttributes(attributes);
+      req.setAttributeRegexes(attributes);
     }
 
     StepResponse resp = new StepResponse(this, 0);
@@ -431,7 +431,7 @@ public class ClientWorldConnection {
   void uriSearchResponseReceived(ClientWorldModelInterface worldModel,
       URISearchResponseMessage message) {
     log.info("Got a URI search response: {}", message);
-    String[] matching = message.getMatchingUris();
+    String[] matching = message.getMatchingIds();
     if (matching == null) {
       this.uriSearchResponses.add(new String[] {});
     } else {

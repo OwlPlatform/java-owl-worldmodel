@@ -68,7 +68,7 @@ public class URISearchDecoder implements MessageDecoder {
 		String uri = new String(uriBytes,"UTF-16BE");
 		
 		URISearchMessage message = new URISearchMessage();
-		message.setUriRegex(uri);
+		message.setIdRegex(uri);
 		
 		out.write(message);
 		

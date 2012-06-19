@@ -45,8 +45,8 @@ public class URISearchResponseEncoder implements
 		buffer.putInt(prefixLength);
 		buffer.put(URISearchResponseMessage.MESSAGE_TYPE);
 		
-		if(message.getMatchingUris() != null){
-			for(String uri : message.getMatchingUris()){
+		if(message.getMatchingIds() != null){
+			for(String uri : message.getMatchingIds()){
 				byte[] uriByte = uri.getBytes("UTF-16BE");
 				buffer.putInt(uriByte.length);
 				buffer.put(uriByte);

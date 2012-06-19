@@ -48,21 +48,38 @@ public class StreamRequestMessage extends AbstractRequestMessage {
 	 */
 	public static final byte MESSAGE_TYPE = 3;
 
-	private String queryURI;
+	/**
+	 * Regular expression to match identifiers.
+	 */
+	private String identifierRegex;
 
-	private String[] queryAttributes;
+	/**
+	 * Regular expressions to match attributes.
+	 */
+	private String[] attributeRegexes;
 
+	/**
+	 * Timestamp of the earliest attribute values to stream.
+	 */
 	private long beginTimestamp;
 
 	/**
-	 * The minimum time between data messages sent by the World Model server, specified in milliseconds.
+	 * The minimum time between data value changes sent by the World Model server, specified in milliseconds.
 	 */
 	private long updateInterval;
 
+	/**
+	 * Gets the update interval for this request.
+	 * @return the update interval in milliseconds.
+	 */
 	public long getUpdateInterval() {
-		return updateInterval;
+		return this.updateInterval;
 	}
 
+	/**
+	 * Sets the update interval for this request.
+	 * @param updateInterval the new update interval, in milliseconds.
+	 */
 	public void setUpdateInterval(long updateInterval) {
 		this.updateInterval = updateInterval;
 	}
@@ -90,9 +107,9 @@ public class StreamRequestMessage extends AbstractRequestMessage {
 		// URI length prefix
 		messageLength += 4;
 
-		if (this.queryURI != null) {
+		if (this.identifierRegex != null) {
 			try {
-				messageLength += this.queryURI.getBytes("UTF-16BE").length;
+				messageLength += this.identifierRegex.getBytes("UTF-16BE").length;
 			} catch (UnsupportedEncodingException e) {
 				log.error("Unable to encode String into UTF-16.");
 				e.printStackTrace();
@@ -103,8 +120,8 @@ public class StreamRequestMessage extends AbstractRequestMessage {
 		messageLength += 4;
 
 		// Add length prefix and String length for each attribute
-		if (this.queryAttributes != null) {
-			for (String attrib : this.queryAttributes) {
+		if (this.attributeRegexes != null) {
+			for (String attrib : this.attributeRegexes) {
 				messageLength += 4;
 				try {
 					messageLength += attrib.getBytes("UTF-16BE").length;
@@ -121,37 +138,62 @@ public class StreamRequestMessage extends AbstractRequestMessage {
 		return messageLength;
 	}
 
-	public String getQueryURI() {
-		return queryURI;
+	/**
+	 * Gets the identifier regular expression for this request.
+	 * @return the identifier regular expression.
+	 */
+	public String getIdRegex() {
+		return this.identifierRegex;
 	}
 
-	public void setQueryURI(String queryURI) {
-		this.queryURI = queryURI;
+	/**
+	 * Sets the identifier regular expression for this request.
+	 * @param idRegex the new identifier regular expression.
+	 */
+	public void setIdRegex(String idRegex) {
+		this.identifierRegex = idRegex;
 	}
 
-	public String[] getQueryAttributes() {
-		return queryAttributes;
+	/**
+	 * Gets the attribute regular expressions for this request.
+	 * @return the attribute regular expressions for this request.
+	 */
+	public String[] getAttributeRegexes() {
+		return this.attributeRegexes;
 	}
 
-	public void setQueryAttributes(String[] queryAttributes) {
-		this.queryAttributes = queryAttributes;
+	/**
+	 * Sets the attribute regular expressions for this request.
+	 * @param attributeRegexes the new attribute regular expressions.
+	 */
+	public void setAttributeRegexes(String[] attributeRegexes) {
+		this.attributeRegexes = attributeRegexes;
 	}
 
+	/**
+	 * Gets the begin timestamp for this request.
+	 * @return the earliest timestamp of attribute values to stream. 
+	 */
 	public long getBeginTimestamp() {
-		return beginTimestamp;
+		return this.beginTimestamp;
 	}
 
+	/**
+	 * Sets the begin timestamp for this request.
+	 * @param beginTimestamp the new beginning timestamp.
+	 */
 	public void setBeginTimestamp(long beginTimestamp) {
 		this.beginTimestamp = beginTimestamp;
 	}
 	
+	@Override
 	public String toString(){
 		StringBuffer sb = new StringBuffer("Stream Request (");
-		sb.append(this.queryURI).append(")");
+		sb.append(this.identifierRegex).append(")");
 		sb.append(" from ").append(new Date(this.beginTimestamp)).append(" every ").append(this.updateInterval).append(" ms:\n");
 		
-		if(this.queryAttributes != null){
-			for(String attrib : this.queryAttributes){
+		if(this.attributeRegexes != null){
+			for(String attrib : this.attributeRegexes){
 				sb.append(attrib).append('\n');
 			}
 		}
