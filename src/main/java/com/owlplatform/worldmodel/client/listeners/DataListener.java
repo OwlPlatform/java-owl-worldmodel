@@ -26,21 +26,60 @@ import com.owlplatform.worldmodel.client.protocol.messages.OriginAliasMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.OriginPreferenceMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.URISearchResponseMessage;
 
+/**
+ * Interface for classes that should respond to message-related events from a
+ * {@link ClientWorldModelInterface}.
+ * 
+ * @author Robert Moore
+ * 
+ */
 public interface DataListener {
-	
-	public void requestCompleted(ClientWorldModelInterface worldModel, AbstractRequestMessage message);
-	
-	public void dataResponseReceived(ClientWorldModelInterface worldModel, DataResponseMessage message);
-	
-	public void uriSearchResponseReceived(ClientWorldModelInterface worldModel, URISearchResponseMessage message);
 
-	public void attributeAliasesReceived(
-			ClientWorldModelInterface worldModel,
-			AttributeAliasMessage message);
+  /**
+   * Called when a range or streaming request is finished.
+   * @param source the source of the message.
+   * @param message the message.
+   */
+  public void requestCompleted(ClientWorldModelInterface source,
+      AbstractRequestMessage message);
 
-	public void originAliasesReceived(
-			ClientWorldModelInterface worldModel,
-			OriginAliasMessage message);
-	
-	public void originPreferenceSent(ClientWorldModelInterface worldModel, OriginPreferenceMessage message);
+  /**
+   * Called when data is received in response to a request.
+   * @param source the source of the message.
+   * @param message the message.
+   */
+  public void dataResponseReceived(ClientWorldModelInterface source,
+      DataResponseMessage message);
+
+  /**
+   * Called when a search response is received.
+   * @param source the source of the message.
+   * @param message the message.
+   */
+  public void uriSearchResponseReceived(ClientWorldModelInterface source,
+      URISearchResponseMessage message);
+
+  /**
+   * Called when attribute aliases are received from the world model.
+   * @param source the source of the message.
+   * @param message the message.
+   */
+  public void attributeAliasesReceived(ClientWorldModelInterface source,
+      AttributeAliasMessage message);
+
+  /**
+   * Called when origin aliases are recieved from the world model.
+   * @param source the source of the message.
+   * @param message the message.
+   */
+  public void originAliasesReceived(ClientWorldModelInterface source,
+      OriginAliasMessage message);
+
+  /**
+   * Called when an origin preference message has been sent to the world model.
+   * @param source the source of the message.
+   * @param message the message.
+   */
+  public void originPreferenceSent(ClientWorldModelInterface source,
+      OriginPreferenceMessage message);
 }

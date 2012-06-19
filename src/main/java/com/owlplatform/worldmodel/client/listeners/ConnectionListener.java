@@ -20,11 +20,38 @@ package com.owlplatform.worldmodel.client.listeners;
 
 import com.owlplatform.worldmodel.client.ClientWorldModelInterface;
 
+/**
+ * Interface for classes that respond to connection-related events from a
+ * {@link ClientWorldModelInterface}.
+ * 
+ * @author Robert Moore
+ * 
+ */
 public interface ConnectionListener {
 
-	public void connectionInterrupted(ClientWorldModelInterface worldModel);
-	
-	public void connectionEnded(ClientWorldModelInterface worldModel);
-	
-	public void connectionEstablished(ClientWorldModelInterface worldModel);
+  /**
+   * Called when the connection closes. A reconnect attempt made be made.
+   * 
+   * @param worldModel
+   *          the interface that closed the connection.
+   */
+  public void connectionInterrupted(ClientWorldModelInterface worldModel);
+
+  /**
+   * Called when the connection closes and no reconnect attempt will be made.
+   * 
+   * @param worldModel
+   *          the interface that closed the connection.
+   */
+  public void connectionEnded(ClientWorldModelInterface worldModel);
+
+  /**
+   * Called when the connection is established. This method only indicates that
+   * the underlying TCP/IP connection succeeded, but does not imply that
+   * handshakes have been exchanged.
+   * 
+   * @param worldModel
+   *          the interface that established the connection.
+   */
+  public void connectionEstablished(ClientWorldModelInterface worldModel);
 }
