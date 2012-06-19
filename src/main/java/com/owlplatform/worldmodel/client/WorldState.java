@@ -26,26 +26,53 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.owlplatform.worldmodel.Attribute;
 
-
+/**
+ * A simple object that binds a set of Identifiers to their Attributes.
+ * 
+ * @author Robert Moore
+ * 
+ */
 public class WorldState {
-	private Map<String, Collection<Attribute>> stateMap = new ConcurrentHashMap<String, Collection<Attribute>>();
-	
-	public void addState(final String uri, final Collection<Attribute> attributes){
-		this.stateMap.put(uri,attributes);
-	}
-	
-	public Collection<Attribute> getState(final String uri){
-		return this.stateMap.get(uri);
-	}
-	
-	/**
-	 * Returns a collection containing the same URI Strings as this WorldState object.  Modifications to the
-	 * returned Collection do not impact this WorldState.
-	 * @return a collection containing the same URI Strings as this WorldState.
-	 */
-	public Collection<String> getURIs(){
-		List<String> keys = new LinkedList<String>();
-		keys.addAll(this.stateMap.keySet());
-		return keys;
-	}
+
+  /**
+   * The map from Identifiers to their Attributes.
+   */
+  private Map<String, Collection<Attribute>> stateMap = new ConcurrentHashMap<String, Collection<Attribute>>();
+
+  /**
+   * Binds a set of Attribute values to an identifier.
+   * 
+   * @param id
+   *          the identifier
+   * @param attributes
+   *          the set of attributes.
+   */
+  public void addState(final String id, final Collection<Attribute> attributes) {
+    this.stateMap.put(id, attributes);
+  }
+
+  /**
+   * Retrieves the set of Attributes for a specific identifier.
+   * 
+   * @param id
+   *          the identifier
+   * @return the set of Attributes for the identifier, or {@code null} if there
+   *         aren't any.
+   */
+  public Collection<Attribute> getState(final String id) {
+    return this.stateMap.get(id);
+  }
+
+  /**
+   * Returns a collection containing the same URI Strings as this WorldState
+   * object. Modifications to the returned Collection do not impact this
+   * WorldState.
+   * 
+   * @return a collection containing the same URI Strings as this WorldState.
+   */
+  public Collection<String> getURIs() {
+    List<String> keys = new LinkedList<String>();
+    keys.addAll(this.stateMap.keySet());
+    return keys;
+  }
 }

@@ -24,24 +24,55 @@ import java.util.concurrent.LinkedBlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * A placeholder for the set of data that will be returned from the world model
+ * as a result of a streaming or range request.
+ * 
+ * @author Robert Moore
+ * 
+ */
 public class StepResponse {
 
+  /**
+   * Logger for this class.
+   */
   private static final Logger log = LoggerFactory.getLogger(StepResponse.class);
 
+  /**
+   * Set of WorldState object representing the data returned from the world model.
+   */
   private final BlockingQueue<WorldState> states = new LinkedBlockingQueue<WorldState>();
 
+  /**
+   * Special marker for the end of data.
+   */
   private static final WorldState RESPONSE_COMPLETE = new WorldState();
 
+  /**
+   * Flag to indicate that the request has completed.
+   */
   private volatile boolean complete = false;
 
-  private volatile int numResults = 0;
-
+  /**
+   * The exception thrown by the request.
+   */
   private Exception error = null;
 
+  /**
+   * The connection for this response.
+   */
   private final ClientWorldConnection conn;
 
+  /**
+   * The ticket number of the request.
+   */
   private long ticketNumber = 0;
 
+  /**
+   * Creates a step response with the connection and ticket number provided.
+   * @param conn for cancelling the request.
+   * @param ticketNumber the ticket number of the request.
+   */
   StepResponse(final ClientWorldConnection conn, final long ticketNumber) {
     this.conn = conn;
     this.ticketNumber = ticketNumber;
@@ -100,7 +131,6 @@ public class StepResponse {
       throw new IllegalStateException(
           "Cannot add a World State to a completed response.");
     }
-    ++this.numResults;
     this.states.add(state);
   }
 
@@ -114,7 +144,7 @@ public class StepResponse {
     try {
       // If we haven't gotten any results back, make sure to create an
       // empty one
-      if (this.numResults == 0) {
+      if (this.states.size() == 0) {
         this.states.put(new WorldState());
       }
       // Special WorldState to indicate that the request has completed and
@@ -201,7 +231,7 @@ public class StepResponse {
    */
   public void cancel() {
 
-      this.conn.cancelSnapshot(this.ticketNumber);
+    this.conn.cancelSnapshot(this.ticketNumber);
   }
 
   /**

@@ -38,172 +38,186 @@ import com.owlplatform.worldmodel.client.protocol.messages.StreamRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.IdSearchMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.IdSearchResponseMessage;
 
+/**
+ * IOHandler for Client-World Model protocol events. Demultiplexes the messages
+ * to pass to an IOAdapter.
+ * 
+ * @author Robert Moore
+ * 
+ */
 public class WorldModelIoHandler implements IoHandler {
 
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory
-			.getLogger(WorldModelIoHandler.class);
+  /**
+   * Logging facility for this class.
+   */
+  private static final Logger log = LoggerFactory
+      .getLogger(WorldModelIoHandler.class);
 
-	private ClientIoAdapter ioAdapter;
+  /**
+   * The recipient of the demultiplexed messages.
+   */
+  private ClientIoAdapter ioAdapter;
 
-	public WorldModelIoHandler(final ClientIoAdapter ioAdapter) {
-		this.ioAdapter = ioAdapter;
-	}
+  /**
+   * Creates a new IOHandler with the specified IOAdapter.
+   * 
+   * @param ioAdapter
+   *          the IOAdapter that should receive the messages and events.
+   */
+  public WorldModelIoHandler(final ClientIoAdapter ioAdapter) {
+    this.ioAdapter = ioAdapter;
+  }
 
-	public ClientIoAdapter getIoAdapter() {
-		return ioAdapter;
-	}
+  /**
+   * Returns this handler's IOAdapter.
+   * @return the IOAdapter.
+   */
+  public ClientIoAdapter getIoAdapter() {
+    return this.ioAdapter;
+  }
 
-	public void setIoAdapter(ClientIoAdapter ioAdapter) {
-		this.ioAdapter = ioAdapter;
-	}
+  /**
+   * Sets the IOAdapter for this handler.
+   * @param ioAdapter the new IOAdapter.
+   */
+  public void setIoAdapter(ClientIoAdapter ioAdapter) {
+    this.ioAdapter = ioAdapter;
+  }
 
-	@Override
-	public void exceptionCaught(IoSession session, Throwable cause)
-			throws Exception {
-		log.warn("Exception for {}: {}", session, cause);
-		if (this.ioAdapter != null) {
-			this.ioAdapter.exceptionCaught(session, cause);
-		}
-	}
+  @Override
+  public void exceptionCaught(IoSession session, Throwable cause)
+      throws Exception {
+    log.warn("Exception for {}: {}", session, cause);
+    if (this.ioAdapter != null) {
+      this.ioAdapter.exceptionCaught(session, cause);
+    }
+  }
 
-	@Override
-	public void messageReceived(IoSession session, Object message)
-			throws Exception {
-		log.debug("Received message from {}: {}", session, message);
-		if (this.ioAdapter == null) {
-			log.warn("No IoAdapter defined, ignoring message from {}.\n{}",
-					session, message);
-			return;
-		}
-		if (message instanceof DataResponseMessage) {
-			this.ioAdapter.dataResponseReceived(session,
-					(DataResponseMessage) message);
-		}
+  @Override
+  public void messageReceived(IoSession session, Object message)
+      throws Exception {
+    log.debug("Received message from {}: {}", session, message);
+    if (this.ioAdapter == null) {
+      log.warn("No IoAdapter defined, ignoring message from {}.\n{}", session,
+          message);
+      return;
+    }
+    if (message instanceof DataResponseMessage) {
+      this.ioAdapter.dataResponseReceived(session,
+          (DataResponseMessage) message);
+    }
 
-		else if (message instanceof KeepAliveMessage) {
-			this.ioAdapter.keepAliveReceived(session,
-					(KeepAliveMessage) message);
-		} else if (message instanceof SnapshotRequestMessage) {
-			this.ioAdapter.snapshotRequestReceived(session,
-					(SnapshotRequestMessage) message);
-		} else if (message instanceof RangeRequestMessage) {
-			this.ioAdapter.rangeRequestReceived(session,
-					(RangeRequestMessage) message);
-		} else if (message instanceof StreamRequestMessage) {
-			this.ioAdapter.streamRequestReceived(session,
-					(StreamRequestMessage) message);
-		} else if (message instanceof AttributeAliasMessage) {
-			this.ioAdapter.attributeAliasReceived(session,
-					(AttributeAliasMessage) message);
-		} else if (message instanceof OriginAliasMessage) {
-			this.ioAdapter.originAliasReceived(session,
-					(OriginAliasMessage) message);
-		} else if (message instanceof RequestCompleteMessage) {
-			this.ioAdapter.requestCompleteReceived(session,
-					(RequestCompleteMessage) message);
-		} else if (message instanceof CancelRequestMessage) {
-			this.ioAdapter.cancelRequestReceived(session,
-					(CancelRequestMessage) message);
-		} else if (message instanceof HandshakeMessage) {
-			this.ioAdapter.handshakeReceived(session,
-					(HandshakeMessage) message);
-		} else if (message instanceof IdSearchMessage) {
-			this.ioAdapter.URISearchReceived(session,
-					(IdSearchMessage) message);
-		} else if (message instanceof IdSearchResponseMessage) {
-			this.ioAdapter.URISearchResponseReceived(session,
-					(IdSearchResponseMessage) message);
-		} else if (message instanceof OriginPreferenceMessage) {
-			this.ioAdapter.originPreferenceReceived(session,
-					(OriginPreferenceMessage) message);
-		} else {
-			log.warn("Unknown message type received from {}: {}", session,
-					message);
-		}
-	}
+    else if (message instanceof KeepAliveMessage) {
+      this.ioAdapter.keepAliveReceived(session, (KeepAliveMessage) message);
+    } else if (message instanceof SnapshotRequestMessage) {
+      this.ioAdapter.snapshotRequestReceived(session,
+          (SnapshotRequestMessage) message);
+    } else if (message instanceof RangeRequestMessage) {
+      this.ioAdapter.rangeRequestReceived(session,
+          (RangeRequestMessage) message);
+    } else if (message instanceof StreamRequestMessage) {
+      this.ioAdapter.streamRequestReceived(session,
+          (StreamRequestMessage) message);
+    } else if (message instanceof AttributeAliasMessage) {
+      this.ioAdapter.attributeAliasReceived(session,
+          (AttributeAliasMessage) message);
+    } else if (message instanceof OriginAliasMessage) {
+      this.ioAdapter.originAliasReceived(session, (OriginAliasMessage) message);
+    } else if (message instanceof RequestCompleteMessage) {
+      this.ioAdapter.requestCompleteReceived(session,
+          (RequestCompleteMessage) message);
+    } else if (message instanceof CancelRequestMessage) {
+      this.ioAdapter.cancelRequestReceived(session,
+          (CancelRequestMessage) message);
+    } else if (message instanceof HandshakeMessage) {
+      this.ioAdapter.handshakeReceived(session, (HandshakeMessage) message);
+    } else if (message instanceof IdSearchMessage) {
+      this.ioAdapter.idSearchReceived(session, (IdSearchMessage) message);
+    } else if (message instanceof IdSearchResponseMessage) {
+      this.ioAdapter.URISearchResponseReceived(session,
+          (IdSearchResponseMessage) message);
+    } else if (message instanceof OriginPreferenceMessage) {
+      this.ioAdapter.originPreferenceReceived(session,
+          (OriginPreferenceMessage) message);
+    } else {
+      log.warn("Unknown message type received from {}: {}", session, message);
+    }
+  }
 
-	@Override
-	public void messageSent(IoSession session, Object message) throws Exception {
-		log.debug("Sent message to {}: {}", session, message);
-		if (this.ioAdapter == null) {
-			log.warn("No IoAdapter defined, ignoring message to {}.\n{}",
-					session, message);
-			return;
-		}
-		if (message instanceof DataResponseMessage) {
-			this.ioAdapter.dataResponseSent(session,
-					(DataResponseMessage) message);
-		} else if (message instanceof KeepAliveMessage) {
-			this.ioAdapter.keepAliveSent(session, (KeepAliveMessage) message);
-		} else if (message instanceof SnapshotRequestMessage) {
-			this.ioAdapter.snapshotRequestSent(session,
-					(SnapshotRequestMessage) message);
-		} else if (message instanceof RangeRequestMessage) {
-			this.ioAdapter.rangeRequestSent(session,
-					(RangeRequestMessage) message);
-		} else if (message instanceof StreamRequestMessage) {
-			this.ioAdapter.streamRequestSent(session,
-					(StreamRequestMessage) message);
-		} else if (message instanceof AttributeAliasMessage) {
-			this.ioAdapter.attributeAliasSent(session,
-					(AttributeAliasMessage) message);
-		} else if (message instanceof OriginAliasMessage) {
-			this.ioAdapter.originAliasSent(session,
-					(OriginAliasMessage) message);
-		} else if (message instanceof RequestCompleteMessage) {
-			this.ioAdapter.requestCompleteSent(session,
-					(RequestCompleteMessage) message);
-		} else if (message instanceof CancelRequestMessage) {
-			this.ioAdapter.cancelRequestSent(session,
-					(CancelRequestMessage) message);
-		} else if (message instanceof HandshakeMessage) {
-			this.ioAdapter.handshakeSent(session, (HandshakeMessage) message);
-		} else if (message instanceof IdSearchMessage) {
-			this.ioAdapter.URISearchSent(session, (IdSearchMessage) message);
-		} else if (message instanceof IdSearchResponseMessage) {
-			this.ioAdapter.URISearchResponseSent(session,
-					(IdSearchResponseMessage) message);
-		} else if (message instanceof OriginPreferenceMessage) {
-			this.ioAdapter.OriginPreferenceSent(session,
-					(OriginPreferenceMessage) message);
-		}
+  @Override
+  public void messageSent(IoSession session, Object message) throws Exception {
+    log.debug("Sent message to {}: {}", session, message);
+    if (this.ioAdapter == null) {
+      log.warn("No IoAdapter defined, ignoring message to {}.\n{}", session,
+          message);
+      return;
+    }
+    if (message instanceof DataResponseMessage) {
+      this.ioAdapter.dataResponseSent(session, (DataResponseMessage) message);
+    } else if (message instanceof KeepAliveMessage) {
+      this.ioAdapter.keepAliveSent(session, (KeepAliveMessage) message);
+    } else if (message instanceof SnapshotRequestMessage) {
+      this.ioAdapter.snapshotRequestSent(session,
+          (SnapshotRequestMessage) message);
+    } else if (message instanceof RangeRequestMessage) {
+      this.ioAdapter.rangeRequestSent(session, (RangeRequestMessage) message);
+    } else if (message instanceof StreamRequestMessage) {
+      this.ioAdapter.streamRequestSent(session, (StreamRequestMessage) message);
+    } else if (message instanceof AttributeAliasMessage) {
+      this.ioAdapter.attributeAliasSent(session,
+          (AttributeAliasMessage) message);
+    } else if (message instanceof OriginAliasMessage) {
+      this.ioAdapter.originAliasSent(session, (OriginAliasMessage) message);
+    } else if (message instanceof RequestCompleteMessage) {
+      this.ioAdapter.requestCompleteSent(session,
+          (RequestCompleteMessage) message);
+    } else if (message instanceof CancelRequestMessage) {
+      this.ioAdapter.cancelRequestSent(session, (CancelRequestMessage) message);
+    } else if (message instanceof HandshakeMessage) {
+      this.ioAdapter.handshakeSent(session, (HandshakeMessage) message);
+    } else if (message instanceof IdSearchMessage) {
+      this.ioAdapter.idSearchSent(session, (IdSearchMessage) message);
+    } else if (message instanceof IdSearchResponseMessage) {
+      this.ioAdapter.idSearchResponseSent(session,
+          (IdSearchResponseMessage) message);
+    } else if (message instanceof OriginPreferenceMessage) {
+      this.ioAdapter.OriginPreferenceSent(session,
+          (OriginPreferenceMessage) message);
+    }
 
-		else {
-			log.warn("Unknown message type Sent to {}: {}", session, message);
-		}
-	}
+    else {
+      log.warn("Unknown message type Sent to {}: {}", session, message);
+    }
+  }
 
-	@Override
-	public void sessionClosed(IoSession session) throws Exception {
-		log.debug("Session closed {}.", session);
-		if (this.ioAdapter != null) {
-			this.ioAdapter.connectionClosed(session);
-		}
-	}
+  @Override
+  public void sessionClosed(IoSession session) throws Exception {
+    log.debug("Session closed {}.", session);
+    if (this.ioAdapter != null) {
+      this.ioAdapter.connectionClosed(session);
+    }
+  }
 
-	@Override
-	public void sessionCreated(IoSession arg0) throws Exception {
-		// Ignored
-	}
+  @Override
+  public void sessionCreated(IoSession arg0) throws Exception {
+    // Ignored
+  }
 
-	@Override
-	public void sessionIdle(IoSession session, IdleStatus status)
-			throws Exception {
-		log.debug("Session idle{}.", session, status);
-		if (this.ioAdapter != null) {
-			this.ioAdapter.sessionIdle(session, status);
-		}
-	}
+  @Override
+  public void sessionIdle(IoSession session, IdleStatus status)
+      throws Exception {
+    log.debug("Session idle{}.", session, status);
+    if (this.ioAdapter != null) {
+      this.ioAdapter.sessionIdle(session, status);
+    }
+  }
 
-	@Override
-	public void sessionOpened(IoSession session) throws Exception {
-		log.debug("Session opened {}.", session);
-		if (this.ioAdapter != null) {
-			this.ioAdapter.connectionOpened(session);
-		}
-	}
+  @Override
+  public void sessionOpened(IoSession session) throws Exception {
+    log.debug("Session opened {}.", session);
+    if (this.ioAdapter != null) {
+      this.ioAdapter.connectionOpened(session);
+    }
+  }
 
 }

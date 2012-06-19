@@ -601,7 +601,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 	}
 
 	@Override
-	public void URISearchReceived(IoSession session, IdSearchMessage message) {
+	public void idSearchReceived(IoSession session, IdSearchMessage message) {
 		log.error("Client should not receive URI search messages from the World Model.");
 		this.disconnect();
 	}
@@ -694,12 +694,12 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 	}
 
 	@Override
-	public void URISearchSent(IoSession session, IdSearchMessage message) {
+	public void idSearchSent(IoSession session, IdSearchMessage message) {
 		log.debug("Sent URI Search message to {}: {}", this, message);
 	}
 
 	@Override
-	public void URISearchResponseSent(IoSession session,
+	public void idSearchResponseSent(IoSession session,
 			IdSearchResponseMessage message) {
 		log.error("Client should not send URI Search Responses to the World Model.");
 		this.disconnect();

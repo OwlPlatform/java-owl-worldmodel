@@ -17,18 +17,43 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 package com.owlplatform.worldmodel.client;
-
+/**
+ * A placeholder for the set of data that will be returned
+ * from the world model as a result of a snapshot request.
+ * @author Robert Moore
+ *
+ */
 public class Response {
+  /**
+   * The Identifiers and associated Attributes returned by the world model.
+   */
 	private WorldState state = null;
 
+	/**
+	 * Flag to indicate that calls to get() will succeed without blocking.
+	 */
 	private volatile boolean ready = false;
 
+	/**
+	 * An exception that was thrown by the request to the world model.
+	 */
 	private Exception error = null;
 
+	/**
+	 * The connection that the data will come from.
+	 */
 	private final ClientWorldConnection conn;
 
+	/**
+	 * The ticket number assigned to the request.
+	 */
 	private long ticketNumber = 0;
 
+	/**
+	 * Creates a new Response using the provided ticket number and connection.
+	 * @param conn for canceling the request.
+	 * @param ticketNumber the ticket number assigned to the request.
+	 */
 	Response(final ClientWorldConnection conn, final long ticketNumber) {
 		this.conn = conn;
 		this.ticketNumber = ticketNumber;
@@ -37,7 +62,7 @@ public class Response {
 	/**
 	 * Retrieves the WorldState for this Response object. This method will block
 	 * until the response is completed from the World Model. Callers may wish to
-	 * call {@link #ready()} if they don't want to block.
+	 * call {@link #ready()} first if they don't want to block.
 	 * 
 	 * @return the WorldState for this Response object.
 	 * @throws Exception
