@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.client.protocol.messages.StreamRequestMessage;
-import com.owlplatform.worldmodel.client.protocol.messages.URISearchMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchMessage;
 
 public class URISearchDecoder implements MessageDecoder {
 
@@ -48,7 +48,7 @@ public class URISearchDecoder implements MessageDecoder {
 
 			byte messageType = buffer.get();
 			buffer.reset();
-			if (messageType == URISearchMessage.MESSAGE_TYPE) {
+			if (messageType == IdSearchMessage.MESSAGE_TYPE) {
 				return MessageDecoderResult.OK;
 			}
 			return MessageDecoderResult.NOT_OK;
@@ -67,7 +67,7 @@ public class URISearchDecoder implements MessageDecoder {
 		buffer.get(uriBytes);
 		String uri = new String(uriBytes,"UTF-16BE");
 		
-		URISearchMessage message = new URISearchMessage();
+		IdSearchMessage message = new IdSearchMessage();
 		message.setIdRegex(uri);
 		
 		out.write(message);

@@ -24,7 +24,7 @@ import com.owlplatform.worldmodel.client.protocol.messages.AttributeAliasMessage
 import com.owlplatform.worldmodel.client.protocol.messages.DataResponseMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.OriginAliasMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.OriginPreferenceMessage;
-import com.owlplatform.worldmodel.client.protocol.messages.URISearchResponseMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchResponseMessage;
 
 /**
  * Interface for classes that should respond to message-related events from a
@@ -56,8 +56,8 @@ public interface DataListener {
    * @param source the source of the message.
    * @param message the message.
    */
-  public void uriSearchResponseReceived(ClientWorldModelInterface source,
-      URISearchResponseMessage message);
+  public void idSearchResponseReceived(ClientWorldModelInterface source,
+      IdSearchResponseMessage message);
 
   /**
    * Called when attribute aliases are received from the world model.

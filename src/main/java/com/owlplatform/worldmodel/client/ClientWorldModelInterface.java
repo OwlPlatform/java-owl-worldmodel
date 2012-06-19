@@ -54,8 +54,8 @@ import com.owlplatform.worldmodel.client.protocol.messages.RangeRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.RequestCompleteMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.SnapshotRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.StreamRequestMessage;
-import com.owlplatform.worldmodel.client.protocol.messages.URISearchMessage;
-import com.owlplatform.worldmodel.client.protocol.messages.URISearchResponseMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchResponseMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.AttributeAliasMessage.AttributeAlias;
 import com.owlplatform.worldmodel.client.protocol.messages.OriginAliasMessage.OriginAlias;
 
@@ -601,18 +601,18 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 	}
 
 	@Override
-	public void URISearchReceived(IoSession session, URISearchMessage message) {
+	public void URISearchReceived(IoSession session, IdSearchMessage message) {
 		log.error("Client should not receive URI search messages from the World Model.");
 		this.disconnect();
 	}
 
 	@Override
 	public void URISearchResponseReceived(IoSession session,
-			URISearchResponseMessage message) {
+			IdSearchResponseMessage message) {
 		this.receiveIdleTimes = 0;
 		log.debug("Received URI search response from {}: {}", this, message);
 		for (DataListener listener : this.dataListeners) {
-			listener.uriSearchResponseReceived(this, message);
+			listener.idSearchResponseReceived(this, message);
 		}
 
 	}
@@ -694,13 +694,13 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 	}
 
 	@Override
-	public void URISearchSent(IoSession session, URISearchMessage message) {
+	public void URISearchSent(IoSession session, IdSearchMessage message) {
 		log.debug("Sent URI Search message to {}: {}", this, message);
 	}
 
 	@Override
 	public void URISearchResponseSent(IoSession session,
-			URISearchResponseMessage message) {
+			IdSearchResponseMessage message) {
 		log.error("Client should not send URI Search Responses to the World Model.");
 		this.disconnect();
 	}
@@ -712,7 +712,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
 		synchronized (this.sentUriSearch) {
 			if (this.sentUriSearch.get()) {
-				URISearchMessage message = new URISearchMessage();
+				IdSearchMessage message = new IdSearchMessage();
 				message.setIdRegex(searchUri);
 				this.session.write(message);
 			}
@@ -725,7 +725,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 			this.sentUriSearch.notifyAll();
 		}
 		for (String uri : this.registeredSearchUris) {
-			URISearchMessage message = new URISearchMessage();
+			IdSearchMessage message = new IdSearchMessage();
 			message.setIdRegex(uri);
 			this.session.write(message);
 		}
@@ -745,7 +745,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 					// Ignored
 				}
 			}
-			URISearchMessage message = new URISearchMessage();
+			IdSearchMessage message = new IdSearchMessage();
 			message.setIdRegex(uriRegex);
 			this.session.write(message);
 			log.debug("Sent {}", message);

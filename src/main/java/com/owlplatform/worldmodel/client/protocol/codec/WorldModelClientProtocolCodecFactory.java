@@ -31,8 +31,8 @@ import com.owlplatform.worldmodel.client.protocol.messages.RangeRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.RequestCompleteMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.SnapshotRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.StreamRequestMessage;
-import com.owlplatform.worldmodel.client.protocol.messages.URISearchMessage;
-import com.owlplatform.worldmodel.client.protocol.messages.URISearchResponseMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchResponseMessage;
 
 public class WorldModelClientProtocolCodecFactory extends
         DemuxingProtocolCodecFactory
@@ -61,7 +61,7 @@ public class WorldModelClientProtocolCodecFactory extends
                     StreamRequestEncoder.class);
             super.addMessageEncoder(CancelRequestMessage.class,
                     CancelRequestEncoder.class);
-            super.addMessageEncoder(URISearchMessage.class,
+            super.addMessageEncoder(IdSearchMessage.class,
                     URISearchEncoder.class);
             super.addMessageEncoder(OriginPreferenceMessage.class,
                     OriginPreferenceEncoder.class);
@@ -79,7 +79,7 @@ public class WorldModelClientProtocolCodecFactory extends
             // Encoders for World Model
             super.addMessageEncoder(DataResponseMessage.class,
                     DataResponseEncoder.class);
-            super.addMessageEncoder(URISearchResponseMessage.class,
+            super.addMessageEncoder(IdSearchResponseMessage.class,
                     URISearchResponseEncoder.class);
             super.addMessageEncoder(RequestCompleteMessage.class,
                     RequestCompleteEncoder.class);

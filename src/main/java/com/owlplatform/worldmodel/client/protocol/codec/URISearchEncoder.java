@@ -25,9 +25,9 @@ import org.apache.mina.filter.codec.demux.MessageEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.client.protocol.messages.URISearchMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchMessage;
 
-public class URISearchEncoder implements MessageEncoder<URISearchMessage> {
+public class URISearchEncoder implements MessageEncoder<IdSearchMessage> {
 
 	/**
 	 * Logging facility for this class.
@@ -36,11 +36,11 @@ public class URISearchEncoder implements MessageEncoder<URISearchMessage> {
 			.getLogger(URISearchEncoder.class);
 
 	@Override
-	public void encode(IoSession session, URISearchMessage message,
+	public void encode(IoSession session, IdSearchMessage message,
 			ProtocolEncoderOutput out) throws Exception {
 		IoBuffer buffer = IoBuffer.allocate(message.getMessageLength() + 4);
 		buffer.putInt(message.getMessageLength());
-		buffer.put(URISearchMessage.MESSAGE_TYPE);
+		buffer.put(IdSearchMessage.MESSAGE_TYPE);
 		if (message.getIdRegex() != null) {
 			byte[] uriRegexByte = message.getIdRegex().getBytes("UTF-16BE");
 			buffer.put(uriRegexByte);

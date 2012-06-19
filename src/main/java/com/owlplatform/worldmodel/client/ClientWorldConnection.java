@@ -41,7 +41,7 @@ import com.owlplatform.worldmodel.client.protocol.messages.OriginPreferenceMessa
 import com.owlplatform.worldmodel.client.protocol.messages.RangeRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.SnapshotRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.StreamRequestMessage;
-import com.owlplatform.worldmodel.client.protocol.messages.URISearchResponseMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchResponseMessage;
 
 /**
  * A simple class for clients or solvers that need to request data from the
@@ -82,8 +82,8 @@ public class ClientWorldConnection {
     }
 
     @Override
-    public void uriSearchResponseReceived(ClientWorldModelInterface worldModel,
-        URISearchResponseMessage message) {
+    public void idSearchResponseReceived(ClientWorldModelInterface worldModel,
+        IdSearchResponseMessage message) {
       this.client.uriSearchResponseReceived(worldModel, message);
     }
 
@@ -429,7 +429,7 @@ public class ClientWorldConnection {
   }
 
   void uriSearchResponseReceived(ClientWorldModelInterface worldModel,
-      URISearchResponseMessage message) {
+      IdSearchResponseMessage message) {
     log.info("Got a URI search response: {}", message);
     String[] matching = message.getMatchingIds();
     if (matching == null) {

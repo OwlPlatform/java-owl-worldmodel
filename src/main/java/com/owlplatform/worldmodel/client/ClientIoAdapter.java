@@ -33,8 +33,8 @@ import com.owlplatform.worldmodel.client.protocol.messages.RangeRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.RequestCompleteMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.SnapshotRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.StreamRequestMessage;
-import com.owlplatform.worldmodel.client.protocol.messages.URISearchMessage;
-import com.owlplatform.worldmodel.client.protocol.messages.URISearchResponseMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchResponseMessage;
 
 public interface ClientIoAdapter {
 
@@ -66,9 +66,9 @@ public interface ClientIoAdapter {
 	
 	public void dataResponseReceived(IoSession session, DataResponseMessage message);
 	
-	public void URISearchReceived(IoSession session, URISearchMessage message);
+	public void URISearchReceived(IoSession session, IdSearchMessage message);
 	
-	public void URISearchResponseReceived(IoSession session, URISearchResponseMessage message);
+	public void URISearchResponseReceived(IoSession session, IdSearchResponseMessage message);
 	
 	public void originPreferenceReceived(IoSession session, OriginPreferenceMessage message);
 	
@@ -92,9 +92,9 @@ public interface ClientIoAdapter {
 	
 	public void dataResponseSent(IoSession session, DataResponseMessage message);
 	
-	public void URISearchSent(IoSession session, URISearchMessage message);
+	public void URISearchSent(IoSession session, IdSearchMessage message);
 	
-	public void URISearchResponseSent(IoSession session, URISearchResponseMessage message);
+	public void URISearchResponseSent(IoSession session, IdSearchResponseMessage message);
 
 	public void OriginPreferenceSent(IoSession session, OriginPreferenceMessage message);
 }

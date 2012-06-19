@@ -25,10 +25,10 @@ import org.apache.mina.filter.codec.demux.MessageEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.client.protocol.messages.URISearchResponseMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchResponseMessage;
 
 public class URISearchResponseEncoder implements
-		MessageEncoder<URISearchResponseMessage> {
+		MessageEncoder<IdSearchResponseMessage> {
 
 	/**
 	 * Logging facility for this class.
@@ -36,14 +36,14 @@ public class URISearchResponseEncoder implements
 	private static final Logger log = LoggerFactory.getLogger(URISearchResponseEncoder.class);
 	
 	@Override
-	public void encode(IoSession session, URISearchResponseMessage message,
+	public void encode(IoSession session, IdSearchResponseMessage message,
 			ProtocolEncoderOutput out) throws Exception {
 		int prefixLength = message.getMessageLength();
 		
 		IoBuffer buffer = IoBuffer.allocate(prefixLength+4);
 		
 		buffer.putInt(prefixLength);
-		buffer.put(URISearchResponseMessage.MESSAGE_TYPE);
+		buffer.put(IdSearchResponseMessage.MESSAGE_TYPE);
 		
 		if(message.getMatchingIds() != null){
 			for(String uri : message.getMatchingIds()){

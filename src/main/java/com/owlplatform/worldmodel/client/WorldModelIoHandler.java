@@ -35,8 +35,8 @@ import com.owlplatform.worldmodel.client.protocol.messages.RangeRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.RequestCompleteMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.SnapshotRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.StreamRequestMessage;
-import com.owlplatform.worldmodel.client.protocol.messages.URISearchMessage;
-import com.owlplatform.worldmodel.client.protocol.messages.URISearchResponseMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchResponseMessage;
 
 public class WorldModelIoHandler implements IoHandler {
 
@@ -110,12 +110,12 @@ public class WorldModelIoHandler implements IoHandler {
 		} else if (message instanceof HandshakeMessage) {
 			this.ioAdapter.handshakeReceived(session,
 					(HandshakeMessage) message);
-		} else if (message instanceof URISearchMessage) {
+		} else if (message instanceof IdSearchMessage) {
 			this.ioAdapter.URISearchReceived(session,
-					(URISearchMessage) message);
-		} else if (message instanceof URISearchResponseMessage) {
+					(IdSearchMessage) message);
+		} else if (message instanceof IdSearchResponseMessage) {
 			this.ioAdapter.URISearchResponseReceived(session,
-					(URISearchResponseMessage) message);
+					(IdSearchResponseMessage) message);
 		} else if (message instanceof OriginPreferenceMessage) {
 			this.ioAdapter.originPreferenceReceived(session,
 					(OriginPreferenceMessage) message);
@@ -161,11 +161,11 @@ public class WorldModelIoHandler implements IoHandler {
 					(CancelRequestMessage) message);
 		} else if (message instanceof HandshakeMessage) {
 			this.ioAdapter.handshakeSent(session, (HandshakeMessage) message);
-		} else if (message instanceof URISearchMessage) {
-			this.ioAdapter.URISearchSent(session, (URISearchMessage) message);
-		} else if (message instanceof URISearchResponseMessage) {
+		} else if (message instanceof IdSearchMessage) {
+			this.ioAdapter.URISearchSent(session, (IdSearchMessage) message);
+		} else if (message instanceof IdSearchResponseMessage) {
 			this.ioAdapter.URISearchResponseSent(session,
-					(URISearchResponseMessage) message);
+					(IdSearchResponseMessage) message);
 		} else if (message instanceof OriginPreferenceMessage) {
 			this.ioAdapter.OriginPreferenceSent(session,
 					(OriginPreferenceMessage) message);
