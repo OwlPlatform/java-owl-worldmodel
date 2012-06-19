@@ -206,11 +206,11 @@ public class ClientWorldConnection {
   public Response getSnapshot(final String uriRegex, final long start,
       final long end, String... attributes) {
     SnapshotRequestMessage req = new SnapshotRequestMessage();
-    req.setQueryURI(uriRegex);
+    req.setIdRegex(uriRegex);
     req.setBeginTimestamp(start);
     req.setEndTimestamp(end);
     if (attributes != null) {
-      req.setQueryAttributes(attributes);
+      req.setAttributeRegexes(attributes);
     }
     Response resp = new Response(this, 0);
     try {
@@ -244,11 +244,11 @@ public class ClientWorldConnection {
   public StepResponse getRangeRequest(final String uriRegex, final long start,
       final long end, String... attributes) {
     RangeRequestMessage req = new RangeRequestMessage();
-    req.setQueryURI(uriRegex);
+    req.setIdRegex(uriRegex);
     req.setBeginTimestamp(start);
     req.setEndTimestamp(end);
     if (attributes != null) {
-      req.setQueryAttributes(attributes);
+      req.setAttributeRegexes(attributes);
     }
     StepResponse resp = new StepResponse(this, 0);
     try {

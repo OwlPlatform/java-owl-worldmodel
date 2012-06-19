@@ -31,22 +31,6 @@ import org.slf4j.LoggerFactory;
  * The World Model server will then stream all requested data to the requesting client
  * as it arrives from solvers.
  * 
- * <p>
- * From the Wiki:<br />
- * This requests that the world model streams a given set of data as it arrives
- * at the world model. As soon as the world model receives this message it will
- * respond with a Request Ticket message. The world model server will then
- * return data messages 1 URI at a time. No Request Complete message will ever
- * be sent because this query never finishes. This request enforces a logical
- * AND between all request attributes - URIs and their attributes are only
- * returned if all requested attributes match non-expired attributes of that
- * URI. Logical OR is supported by the POSIX regex in the requested attributes
- * using the grouping (parenthesis) and OR (|) operator.
- * </p>
- * 
- * <a href=
- * "http://sourceforge.net/apps/mediawiki/grailrtls/index.php?title=Client-World_Model_protocol"
- * >Documentation is available</a> on the project Wiki.
  * 
  * @author Robert Moore
  * 

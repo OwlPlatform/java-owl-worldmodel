@@ -70,7 +70,7 @@ public class SnapshotRequestDecoder implements MessageDecoder {
 		messageLength -= queryLength;
 		String query = new String(queryBytes, "UTF-16BE");
 		
-		message.setQueryURI(query);
+		message.setIdRegex(query);
 
 		int numAttributes = buffer.getInt();
 		messageLength -= 4;
@@ -89,7 +89,7 @@ public class SnapshotRequestDecoder implements MessageDecoder {
 				attributes[i] = attribute;
 			}
 			
-			message.setQueryAttributes(attributes);
+			message.setAttributeRegexes(attributes);
 		}
 
 		long beginTime = buffer.getLong();

@@ -18,9 +18,6 @@
  */
 package com.owlplatform.worldmodel.client.protocol.messages;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  * This message is sent to a client to indicate that a non-streaming request has
  * been completed or a streaming request has been canceled with the Cancel
@@ -30,11 +27,6 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class RequestCompleteMessage {
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory
-			.getLogger(RequestCompleteMessage.class);
 
 	/**
 	 * Message type value for Request Complete messages.
@@ -46,18 +38,34 @@ public class RequestCompleteMessage {
 	 */
 	private long ticketNumber;
 	
+	/**
+	 * Gets the length of this message when encoded according to the Client-World Model protocol.
+	 * @return the length, in bytes, of the encoded form of this message.
+	 */
 	public int getMessageLength(){
 		return 1 + 4;
 	}
 
+	/**
+	 * Returns the ticket number of the completed request.
+	 * @return the ticket number of the completed request.
+	 */
 	public long getTicketNumber() {
-		return ticketNumber;
+		return this.ticketNumber;
 	}
 
+	/**
+	 * Sets the ticket number of the completed request.
+	 * @param ticketNumber the ticket number of the completed request.
+	 */
 	public void setTicketNumber(int ticketNumber) {
 		this.ticketNumber = ticketNumber & 0xFFFFFFFF;
 	}
 	
+	/**
+   * Sets the ticket number of the completed request.
+   * @param ticketNumber the ticket number of the completed request.
+   */
 	public void setTicketNumber(long ticketNumber){
 		this.ticketNumber = ticketNumber;
 	}

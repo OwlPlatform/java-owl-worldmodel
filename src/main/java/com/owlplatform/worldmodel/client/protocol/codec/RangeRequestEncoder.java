@@ -44,11 +44,11 @@ public class RangeRequestEncoder implements
 		buffer.put(message.getMessageType());
 		buffer.putInt((int)message.getTicketNumber());
 		
-		byte[] uriQueryByte = message.getQueryURI().getBytes("UTF-16BE");
+		byte[] uriQueryByte = message.getIdRegex().getBytes("UTF-16BE");
 		buffer.putInt(uriQueryByte.length);
 		buffer.put(uriQueryByte);
 		
-		String[] attributes = message.getQueryAttributes();
+		String[] attributes = message.getAttributeRegexes();
 		
 		if(attributes == null){
 			buffer.putInt(0);

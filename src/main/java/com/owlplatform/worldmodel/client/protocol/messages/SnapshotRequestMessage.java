@@ -27,139 +27,181 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The Snapshot Request message is sent by a client to the World Model in order
- * to request the state of the server at a specific point in time.
- * 
- * <p>
- * From the Wiki:<br />
- * This request queries the state of the world model at some moment in time.
- * This means that any URIs that existed at that time and their most recent
- * attributes before that time are returned in the snapshot. As soon as the
- * world model receives this message it will respond with a Request Ticket
- * message. The world model server will then return 1 URI at a time and will
- * finish by sending a Request Complete message. This request enforces a logical
- * AND between all request attributes - URIs and their attributes are only
- * returned if all requested attributes match non-expired attributes of that URI
- * at the given end time. Logical OR is supported by the POSIX regex in the
- * requested attributes using the grouping (parenthesis) and OR (|) operator.
- * </p>
- * 
- * <a href="http://sourceforge.net/apps/mediawiki/grailrtls/index.php?title=Client-World_Model_protocol">Documentation is available</a> on the project Wiki.
+ * to request the current values of a set of Identifiers at a specific point in
+ * time.
  * 
  * @author Robert Moore
  * 
  */
 public class SnapshotRequestMessage extends AbstractRequestMessage {
 
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(SnapshotRequestMessage.class);
-	
-	/**
-	 * Message type value for Snapshot Request messages.
-	 */
-	public static final byte MESSAGE_TYPE = 1;
-	
-	private String queryURI;
-	
-	private String[] queryAttributes;
-	
-	private long beginTimestamp;
-	
-	private long endTimestamp;
-	
-	/**
-	 * Returns the message type for the Snapshot Request message.
-	 * @return the message type value for the Snapshot Request message.
-	 */
-	public byte getMessageType(){
-		return MESSAGE_TYPE;
-	}
-	
-	/**
-	 * Returns the length of the message, in bytes, excluding the message length prefix value.
-	 * @return the length of the message, in bytes, excluding the message length prefix value.
-	 */
-	public int getMessageLength(){
-		// Message type, ticket #
-		int messageLength = 1 + 4;
-		
-		// URI length prefix
-		messageLength += 4;
-		
-		if(this.queryURI != null){
-			try {
-				messageLength += this.queryURI.getBytes("UTF-16BE").length;
-			} catch (UnsupportedEncodingException e) {
-				log.error("Unable to encode String into UTF-16.");
-				e.printStackTrace();
-			}
-		}
-		
-		// Number of query attributes length prefix
-		messageLength += 4;
-		
-		// Add length prefix and String length for each attribute
-		if(this.queryAttributes != null){
-			for(String attrib : this.queryAttributes){
-				messageLength += 4;
-				try {
-					messageLength += attrib.getBytes("UTF-16BE").length;
-				} catch (UnsupportedEncodingException e) {
-					log.error("Unable to encode String into uTF-16");
-					e.printStackTrace();
-				}
-			}
-		}
-		
-		// Begin and end timestamps
-		messageLength += 16;
-		
-		return messageLength;
-	}
+  /**
+   * Logging facility for this class.
+   */
+  private static final Logger log = LoggerFactory
+      .getLogger(SnapshotRequestMessage.class);
 
-	public String getQueryURI() {
-		return queryURI;
-	}
+  /**
+   * Message type value for Snapshot Request messages.
+   */
+  public static final byte MESSAGE_TYPE = 1;
 
-	public void setQueryURI(String queryURI) {
-		this.queryURI = queryURI;
-	}
+  /**
+   * Regular expression to match identifiers in the world model.
+   */
+  private String identifierRegex;
 
-	public String[] getQueryAttributes() {
-		return queryAttributes;
-	}
+  /**
+   * Regular expressions to match attributes in the world model.
+   */
+  private String[] attributeRegexes;
 
-	public void setQueryAttributes(String[] queryAttributes) {
-		this.queryAttributes = queryAttributes;
-	}
+  /**
+   * The earliest point in time to include data.
+   */
+  private long beginTimestamp;
 
-	public long getBeginTimestamp() {
-		return beginTimestamp;
-	}
+  /**
+   * The lastest point in time to include data.
+   */
+  private long endTimestamp;
 
-	public void setBeginTimestamp(long beginTimestamp) {
-		this.beginTimestamp = beginTimestamp;
-	}
+  /**
+   * Returns the message type for the Snapshot Request message.
+   * 
+   * @return the message type value for the Snapshot Request message.
+   */
+  public byte getMessageType() {
+    return MESSAGE_TYPE;
+  }
 
-	public long getEndTimestamp() {
-		return endTimestamp;
-	}
+  /**
+   * Returns the length of the message, in bytes, excluding the message length
+   * prefix value.
+   * 
+   * @return the length of the message, in bytes, excluding the message length
+   *         prefix value.
+   */
+  public int getMessageLength() {
+    // Message type, ticket #
+    int messageLength = 1 + 4;
 
-	public void setEndTimestamp(long endTimestamp) {
-		this.endTimestamp = endTimestamp;
-	}
-	
-	public String toString(){
-		StringBuffer sb = new StringBuffer("Snapshot Request (");
-		sb.append(this.queryURI).append(")");
-		sb.append(" from ").append(new Date(this.beginTimestamp)).append(" to ").append(new Date(this.endTimestamp)).append(":\n");
-		
-		if(this.queryAttributes != null){
-			for(String attrib : this.queryAttributes){
-				sb.append(attrib).append('\n');
-			}
-		}
-		return sb.toString();
-	}
+    // URI length prefix
+    messageLength += 4;
+
+    if (this.identifierRegex != null) {
+      try {
+        messageLength += this.identifierRegex.getBytes("UTF-16BE").length;
+      } catch (UnsupportedEncodingException e) {
+        log.error("Unable to encode String into UTF-16.");
+        e.printStackTrace();
+      }
+    }
+
+    // Number of query attributes length prefix
+    messageLength += 4;
+
+    // Add length prefix and String length for each attribute
+    if (this.attributeRegexes != null) {
+      for (String attrib : this.attributeRegexes) {
+        messageLength += 4;
+        try {
+          messageLength += attrib.getBytes("UTF-16BE").length;
+        } catch (UnsupportedEncodingException e) {
+          log.error("Unable to encode String into uTF-16");
+          e.printStackTrace();
+        }
+      }
+    }
+
+    // Begin and end timestamps
+    messageLength += 16;
+
+    return messageLength;
+  }
+
+  /**
+   * Gets the identifier regular expression for this request.
+   * 
+   * @return the identifier regular expression value.
+   */
+  public String getIdRegex() {
+    return this.identifierRegex;
+  }
+
+  /**
+   * Sets the identifier regular expression for this request.
+   * 
+   * @param idRegex
+   *          the identifier regular expression.
+   */
+  public void setIdRegex(String idRegex) {
+    this.identifierRegex = idRegex;
+  }
+
+  /**
+   * Gets the attribute regular expressions for this request.
+   * 
+   * @return the attribute regular expressions for this request.
+   */
+  public String[] getAttributeRegexes() {
+    return this.attributeRegexes;
+  }
+
+  /**
+   * Sets the attribute regular expressions for this request.
+   * 
+   * @param attributeRegexes
+   *          the attribute regular expressions for this request.
+   */
+  public void setAttributeRegexes(String[] attributeRegexes) {
+    this.attributeRegexes = attributeRegexes;
+  }
+
+  /**
+   * Gets the beginning timestamp for this request.
+   * @return the beginning timestamp.
+   */
+  public long getBeginTimestamp() {
+    return this.beginTimestamp;
+  }
+
+  /**
+   * Sets the beginning timestamp for this request.
+   * @param beginTimestamp the new beginning timestamp.
+   */
+  public void setBeginTimestamp(long beginTimestamp) {
+    this.beginTimestamp = beginTimestamp;
+  }
+
+  /**
+   * Gets the ending timestamp for this request.
+   * @return the ending timestamp.
+   */
+  public long getEndTimestamp() {
+    return this.endTimestamp;
+  }
+
+  /**
+   * Sets the ending timestamp for this request.
+   * @param endTimestamp the new ending timestamp.
+   */
+  public void setEndTimestamp(long endTimestamp) {
+    this.endTimestamp = endTimestamp;
+  }
+
+  @Override
+  public String toString() {
+    StringBuffer sb = new StringBuffer("Snapshot Request (");
+    sb.append(this.identifierRegex).append(")");
+    sb.append(" from ").append(new Date(this.beginTimestamp)).append(" to ")
+        .append(new Date(this.endTimestamp)).append(":\n");
+
+    if (this.attributeRegexes != null) {
+      for (String attrib : this.attributeRegexes) {
+        sb.append(attrib).append('\n');
+      }
+    }
+    return sb.toString();
+  }
 }

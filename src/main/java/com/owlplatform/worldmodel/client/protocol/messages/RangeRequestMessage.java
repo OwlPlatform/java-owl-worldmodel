@@ -30,8 +30,6 @@ import org.slf4j.LoggerFactory;
  * to request all URIs created or modified in the World Model server during the specified
  * time range.
  * 
- * <a href="http://sourceforge.net/apps/mediawiki/grailrtls/index.php?title=Client-World_Model_protocol">Documentation is available</a> on the project Wiki.
- * 
  * @author Robert Moore
  * 
  */
@@ -47,12 +45,24 @@ public class RangeRequestMessage extends AbstractRequestMessage {
 	 */
 	public static final byte MESSAGE_TYPE = 2;
 	
-	private String queryURI;
+	/**
+	 * The regular expression used to match Identifiers in the World Model.
+	 */
+	private String identifierRegex;
 	
-	private String[] queryAttributes = null;
+	/**
+	 * Set of regular expressions to match Attributes in the World Model.
+	 */
+	private String[] attributeRegexes = null;
 	
+	/**
+	 * The start of the requested range (inclusive).
+	 */
 	private long beginTimestamp;
 	
+	/**
+	 * The end of the requested range (inclusive).
+	 */
 	private long endTimestamp;
 	
 	/**
@@ -74,9 +84,9 @@ public class RangeRequestMessage extends AbstractRequestMessage {
 		// URI length prefix
 		messageLength += 4;
 		
-		if(this.queryURI != null){
+		if(this.identifierRegex != null){
 			try {
-				messageLength += this.queryURI.getBytes("UTF-16BE").length;
+				messageLength += this.identifierRegex.getBytes("UTF-16BE").length;
 			} catch (UnsupportedEncodingException e) {
 				log.error("Unable to encode String into UTF-16.");
 				e.printStackTrace();
@@ -87,8 +97,8 @@ public class RangeRequestMessage extends AbstractRequestMessage {
 		messageLength += 4;
 		
 		// Add length prefix and String length for each attribute
-		if(this.queryAttributes != null){
-			for(String attrib : this.queryAttributes){
+		if(this.attributeRegexes != null){
+			for(String attrib : this.attributeRegexes){
 				messageLength += 4;
 				try {
 					messageLength += attrib.getBytes("UTF-16BE").length;
@@ -105,46 +115,79 @@ public class RangeRequestMessage extends AbstractRequestMessage {
 		return messageLength;
 	}
 
-	public String getQueryURI() {
-		return queryURI;
+	/**
+	 * Returns the identifier regular expression for this request.
+	 * @return the identifier regular expression for this requset.
+	 */
+	public String getIdRegex() {
+		return this.identifierRegex;
 	}
 
-	public void setQueryURI(String queryURI) {
-		this.queryURI = queryURI;
+	/**
+	 * Sets the new identifier regular expression for this request.
+	 * @param idRegex the new regular expression.
+	 */
+	public void setIdRegex(String idRegex) {
+		this.identifierRegex = idRegex;
 	}
 
-	public String[] getQueryAttributes() {
-		return queryAttributes;
+	/**
+	 * Gets the attribute regular expressions for this request.
+	 * @return the attribute regular expressions for this request.
+	 */
+	public String[] getAttributeRegexes() {
+		return this.attributeRegexes;
 	}
 
-	public void setQueryAttributes(String[] queryAttributes) {
-		this.queryAttributes = queryAttributes;
+	/**
+	 * Sets the new attribute regular expression values for this request.
+	 * @param attributeRegexes the new values.
+	 */
+	public void setAttributeRegexes(String[] attributeRegexes) {
+		this.attributeRegexes = attributeRegexes;
 	}
 
+	/**
+	 * Gets the beginning timestamp for this range.
+	 * @return the beginning timestamp.
+	 */
 	public long getBeginTimestamp() {
-		return beginTimestamp;
+		return this.beginTimestamp;
 	}
 
+	/**
+	 * Sets the beginning timestamp for this range.
+	 * @param beginTimestamp the beginning timestamp for this range.
+	 */
 	public void setBeginTimestamp(long beginTimestamp) {
 		this.beginTimestamp = beginTimestamp;
 	}
 
+	/**
+	 * Gets the ending timestamp for this range.
+	 * @return the ending timestamp for this range.
+	 */
 	public long getEndTimestamp() {
-		return endTimestamp;
+		return this.endTimestamp;
 	}
 
+	/**
+	 * Sets the ending timestam for this range.
+	 * @param endTimestamp the new ending timestamp for this range.
+	 */
 	public void setEndTimestamp(long endTimestamp) {
 		this.endTimestamp = endTimestamp;
 	}
 	
+	@Override
 	public String toString(){
 		StringBuffer sb = new StringBuffer("Range (");
 		sb.append(new Date(this.beginTimestamp)).append("--");
 		sb.append(new Date(this.endTimestamp)).append(")\n");
-		sb.append("URL: ").append(this.queryURI).append("\n");
+		sb.append("URL: ").append(this.identifierRegex).append("\n");
 		sb.append("Attributes:\n");
-		if(this.queryAttributes != null){
-			for(String attrib : this.queryAttributes){
+		if(this.attributeRegexes != null){
+			for(String attrib : this.attributeRegexes){
 				sb.append("\t").append(attrib).append("\n");
 			}
 		}
