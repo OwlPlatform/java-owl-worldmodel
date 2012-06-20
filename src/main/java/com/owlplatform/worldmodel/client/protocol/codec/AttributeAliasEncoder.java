@@ -23,19 +23,17 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.client.protocol.messages.AttributeAliasMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.AttributeAliasMessage.AttributeAlias;
 
+/**
+ * Encoder for Attribute Alias messages.
+ * @author Robert Moore
+ *
+ */
 public class AttributeAliasEncoder implements MessageEncoder<AttributeAliasMessage>{
 	
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(AttributeAliasEncoder.class);
-
 	@Override
 	public void encode(IoSession session, AttributeAliasMessage message,
 			ProtocolEncoderOutput out) throws Exception {
@@ -56,8 +54,6 @@ public class AttributeAliasEncoder implements MessageEncoder<AttributeAliasMessa
 			buffer.putInt(0);
 		}
 		
-		
-		log.debug("Message length: {}.", buffer.capacity());
 
 		buffer.flip();
 		out.write(buffer);

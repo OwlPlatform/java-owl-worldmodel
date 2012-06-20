@@ -28,11 +28,20 @@ import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.client.protocol.messages.HandshakeMessage;
 
+/**
+ * Encoder for Handshake messages.
+ * @author Robert Moore
+ *
+ */
 public class HandshakeEncoder implements MessageEncoder<HandshakeMessage> {
 
+  /**
+   * Logger for this class.
+   */
 	private static final Logger log = LoggerFactory
 			.getLogger(HandshakeEncoder.class);
 
+	@Override
 	public void encode(IoSession session, HandshakeMessage message,
 			ProtocolEncoderOutput out) throws Exception {
 		

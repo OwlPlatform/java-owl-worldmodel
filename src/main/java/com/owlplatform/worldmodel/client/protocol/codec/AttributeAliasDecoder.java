@@ -23,19 +23,15 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.client.protocol.messages.AttributeAliasMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.AttributeAliasMessage.AttributeAlias;
-
+/**
+ * Decoder for Attribute Alias messages.
+ * @author Robert Moore
+ *
+ */
 public class AttributeAliasDecoder implements MessageDecoder {
-
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory
-			.getLogger(AttributeAliasDecoder.class);
 
 	@Override
 	public MessageDecoderResult decodable(IoSession session, IoBuffer buffer) {
@@ -63,24 +59,16 @@ public class AttributeAliasDecoder implements MessageDecoder {
 
 		AttributeAliasMessage message = new AttributeAliasMessage();
 
-		int messageLength = buffer.getInt();
+		buffer.getInt();
 
-		log.debug("Received message length: {}", messageLength);
-
-		byte messageType = buffer.get();
-		--messageLength;
-
+		buffer.get();
 		int numAliases = buffer.getInt();
-		messageLength -= 4;
-
 		if (numAliases > 0) {
 			AttributeAlias[] aliases = new AttributeAlias[numAliases];
 
 			for (int i = 0; i < aliases.length; ++i) {
 				int aliasNumber = buffer.getInt();
 				int nameLength = buffer.getInt();
-				messageLength -= 8;
-
 				byte[] nameBytes = new byte[nameLength];
 				buffer.get(nameBytes);
 				String name = new String(nameBytes, "UTF-16BE");

@@ -31,6 +31,11 @@ import org.slf4j.LoggerFactory;
 import com.owlplatform.worldmodel.Attribute;
 import com.owlplatform.worldmodel.client.protocol.messages.DataResponseMessage;
 
+/**
+ * Decoder for Data Response messages.
+ * @author Robert Moore
+ *
+ */
 public class DataResponseDecoder implements MessageDecoder {
 	
 	/**
@@ -66,7 +71,7 @@ public class DataResponseDecoder implements MessageDecoder {
 		
 		int messageLength = buffer.getInt();
 		
-		byte messageType = buffer.get();
+		buffer.get();
 		--messageLength;
 		
 		int uriLength = buffer.getInt();
@@ -88,7 +93,7 @@ public class DataResponseDecoder implements MessageDecoder {
 		
 		message.setTicketNumber(ticketNumber);
 		
-		int numAttributes = buffer.getInt();
+		buffer.getInt();
 		messageLength -= 4;
 		
 		// Decode any attributes

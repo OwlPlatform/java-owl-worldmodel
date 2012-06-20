@@ -28,6 +28,11 @@ import org.slf4j.LoggerFactory;
 import com.owlplatform.worldmodel.Attribute;
 import com.owlplatform.worldmodel.client.protocol.messages.DataResponseMessage;
 
+/**
+ * Encoder for Data Response messages.
+ * @author Robert Moore
+ *
+ */
 public class DataResponseEncoder implements MessageEncoder<DataResponseMessage> {
 
 	/**

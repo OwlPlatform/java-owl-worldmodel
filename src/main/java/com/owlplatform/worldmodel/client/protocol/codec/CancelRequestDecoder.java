@@ -23,18 +23,15 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.client.protocol.messages.AttributeAliasMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.CancelRequestMessage;
 
+/**
+ * Decoder for Cancel Request messages.
+ * @author Robert Moore
+ *
+ */
 public class CancelRequestDecoder implements MessageDecoder {
-	
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(CancelRequestDecoder.class);
 
 	@Override
 	public MessageDecoderResult decodable(IoSession session, IoBuffer buffer) {
@@ -60,10 +57,10 @@ public class CancelRequestDecoder implements MessageDecoder {
 	public MessageDecoderResult decode(IoSession session, IoBuffer buffer,
 			ProtocolDecoderOutput out) throws Exception {
 		CancelRequestMessage message = new CancelRequestMessage();
-		int messageLength = buffer.getInt();
-		log.debug("Decoding message length: {}", messageLength);
+		buffer.getInt();
 		
-		byte messageType = buffer.get();
+		
+		buffer.get();
 		
 		int ticketNumber = buffer.getInt();
 		
