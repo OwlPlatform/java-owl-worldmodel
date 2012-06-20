@@ -84,7 +84,7 @@ public class DataResponseMessage {
 		// Each attribute
 		if (this.attributes != null) {
 			for (Attribute attr : this.attributes) {
-				length += attr.getLength();
+				length += attr.getClientLength();
 			}
 		}
 

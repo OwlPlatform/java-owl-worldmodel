@@ -27,9 +27,9 @@ import org.apache.mina.filter.codec.demux.MessageEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.DeleteURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.DeleteIdentifierMessage;
 
-public class DeleteURIEncoder implements MessageEncoder<DeleteURIMessage> {
+public class DeleteURIEncoder implements MessageEncoder<DeleteIdentifierMessage> {
 
 	/**
 	 * Logging facility for this class.
@@ -37,17 +37,17 @@ public class DeleteURIEncoder implements MessageEncoder<DeleteURIMessage> {
 	private static final Logger log = LoggerFactory.getLogger(DeleteURIEncoder.class);
 	
 	@Override
-	public void encode(IoSession session, DeleteURIMessage message,
+	public void encode(IoSession session, DeleteIdentifierMessage message,
 			ProtocolEncoderOutput out) throws Exception {
 		IoBuffer buffer = IoBuffer.allocate(message.getMessageLength()+4);
 		
 		// Message length
 		buffer.putInt(message.getMessageLength());
 		// Message type
-		buffer.put(DeleteURIMessage.MESSAGE_TYPE);
+		buffer.put(DeleteIdentifierMessage.MESSAGE_TYPE);
 		
 		// URI to delete
-		byte[] uriBytes = message.getUri().getBytes("UTF-16BE");
+		byte[] uriBytes = message.getId().getBytes("UTF-16BE");
 		buffer.putInt(uriBytes.length);
 		buffer.put(uriBytes);
 		

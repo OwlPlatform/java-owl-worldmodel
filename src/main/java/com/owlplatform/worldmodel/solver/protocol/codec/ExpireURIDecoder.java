@@ -25,7 +25,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.ExpireURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.ExpireIdentifierMessage;
 
 
 public class ExpireURIDecoder implements MessageDecoder {
@@ -42,7 +42,7 @@ public class ExpireURIDecoder implements MessageDecoder {
 
 			byte messageType = buffer.get();
 			buffer.reset();
-			if (messageType == ExpireURIMessage.MESSAGE_TYPE) {
+			if (messageType == ExpireIdentifierMessage.MESSAGE_TYPE) {
 				return MessageDecoderResult.OK;
 			}
 			return MessageDecoderResult.NOT_OK;
@@ -53,7 +53,7 @@ public class ExpireURIDecoder implements MessageDecoder {
 	@Override
 	public MessageDecoderResult decode(IoSession session, IoBuffer buffer,
 			ProtocolDecoderOutput out) throws Exception {
-		ExpireURIMessage message = new ExpireURIMessage();
+		ExpireIdentifierMessage message = new ExpireIdentifierMessage();
 		
 		int messageLength = buffer.getInt();
 		

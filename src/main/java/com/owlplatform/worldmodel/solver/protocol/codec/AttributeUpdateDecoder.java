@@ -27,12 +27,12 @@ import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.DataTransferMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.DataTransferMessage.Solution;
+import com.owlplatform.worldmodel.Attribute;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeUpdateMessage;
 
-public class DataTransferDecoder implements MessageDecoder {
+public class AttributeUpdateDecoder implements MessageDecoder {
 
-	private static final Logger log = LoggerFactory.getLogger(DataTransferDecoder.class);
+	private static final Logger log = LoggerFactory.getLogger(AttributeUpdateDecoder.class);
 	
 	@Override
 	public MessageDecoderResult decodable(IoSession session, IoBuffer buffer) {
@@ -46,7 +46,7 @@ public class DataTransferDecoder implements MessageDecoder {
 
 			byte messageType = buffer.get();
 			buffer.reset();
-			if (messageType == DataTransferMessage.MESSAGE_TYPE) {
+			if (messageType == AttributeUpdateMessage.MESSAGE_TYPE) {
 				return MessageDecoderResult.OK;
 			}
 			return MessageDecoderResult.NOT_OK;
@@ -57,7 +57,7 @@ public class DataTransferDecoder implements MessageDecoder {
 	@Override
 	public MessageDecoderResult decode(IoSession session, IoBuffer buffer,
 			ProtocolDecoderOutput out) throws Exception {
-		DataTransferMessage message = new DataTransferMessage();
+		AttributeUpdateMessage message = new AttributeUpdateMessage();
 		
 		int messageLength = buffer.getInt();
 		
@@ -66,37 +66,37 @@ public class DataTransferDecoder implements MessageDecoder {
 		
 		byte createUris = buffer.get();
 		--messageLength;
-		message.setCreateUri(createUris == (byte)0? false : true);
+		message.setCreateId(createUris == (byte)0? false : true);
 		
 		int numSolutions = buffer.getInt();
 		messageLength -= 4;
 		
-		Solution[] solutions = new Solution[numSolutions];
+		Attribute[] attributes = new Attribute[numSolutions];
 		for(int i = 0; i < numSolutions; ++i){
-			Solution solution = new Solution();
+			Attribute attr = new Attribute();
 			int attributeAlias = buffer.getInt();
 			messageLength -= 4;
-			solution.setAttributeNameAlias(attributeAlias);
+			attr.setAttributeNameAlias(attributeAlias);
 			
 			long time = buffer.getLong();
 			messageLength -= 8;
-			solution.setTime(time);
+			attr.setCreationDate(time);
 			
-			int nameLength = buffer.getInt();
+			int idLength = buffer.getInt();
 			messageLength -= 4;
-			byte[] nameBytes = new byte[nameLength];
-			buffer.get(nameBytes);
-			messageLength -= nameLength;
-			solution.setTargetName(new String(nameBytes,"UTF-16BE"));
+			byte[] idBytes = new byte[idLength];
+			buffer.get(idBytes);
+			messageLength -= idLength;
+			attr.setId(new String(idBytes,"UTF-16BE"));
 			
 			int dataLength = buffer.getInt();
 			messageLength -= 4;
 			byte[] data = new byte[dataLength];
 			buffer.get(data);
 			messageLength -= dataLength;
-			solution.setData(data);
+			attr.setData(data);
 			
-			solutions[i] = solution;
+			attributes[i] = attr;
 		}
 		
 		out.write(message);

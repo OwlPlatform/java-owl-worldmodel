@@ -25,38 +25,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Message for deleting Attribute values in the world model. Deleted attributes
- * have their entire history removed. To simply remove the current value of an
- * attribute, see {@link ExpireAttributeMessage}.
+ * Message to delete an entire Identifier from the World Model. Deleted
+ * Identifiers have all of their Attributes and Attribute histories completely
+ * removed as if they never existed. To simply expire all current Attribute
+ * value for an Identifier instead, see {@link ExpireIdentifierMessage}.
  * 
  * @author Robert Moore
  * 
  */
-public class DeleteAttributeMessage {
+public class DeleteIdentifierMessage {
 
   /**
    * Logging facility for this class.
    */
   private static final Logger log = LoggerFactory
-      .getLogger(DeleteAttributeMessage.class);
+      .getLogger(DeleteIdentifierMessage.class);
 
   /**
-   * Message type value.
+   * Message type for this message.
    */
-  public static final byte MESSAGE_TYPE = 9;
+  public static final byte MESSAGE_TYPE = 7;
 
   /**
-   * The Identifier for the Attribute.
+   * The Identifier to delete from the world model.
    */
   private String identifier;
 
   /**
-   * The name of the Attribute to delete.
-   */
-  private String attributeName;
-
-  /**
-   * The origin of the Attribute.
+   * The origin of the Identifier to delete.
    */
   private String origin;
 
@@ -78,21 +74,10 @@ public class DeleteAttributeMessage {
       }
     }
 
-    // Attribute name length
-    length += 4;
-
-    if (this.attributeName != null) {
-      try {
-        length += this.attributeName.getBytes("UTF-16BE").length;
-      } catch (UnsupportedEncodingException e) {
-        log.error("Unable to encode to UTF-16BE.");
-      }
-    }
-
     if (this.origin != null) {
       try {
         length += this.origin.getBytes("UTF-16BE").length;
-      } catch (UnsupportedEncodingException uee) {
+      } catch (UnsupportedEncodingException e) {
         log.error("Unable to encode to UTF-16BE.");
       }
     }
@@ -101,51 +86,34 @@ public class DeleteAttributeMessage {
   }
 
   /**
-   * Gets the Identifier for the Attribute.
-   * @return the Identifier.
+   * Gets the Identifier to delete.
+   * @return the Identifier name.
    */
   public String getId() {
     return this.identifier;
   }
 
   /**
-   * Sets the Identifier for the Attribute.
-   * @param identifier the new Identifier.
+   * Sets the Identifier to delete.
+   * @param identifier the new Identifier name.
    */
   public void setId(String identifier) {
     this.identifier = identifier;
   }
 
   /**
-   * Gets the name of the Attribute to delete.
-   * @return the name of the Attribute.
-   */
-  public String getAttributeName() {
-    return this.attributeName;
-  }
-
-  /**
-   * Sets the name of the Attribute to delete.
-   * @param attributeName the new Attribute name.
-   */
-  public void setAttributeName(String attributeName) {
-    this.attributeName = attributeName;
-  }
-
-  /**
-   * Sets the origin of the Attribute to delete.
-   * @return the origin of the Attribute.
+   * Gets the Origin of the Identifier.
+   * @return the Origin of the Identifier.
    */
   public String getOrigin() {
     return this.origin;
   }
 
   /**
-   * Sets the origin of the Attribute.
-   * @param origin the new origin value.
+   * Sets the Origin of the Identifier.
+   * @param origin the new Origin value.
    */
   public void setOrigin(String origin) {
     this.origin = origin;
   }
-
 }

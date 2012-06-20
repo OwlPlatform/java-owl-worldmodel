@@ -19,8 +19,6 @@
 
 package com.owlplatform.worldmodel.solver.protocol.messages;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Keep-Alive messages are exchanged across a World Model solver connection when no other message has been
@@ -31,11 +29,6 @@ import org.slf4j.LoggerFactory;
  */
 public class KeepAliveMessage {
 
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(KeepAliveMessage.class);
-	
 	/**
 	 * Static reference to an immutable KeepAlive message object.  Since all Keep Alive messages look the same, there's no real 
 	 * reason to be able to create multiple instances.
@@ -56,9 +49,9 @@ public class KeepAliveMessage {
 	}
 	
 	/**
-	 * Returns the length of the Keep Alive message, excluding the 4-byte length prefix.
-	 * @return 1, the length of the Keep Alive message.
-	 */
+   * The length of this message when encoded according to the Solver-World Model protocol.
+   * @return the length, in bytes, of the encoded form of this message.
+   */
 	public int getMessageLength() {
 		return 1;
 	}

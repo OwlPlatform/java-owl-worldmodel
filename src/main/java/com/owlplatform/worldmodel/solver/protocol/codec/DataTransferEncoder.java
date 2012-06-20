@@ -27,10 +27,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.owlplatform.common.util.NumericUtils;
-import com.owlplatform.worldmodel.solver.protocol.messages.DataTransferMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.DataTransferMessage.Solution;
+import com.owlplatform.worldmodel.Attribute;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeUpdateMessage;
 
-public class DataTransferEncoder implements MessageEncoder<DataTransferMessage> {
+public class DataTransferEncoder implements MessageEncoder<AttributeUpdateMessage> {
 
 	/**
 	 * Logging facility for this class.
@@ -38,7 +38,7 @@ public class DataTransferEncoder implements MessageEncoder<DataTransferMessage> 
 	private static final Logger log = LoggerFactory.getLogger(DataTransferEncoder.class);
 	
 	@Override
-	public void encode(IoSession session, DataTransferMessage message,
+	public void encode(IoSession session, AttributeUpdateMessage message,
 			ProtocolEncoderOutput out) throws Exception {
 		IoBuffer buffer = IoBuffer.allocate(message.getMessageLength()+4);
 		
@@ -46,27 +46,27 @@ public class DataTransferEncoder implements MessageEncoder<DataTransferMessage> 
 		buffer.putInt(message.getMessageLength());
 		
 		// Message type
-		buffer.put(DataTransferMessage.MESSAGE_TYPE);
+		buffer.put(AttributeUpdateMessage.MESSAGE_TYPE);
 		
 		// Create URI boolean value
-		buffer.put(message.getCreateUri()?(byte)1:(byte)0);
+		buffer.put(message.getCreateId()?(byte)1:(byte)0);
 		
-		if(message.getSolutions() != null){
-			buffer.putInt(message.getSolutions().length);
-			for(Solution soln : message.getSolutions()){
-				buffer.putInt(soln.getAttributeNameAlias());
-				buffer.putLong(soln.getTime());
-				if(soln.getTargetName() != null){
-					byte[] targetBytes = soln.getTargetName().getBytes("UTF-16BE");
+		if(message.getAttributes() != null){
+			buffer.putInt(message.getAttributes().length);
+			for(Attribute attr : message.getAttributes()){
+				buffer.putInt(attr.getAttributeNameAlias());
+				buffer.putLong(attr.getCreationDate());
+				if(attr.getId() != null){
+					byte[] targetBytes = attr.getId().getBytes("UTF-16BE");
 					buffer.putInt(targetBytes.length);
 					buffer.put(targetBytes);
 				}
 				else{
 					buffer.putInt(0);
 				}
-				if(soln.getData() != null){
-					buffer.putInt(soln.getData().length);
-					buffer.put(soln.getData());
+				if(attr.getData() != null){
+					buffer.putInt(attr.getData().length);
+					buffer.put(attr.getData());
 				}else{
 					buffer.putInt(0);
 				}

@@ -24,12 +24,12 @@ import java.io.UnsupportedEncodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ExpireURIMessage {
+public class ExpireIdentifierMessage {
 	
 	/**
 	 * Logging facility for this class.
 	 */
-	private static final Logger log = LoggerFactory.getLogger(ExpireURIMessage.class);
+	private static final Logger log = LoggerFactory.getLogger(ExpireIdentifierMessage.class);
 	
 	public static final byte MESSAGE_TYPE = 6;
 	
@@ -39,6 +39,10 @@ public class ExpireURIMessage {
 	
 	private String origin;
 	
+	/**
+   * The length of this message when encoded according to the Solver-World Model protocol.
+   * @return the length, in bytes, of the encoded form of this message.
+   */
 	public int getMessageLength()
 	{
 		// Message type, uri length

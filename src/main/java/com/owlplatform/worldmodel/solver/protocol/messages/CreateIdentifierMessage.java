@@ -24,29 +24,50 @@ import java.io.UnsupportedEncodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CreateURIMessage {
+/**
+ * Message for creating new Identifiers in the World Model.
+ * @author Robert Moore
+ *
+ */
+public class CreateIdentifierMessage {
 	
 	/**
 	 * Logging facility for this class.
 	 */
-	private static final Logger log = LoggerFactory.getLogger(CreateURIMessage.class);
+	private static final Logger log = LoggerFactory.getLogger(CreateIdentifierMessage.class);
 	
+	/**
+	 * Message type value.
+	 */
 	public static final byte MESSAGE_TYPE = 5;
 	
-	private String uri;
+	/**
+	 * The identifier to create.
+	 */
+	private String identifier;
 	
+	/**
+	 * The time at which it was created.
+	 */
 	private long creationTime;
 	
+	/**
+	 * The origin/source of the Identifier.
+	 */
 	private String origin;
 	
+	/**
+	 * The length of this message when encoded according to the Solver-World Model protocol.
+	 * @return the length, in bytes, of the encoded form of this message.
+	 */
 	public int getMessageLength()
 	{
 		// Message type, uri length
 		int length = 1 + 4;
 		
-		if(uri != null){
+		if(this.identifier != null){
 			try {
-				length += this.uri.getBytes("UTF-16BE").length;
+				length += this.identifier.getBytes("UTF-16BE").length;
 			} catch (UnsupportedEncodingException e) {
 				log.error("Unable to encode to UTF-16BE.");
 			}
@@ -66,26 +87,50 @@ public class CreateURIMessage {
 		return length;
 	}
 
-	public String getUri() {
-		return uri;
+	/**
+	 * Gets the Identifier being created.
+	 * @return the Identifier to create.
+	 */
+	public String getId() {
+		return this.identifier;
 	}
 
-	public void setUri(String uri) {
-		this.uri = uri;
+	/**
+	 * Sets the Identifier to be created.
+	 * @param identifier the new Identifier value.
+	 */
+	public void setId(String identifier) {
+		this.identifier = identifier;
 	}
 
+	/**
+	 * Gets the creation time to use in the world model.
+	 * @return the creation time of the Identifier
+	 */
 	public long getCreationTime() {
-		return creationTime;
+		return this.creationTime;
 	}
 
+	/**
+	 * Sets the creation time to use in the world model.
+	 * @param creationTime the new creation timestamp.
+	 */
 	public void setCreationTime(long creationTime) {
 		this.creationTime = creationTime;
 	}
 
+	/**
+	 * Gets the origin of this Identifier.
+	 * @return the origin value.
+	 */
 	public String getOrigin() {
-		return origin;
+		return this.origin;
 	}
 
+	/**
+	 * Sets the origin value for this Identifier.
+	 * @param origin the new origin value.
+	 */
 	public void setOrigin(String origin) {
 		this.origin = origin;
 	}

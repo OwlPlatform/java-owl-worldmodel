@@ -71,7 +71,7 @@ public class DeleteAttributeDecoder implements MessageDecoder {
 		byte[] uriNameBytes = new byte[uriNameLength];
 		buffer.get(uriNameBytes);
 		messageLength -= uriNameLength;
-		message.setUri(new String(uriNameBytes,"UTF-16BE"));
+		message.setId(new String(uriNameBytes,"UTF-16BE"));
 		
 		int attributeNameLength = buffer.getInt();
 		messageLength -= 4;

@@ -49,7 +49,7 @@ public class DeleteAttributeEncoder implements
 		buffer.put(DeleteAttributeMessage.MESSAGE_TYPE);
 		
 		// Target URI
-		byte[] uriBytes = message.getUri().getBytes("UTF-16BE");
+		byte[] uriBytes = message.getId().getBytes("UTF-16BE");
 		buffer.putInt(uriBytes.length);
 		buffer.put(uriBytes);
 		

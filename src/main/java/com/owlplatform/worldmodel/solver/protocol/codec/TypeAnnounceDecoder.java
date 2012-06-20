@@ -25,8 +25,8 @@ import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 
 import com.owlplatform.worldmodel.solver.protocol.messages.StopTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.TypeAnnounceMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.TypeAnnounceMessage.TypeSpecification;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage.AttributeSpecification;
 
 public class TypeAnnounceDecoder implements MessageDecoder {
 
@@ -42,7 +42,7 @@ public class TypeAnnounceDecoder implements MessageDecoder {
 
 			byte messageType = buffer.get();
 			buffer.reset();
-			if (messageType == TypeAnnounceMessage.MESSAGE_TYPE) {
+			if (messageType == AttributeAnnounceMessage.MESSAGE_TYPE) {
 				return MessageDecoderResult.OK;
 			}
 			return MessageDecoderResult.NOT_OK;
@@ -53,7 +53,7 @@ public class TypeAnnounceDecoder implements MessageDecoder {
 	@Override
 	public MessageDecoderResult decode(IoSession session, IoBuffer buffer,
 			ProtocolDecoderOutput out) throws Exception {
-		TypeAnnounceMessage message = new TypeAnnounceMessage();
+		AttributeAnnounceMessage message = new AttributeAnnounceMessage();
 		
 		int messageLength = buffer.getInt();
 		byte messageType = buffer.get();
@@ -63,23 +63,23 @@ public class TypeAnnounceDecoder implements MessageDecoder {
 		messageLength -= 4;
 		
 		if(numTypes > 0){
-			TypeSpecification[] specs = new TypeSpecification[numTypes];
+			AttributeSpecification[] specs = new AttributeSpecification[numTypes];
 			
 			for(int i = 0; i < numTypes; ++i){
-				TypeSpecification spec = new TypeSpecification();
+				AttributeSpecification spec = new AttributeSpecification();
 				
 				int alias = buffer.getInt();
 				messageLength -= 4;
-				spec.setTypeAlias(alias);
+				spec.setAlias(alias);
 				
 				int uriLength = buffer.getInt();
 				messageLength -= 4;
 				byte[] uriBytes = new byte[uriLength];
 				buffer.get(uriBytes);
 				messageLength -= uriLength;
-				spec.setUriName(new String(uriBytes,"UTF-16BE"));
+				spec.setAttributeName(new String(uriBytes,"UTF-16BE"));
 				
-				spec.setIsTransient(buffer.get() == (byte)0 ?  false : true);
+				spec.setIsOnDemand(buffer.get() == (byte)0 ?  false : true);
 				--messageLength;
 				
 				specs[i] = spec;

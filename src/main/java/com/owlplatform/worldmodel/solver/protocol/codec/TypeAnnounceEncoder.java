@@ -26,10 +26,10 @@ import org.apache.mina.filter.codec.demux.MessageEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.TypeAnnounceMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.TypeAnnounceMessage.TypeSpecification;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage.AttributeSpecification;
 
-public class TypeAnnounceEncoder implements MessageEncoder<TypeAnnounceMessage> {
+public class TypeAnnounceEncoder implements MessageEncoder<AttributeAnnounceMessage> {
 
 	/**
 	 * Logging facility for this class.
@@ -37,7 +37,7 @@ public class TypeAnnounceEncoder implements MessageEncoder<TypeAnnounceMessage> 
 	private static final Logger log = LoggerFactory.getLogger(TypeAnnounceEncoder.class);
 	
 	@Override
-	public void encode(IoSession session, TypeAnnounceMessage message,
+	public void encode(IoSession session, AttributeAnnounceMessage message,
 			ProtocolEncoderOutput out) throws Exception {
 		IoBuffer buffer = IoBuffer.allocate(message.getMessageLength()+4);
 		
@@ -45,19 +45,19 @@ public class TypeAnnounceEncoder implements MessageEncoder<TypeAnnounceMessage> 
 		buffer.putInt(message.getMessageLength());
 		
 		// Message type
-		buffer.put(TypeAnnounceMessage.MESSAGE_TYPE);
+		buffer.put(AttributeAnnounceMessage.MESSAGE_TYPE);
 		
-		TypeSpecification[] typeSpecs = message.getTypeSpecifications();
+		AttributeSpecification[] typeSpecs = message.getAttributeSpecifications();
 		if(typeSpecs != null){
 			// Number of Type specifications
 			buffer.putInt(typeSpecs.length);
-			for(TypeSpecification spec : typeSpecs){
+			for(AttributeSpecification spec : typeSpecs){
 				// Type alias 
-				buffer.putInt(spec.getTypeAlias());
+				buffer.putInt(spec.getAlias());
 				
 				// Solution URI name
-				if(spec.getUriName() != null){
-					byte[] uriNameByte = spec.getUriName().getBytes("UTF-16BE");
+				if(spec.getAttributeName() != null){
+					byte[] uriNameByte = spec.getAttributeName().getBytes("UTF-16BE");
 					buffer.putInt(uriNameByte.length);
 					buffer.put(uriNameByte);
 				}
@@ -66,7 +66,7 @@ public class TypeAnnounceEncoder implements MessageEncoder<TypeAnnounceMessage> 
 					buffer.putInt(0);
 				}
 				// Is transient (boolean as byte)
-				buffer.put(spec.getIsTransient() ? (byte)1 : (byte)0);
+				buffer.put(spec.getOnDemand() ? (byte)1 : (byte)0);
 			}
 		}
 		// No type specifications

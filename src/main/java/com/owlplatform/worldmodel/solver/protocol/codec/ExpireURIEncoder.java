@@ -27,9 +27,9 @@ import org.apache.mina.filter.codec.demux.MessageEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.ExpireURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.ExpireIdentifierMessage;
 
-public class ExpireURIEncoder implements MessageEncoder<ExpireURIMessage> {
+public class ExpireURIEncoder implements MessageEncoder<ExpireIdentifierMessage> {
 
 	/**
 	 * Logging facility for this class.
@@ -37,14 +37,14 @@ public class ExpireURIEncoder implements MessageEncoder<ExpireURIMessage> {
 	private static final Logger log = LoggerFactory.getLogger(ExpireURIEncoder.class);
 	
 	@Override
-	public void encode(IoSession session, ExpireURIMessage message,
+	public void encode(IoSession session, ExpireIdentifierMessage message,
 			ProtocolEncoderOutput out) throws Exception {
 		IoBuffer buffer = IoBuffer.allocate(message.getMessageLength()+4);
 		
 		// Message length
 		buffer.putInt(message.getMessageLength());
 		// Message type
-		buffer.put(ExpireURIMessage.MESSAGE_TYPE);
+		buffer.put(ExpireIdentifierMessage.MESSAGE_TYPE);
 		
 		// URI to expire
 		byte[] uriBytes = message.getUri().getBytes("UTF-16BE");

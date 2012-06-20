@@ -25,7 +25,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.DeleteURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.DeleteIdentifierMessage;
 
 
 
@@ -43,7 +43,7 @@ public class DeleteURIDecoder implements MessageDecoder {
 
 			byte messageType = buffer.get();
 			buffer.reset();
-			if (messageType == DeleteURIMessage.MESSAGE_TYPE) {
+			if (messageType == DeleteIdentifierMessage.MESSAGE_TYPE) {
 				return MessageDecoderResult.OK;
 			}
 			return MessageDecoderResult.NOT_OK;
@@ -54,7 +54,7 @@ public class DeleteURIDecoder implements MessageDecoder {
 	@Override
 	public MessageDecoderResult decode(IoSession session, IoBuffer buffer,
 			ProtocolDecoderOutput out) throws Exception {
-		DeleteURIMessage message = new DeleteURIMessage();
+		DeleteIdentifierMessage message = new DeleteIdentifierMessage();
 		
 		int messageLength = buffer.getInt();
 		
@@ -67,7 +67,7 @@ public class DeleteURIDecoder implements MessageDecoder {
 		buffer.get(uriBytes);
 		messageLength -= uriBytes.length;
 		
-		message.setUri(new String(uriBytes,"UTF-16BE"));
+		message.setId(new String(uriBytes,"UTF-16BE"));
 				
 		byte[] originBytes = new byte[messageLength];
 		message.setOrigin(new String(originBytes,"UTF-16BE"));

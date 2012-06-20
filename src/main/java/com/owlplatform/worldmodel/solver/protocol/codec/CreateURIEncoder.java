@@ -26,9 +26,9 @@ import org.apache.mina.filter.codec.demux.MessageEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.CreateURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.CreateIdentifierMessage;
 
-public class CreateURIEncoder implements MessageEncoder<CreateURIMessage> {
+public class CreateURIEncoder implements MessageEncoder<CreateIdentifierMessage> {
 
 	/**
 	 * Logging facility for this class.
@@ -36,17 +36,17 @@ public class CreateURIEncoder implements MessageEncoder<CreateURIMessage> {
 	private static final Logger log = LoggerFactory.getLogger(CreateURIEncoder.class);
 	
 	@Override
-	public void encode(IoSession session, CreateURIMessage message,
+	public void encode(IoSession session, CreateIdentifierMessage message,
 			ProtocolEncoderOutput out) throws Exception {
 		IoBuffer buffer = IoBuffer.allocate(message.getMessageLength()+4);
 		
 		// Message length
 		buffer.putInt(message.getMessageLength());
 		// Message type
-		buffer.put(CreateURIMessage.MESSAGE_TYPE);
+		buffer.put(CreateIdentifierMessage.MESSAGE_TYPE);
 		
 		// URI to create
-		byte[] uriBytes = message.getUri().getBytes("UTF-16BE");
+		byte[] uriBytes = message.getId().getBytes("UTF-16BE");
 		buffer.putInt(uriBytes.length);
 		buffer.put(uriBytes);
 		

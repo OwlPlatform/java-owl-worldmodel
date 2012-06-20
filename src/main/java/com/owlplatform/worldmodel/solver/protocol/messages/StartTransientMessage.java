@@ -74,6 +74,10 @@ public class StartTransientMessage {
 		}
 	}
 	
+	/**
+   * The length of this message when encoded according to the Solver-World Model protocol.
+   * @return the length, in bytes, of the encoded form of this message.
+   */
 	public int getMessageLength(){
 		// Message type, number of transients
 		int length = 1 + 4;

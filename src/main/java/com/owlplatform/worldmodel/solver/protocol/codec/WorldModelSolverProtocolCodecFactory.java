@@ -20,17 +20,17 @@ package com.owlplatform.worldmodel.solver.protocol.codec;
 
 import org.apache.mina.filter.codec.demux.DemuxingProtocolCodecFactory;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.CreateURIMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.DataTransferMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.CreateIdentifierMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeUpdateMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.DeleteAttributeMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.DeleteURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.DeleteIdentifierMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.ExpireAttributeMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.ExpireURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.ExpireIdentifierMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.HandshakeMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.KeepAliveMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.StartTransientMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.StopTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.TypeAnnounceMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
 
 public class WorldModelSolverProtocolCodecFactory extends
 		DemuxingProtocolCodecFactory {
@@ -50,11 +50,11 @@ public class WorldModelSolverProtocolCodecFactory extends
 
 		if (isSolver) {
 			// Encoders for solver
-			super.addMessageEncoder(DataTransferMessage.class, DataTransferEncoder.class);
-			super.addMessageEncoder(TypeAnnounceMessage.class, TypeAnnounceEncoder.class);
-			super.addMessageEncoder(CreateURIMessage.class, CreateURIEncoder.class);
-			super.addMessageEncoder(ExpireURIMessage.class, ExpireURIEncoder.class);
-			super.addMessageEncoder(DeleteURIMessage.class, DeleteURIEncoder.class);
+			super.addMessageEncoder(AttributeUpdateMessage.class, DataTransferEncoder.class);
+			super.addMessageEncoder(AttributeAnnounceMessage.class, TypeAnnounceEncoder.class);
+			super.addMessageEncoder(CreateIdentifierMessage.class, CreateURIEncoder.class);
+			super.addMessageEncoder(ExpireIdentifierMessage.class, ExpireURIEncoder.class);
+			super.addMessageEncoder(DeleteIdentifierMessage.class, DeleteURIEncoder.class);
 			super.addMessageEncoder(ExpireAttributeMessage.class, ExpireAttributeEncoder.class);
 			super.addMessageEncoder(DeleteAttributeMessage.class, DeleteAttributeEncoder.class);
 			
@@ -67,7 +67,7 @@ public class WorldModelSolverProtocolCodecFactory extends
 			super.addMessageEncoder(StopTransientMessage.class, StopTransientEncoder.class);
 			
 			// Decoders for World Model
-			super.addMessageDecoder(DataTransferDecoder.class);
+			super.addMessageDecoder(AttributeUpdateDecoder.class);
 			super.addMessageDecoder(TypeAnnounceDecoder.class);
 			super.addMessageDecoder(CreateURIDecoder.class);
 			super.addMessageDecoder(ExpireURIDecoder.class);

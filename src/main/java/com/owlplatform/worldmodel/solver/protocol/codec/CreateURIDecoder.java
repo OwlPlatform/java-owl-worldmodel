@@ -25,7 +25,7 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.CreateURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.CreateIdentifierMessage;
 
 
 public class CreateURIDecoder implements MessageDecoder {
@@ -42,7 +42,7 @@ public class CreateURIDecoder implements MessageDecoder {
 
 			byte messageType = buffer.get();
 			buffer.reset();
-			if (messageType == CreateURIMessage.MESSAGE_TYPE) {
+			if (messageType == CreateIdentifierMessage.MESSAGE_TYPE) {
 				return MessageDecoderResult.OK;
 			}
 			return MessageDecoderResult.NOT_OK;
@@ -53,7 +53,7 @@ public class CreateURIDecoder implements MessageDecoder {
 	@Override
 	public MessageDecoderResult decode(IoSession session, IoBuffer buffer,
 			ProtocolDecoderOutput out) throws Exception {
-		CreateURIMessage message = new CreateURIMessage();
+		CreateIdentifierMessage message = new CreateIdentifierMessage();
 		
 		int messageLength = buffer.getInt();
 		
@@ -66,7 +66,7 @@ public class CreateURIDecoder implements MessageDecoder {
 		buffer.get(uriBytes);
 		messageLength -= uriBytes.length;
 		
-		message.setUri(new String(uriBytes,"UTF-16BE"));
+		message.setId(new String(uriBytes,"UTF-16BE"));
 		
 		message.setCreationTime(buffer.getLong());
 		messageLength -= 8;
