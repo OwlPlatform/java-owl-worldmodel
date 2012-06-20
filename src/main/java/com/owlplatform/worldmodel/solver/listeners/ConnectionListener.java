@@ -21,10 +21,30 @@ package com.owlplatform.worldmodel.solver.listeners;
 
 import com.owlplatform.worldmodel.solver.SolverWorldModelInterface;
 
+/**
+ * Interface for classes that respond to connection-related events with the
+ * world model.
+ * 
+ * @author Robert Moore
+ * 
+ */
 public interface ConnectionListener {
-	public void connectionInterrupted(SolverWorldModelInterface worldModel);
+  /**
+   * Called when a connection has been closed, but when a reconnection is possible if
+   * configured.
+   * @param worldModel the world model that disconnected.
+   */
+  public void connectionInterrupted(SolverWorldModelInterface worldModel);
 
-	public void connectionEnded(SolverWorldModelInterface worldModel);
+  /**
+   * Called when a connection has been closed and no reconnection attempt will be made.
+   * @param worldModel the world model that disconnected.
+   */
+  public void connectionEnded(SolverWorldModelInterface worldModel);
 
-	public void connectionEstablished(SolverWorldModelInterface worldModel);
+  /**
+   * Called when a connection is established to the world model.
+   * @param worldModel the world model that connected.
+   */
+  public void connectionEstablished(SolverWorldModelInterface worldModel);
 }

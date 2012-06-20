@@ -23,10 +23,31 @@ import com.owlplatform.worldmodel.solver.protocol.messages.StartOnDemandMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.StopOnDemandMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
 
+/**
+ * Interface for classes that respond to data-related events from the World Model.
+ * @author Robert Moore
+ *
+ */
 public interface DataListener {
-	public void startTransientReceived(SolverWorldModelInterface worldModel, StartOnDemandMessage message);
+  
+  /**
+   * Called when a Start On-Demand message is received.
+   * @param worldModel the world model that sent the message.
+   * @param message the message.
+   */
+	public void startOnDemandReceived(SolverWorldModelInterface worldModel, StartOnDemandMessage message);
 	
-	public void stopTransientReceived(SolverWorldModelInterface worldModel, StopOnDemandMessage message);
+	/**
+	 * Called when a Stop On-Demand message is received.
+	 * @param worldModel the world model that sent the message.
+	 * @param message the message.
+	 */
+	public void stopOnDemandReceived(SolverWorldModelInterface worldModel, StopOnDemandMessage message);
 	
-	public void typeSpecificationsSent(SolverWorldModelInterface worldModel, AttributeAnnounceMessage message);
+	/**
+	 * Called when an Attribute Specification message has been sent to the world model.
+	 * @param worldModel the world model the message was sent to.
+	 * @param message the message.
+	 */
+	public void attributeSpecificationsSent(SolverWorldModelInterface worldModel, AttributeAnnounceMessage message);
 }
