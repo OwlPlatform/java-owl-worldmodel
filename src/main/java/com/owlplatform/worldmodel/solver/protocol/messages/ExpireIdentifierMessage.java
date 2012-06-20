@@ -23,7 +23,11 @@ import java.io.UnsupportedEncodingException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
+/**
+ * Expires all current Attribute values for an Identifier.
+ * @author Robert Moore
+ *
+ */
 public class ExpireIdentifierMessage {
 	
 	/**
@@ -31,12 +35,24 @@ public class ExpireIdentifierMessage {
 	 */
 	private static final Logger log = LoggerFactory.getLogger(ExpireIdentifierMessage.class);
 	
+	/**
+	 * Message type value.
+	 */
 	public static final byte MESSAGE_TYPE = 6;
 	
-	private String uri;
+	/**
+	 * Identifier to expire.
+	 */
+	private String identifier;
 	
+	/**
+	 * Expiration timestamp.
+	 */
 	private long expirationTime;
 	
+	/**
+	 * Origin of the Identifier to expire.
+	 */
 	private String origin;
 	
 	/**
@@ -48,9 +64,9 @@ public class ExpireIdentifierMessage {
 		// Message type, uri length
 		int length = 1 + 4;
 		
-		if(uri != null){
+		if(this.identifier != null){
 			try {
-				length += this.uri.getBytes("UTF-16BE").length;
+				length += this.identifier.getBytes("UTF-16BE").length;
 			} catch (UnsupportedEncodingException e) {
 				log.error("Unable to encode to UTF-16BE.");
 			}
@@ -70,26 +86,50 @@ public class ExpireIdentifierMessage {
 		return length;
 	}
 
-	public String getUri() {
-		return uri;
+	/**
+	 * Gets the Identifier to expire.
+	 * @return the Identifier.
+	 */
+	public String getId() {
+		return this.identifier;
 	}
 
-	public void setUri(String uri) {
-		this.uri = uri;
+	/**
+	 * Sets the Identifier to expire.
+	 * @param identifier the new Identifier value.
+	 */
+	public void setId(String identifier) {
+		this.identifier = identifier;
 	}
 
-	public long getCreationTime() {
-		return expirationTime;
+	/**
+	 * Gets the expiration timestamp for the Identifier.
+	 * @return the expiration timestamp.
+	 */
+	public long getExpirationTime() {
+		return this.expirationTime;
 	}
 
+	/**
+	 * Sets the expiration timestamp for the Identifier.
+	 * @param expirationTime the new expiration timestamp.
+	 */
 	public void setExpirationTime(long expirationTime) {
 		this.expirationTime = expirationTime;
 	}
 
+	/**
+	 * Gets the Origin of the Identifier to expire.
+	 * @return the Origin
+	 */
 	public String getOrigin() {
-		return origin;
+		return this.origin;
 	}
 
+	/**
+	 * Sets the Origin of the Identifier to expire.
+	 * @param origin the new Origin value.
+	 */
 	public void setOrigin(String origin) {
 		this.origin = origin;
 	}

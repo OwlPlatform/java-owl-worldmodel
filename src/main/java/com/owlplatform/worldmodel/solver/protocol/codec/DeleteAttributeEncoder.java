@@ -24,19 +24,16 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.owlplatform.worldmodel.solver.protocol.messages.DeleteAttributeMessage;
 
+/**
+ * Encoder for Delete Attribute messages.
+ * @author Robert Moore
+ *
+ */
 public class DeleteAttributeEncoder implements
 		MessageEncoder<DeleteAttributeMessage> {
 
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(DeleteAttributeEncoder.class);
-	
 	@Override
 	public void encode(IoSession session, DeleteAttributeMessage message,
 			ProtocolEncoderOutput out) throws Exception {

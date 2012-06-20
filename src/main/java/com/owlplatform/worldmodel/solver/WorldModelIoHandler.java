@@ -27,17 +27,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.client.protocol.messages.OriginPreferenceMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.CreateURIMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.DataTransferMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.CreateIdentifierMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeUpdateMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.DeleteAttributeMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.DeleteURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.DeleteIdentifierMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.ExpireAttributeMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.ExpireURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.ExpireIdentifierMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.HandshakeMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.KeepAliveMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.StartTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.StopTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.TypeAnnounceMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.StartOnDemandMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.StopOnDemandMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
 
 public class WorldModelIoHandler implements IoHandler {
 
@@ -71,33 +71,33 @@ public class WorldModelIoHandler implements IoHandler {
 					session, message);
 			return;
 		}
-		if (message instanceof DataTransferMessage) {
+		if (message instanceof AttributeUpdateMessage) {
 			this.ioAdapter.dataTransferReceived(session,
-					(DataTransferMessage) message);
+					(AttributeUpdateMessage) message);
 		} else if (message instanceof DeleteAttributeMessage) {
 			this.ioAdapter.deleteAttributeReceived(session,
 					(DeleteAttributeMessage) message);
 		} else if (message instanceof ExpireAttributeMessage) {
 			this.ioAdapter.expireAttributeReceived(session,
 					(ExpireAttributeMessage) message);
-		} else if (message instanceof DeleteURIMessage) {
+		} else if (message instanceof DeleteIdentifierMessage) {
 			this.ioAdapter.deleteUriReceived(session,
-					(DeleteURIMessage) message);
-		} else if (message instanceof ExpireURIMessage) {
+					(DeleteIdentifierMessage) message);
+		} else if (message instanceof ExpireIdentifierMessage) {
 			this.ioAdapter.expireUriReceived(session,
-					(ExpireURIMessage) message);
-		} else if (message instanceof CreateURIMessage) {
+					(ExpireIdentifierMessage) message);
+		} else if (message instanceof CreateIdentifierMessage) {
 			this.ioAdapter.createUriReceived(session,
-					(CreateURIMessage) message);
-		} else if (message instanceof StopTransientMessage) {
+					(CreateIdentifierMessage) message);
+		} else if (message instanceof StopOnDemandMessage) {
 			this.ioAdapter.stopTransientReceived(session,
-					(StopTransientMessage) message);
-		} else if (message instanceof StartTransientMessage) {
+					(StopOnDemandMessage) message);
+		} else if (message instanceof StartOnDemandMessage) {
 			this.ioAdapter.startTransientReceived(session,
-					(StartTransientMessage) message);
-		} else if (message instanceof TypeAnnounceMessage) {
+					(StartOnDemandMessage) message);
+		} else if (message instanceof AttributeAnnounceMessage) {
 			this.ioAdapter.typeAnnounceReceived(session,
-					(TypeAnnounceMessage) message);
+					(AttributeAnnounceMessage) message);
 		} else if (message instanceof KeepAliveMessage) {
 			this.ioAdapter.keepAliveReceived(session,
 					(KeepAliveMessage) message);
@@ -118,30 +118,30 @@ public class WorldModelIoHandler implements IoHandler {
 					session, message);
 			return;
 		}
-		if (message instanceof DataTransferMessage) {
+		if (message instanceof AttributeUpdateMessage) {
 			this.ioAdapter.dataTransferSent(session,
-					(DataTransferMessage) message);
+					(AttributeUpdateMessage) message);
 		} else if (message instanceof DeleteAttributeMessage) {
 			this.ioAdapter.deleteAttributeSent(session,
 					(DeleteAttributeMessage) message);
 		} else if (message instanceof ExpireAttributeMessage) {
 			this.ioAdapter.expireAttributeSent(session,
 					(ExpireAttributeMessage) message);
-		} else if (message instanceof DeleteURIMessage) {
-			this.ioAdapter.deleteUriSent(session, (DeleteURIMessage) message);
-		} else if (message instanceof ExpireURIMessage) {
-			this.ioAdapter.expireUriSent(session, (ExpireURIMessage) message);
-		} else if (message instanceof CreateURIMessage) {
-			this.ioAdapter.createUriSent(session, (CreateURIMessage) message);
-		} else if (message instanceof StopTransientMessage) {
+		} else if (message instanceof DeleteIdentifierMessage) {
+			this.ioAdapter.deleteUriSent(session, (DeleteIdentifierMessage) message);
+		} else if (message instanceof ExpireIdentifierMessage) {
+			this.ioAdapter.expireUriSent(session, (ExpireIdentifierMessage) message);
+		} else if (message instanceof CreateIdentifierMessage) {
+			this.ioAdapter.createUriSent(session, (CreateIdentifierMessage) message);
+		} else if (message instanceof StopOnDemandMessage) {
 			this.ioAdapter.stopTransientSent(session,
-					(StopTransientMessage) message);
-		} else if (message instanceof StartTransientMessage) {
+					(StopOnDemandMessage) message);
+		} else if (message instanceof StartOnDemandMessage) {
 			this.ioAdapter.startTransientSent(session,
-					(StartTransientMessage) message);
-		} else if (message instanceof TypeAnnounceMessage) {
+					(StartOnDemandMessage) message);
+		} else if (message instanceof AttributeAnnounceMessage) {
 			this.ioAdapter.typeAnnounceSent(session,
-					(TypeAnnounceMessage) message);
+					(AttributeAnnounceMessage) message);
 		} else if (message instanceof KeepAliveMessage) {
 			this.ioAdapter.keepAliveSent(session, (KeepAliveMessage) message);
 		} else if (message instanceof HandshakeMessage) {

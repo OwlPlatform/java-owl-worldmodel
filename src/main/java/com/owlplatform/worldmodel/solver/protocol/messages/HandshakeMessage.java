@@ -218,4 +218,12 @@ public class HandshakeMessage {
 		}
 		return true;
 	}
+
+	@Override
+  public int hashCode() {
+    int hash = this.stringLength;
+    hash ^= this.protocolString.hashCode();
+    hash ^= Arrays.hashCode(new byte[]{this.versionNumber,this.reservedBits});
+    return hash;
+  }
 }

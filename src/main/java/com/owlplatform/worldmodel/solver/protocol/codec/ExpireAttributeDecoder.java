@@ -25,15 +25,16 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.owlplatform.worldmodel.solver.protocol.messages.ExpireAttributeMessage;
 
+/**
+ * Decoder for Expire Attribute messages.
+ * @author Robert Moore
+ *
+ */
 public class ExpireAttributeDecoder implements MessageDecoder {
 
-	private static final Logger log = LoggerFactory.getLogger(ExpireAttributeDecoder.class);
-	
+ 
 	@Override
 	public MessageDecoderResult decodable(IoSession session, IoBuffer buffer) {
 		if (buffer.prefixedDataAvailable(4, 65536)) {
@@ -62,7 +63,7 @@ public class ExpireAttributeDecoder implements MessageDecoder {
 		
 		int messageLength = buffer.getInt();
 		
-		byte messageType = buffer.get();
+		buffer.get();
 		--messageLength;
 		
 		int uriNameLength = buffer.getInt();
@@ -71,7 +72,7 @@ public class ExpireAttributeDecoder implements MessageDecoder {
 		byte[] uriNameBytes = new byte[uriNameLength];
 		buffer.get(uriNameBytes);
 		messageLength -= uriNameLength;
-		message.setUri(new String(uriNameBytes,"UTF-16BE"));
+		message.setId(new String(uriNameBytes,"UTF-16BE"));
 		
 		int attributeNameLength = buffer.getInt();
 		messageLength -= 4;

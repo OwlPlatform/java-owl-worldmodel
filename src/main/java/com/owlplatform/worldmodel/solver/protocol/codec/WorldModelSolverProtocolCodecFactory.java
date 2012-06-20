@@ -28,15 +28,29 @@ import com.owlplatform.worldmodel.solver.protocol.messages.ExpireAttributeMessag
 import com.owlplatform.worldmodel.solver.protocol.messages.ExpireIdentifierMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.HandshakeMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.KeepAliveMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.StartTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.StopTransientMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.StartOnDemandMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.StopOnDemandMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
 
+/**
+ * Protocol codec factory for the Solver-World Model protocol.  Generates
+ * codecs for the solver or world model components.
+ * @author Robert Moore
+ *
+ */
 public class WorldModelSolverProtocolCodecFactory extends
 		DemuxingProtocolCodecFactory {
 
+  /**
+   * Unique name for the codec.
+   */
 	public static final String CODEC_NAME = "Owl Platform Solver-World Model codec";
 
+	/**
+	 * Constructs a new codec factory for the Solver-World Model protocol.
+	 * @param isSolver {@code true} if the codec is for a solver, or {@code false} if it
+	 * is for the World Model.
+	 */
 	public WorldModelSolverProtocolCodecFactory(final boolean isSolver) {
 		super();
 
@@ -50,28 +64,28 @@ public class WorldModelSolverProtocolCodecFactory extends
 
 		if (isSolver) {
 			// Encoders for solver
-			super.addMessageEncoder(AttributeUpdateMessage.class, DataTransferEncoder.class);
-			super.addMessageEncoder(AttributeAnnounceMessage.class, TypeAnnounceEncoder.class);
-			super.addMessageEncoder(CreateIdentifierMessage.class, CreateURIEncoder.class);
-			super.addMessageEncoder(ExpireIdentifierMessage.class, ExpireURIEncoder.class);
-			super.addMessageEncoder(DeleteIdentifierMessage.class, DeleteURIEncoder.class);
+			super.addMessageEncoder(AttributeUpdateMessage.class, AttributeUpdateEncoder.class);
+			super.addMessageEncoder(AttributeAnnounceMessage.class, AttributeAnnounceEncoder.class);
+			super.addMessageEncoder(CreateIdentifierMessage.class, CreateIdentifierEncoder.class);
+			super.addMessageEncoder(ExpireIdentifierMessage.class, ExpireIdentifierEncoder.class);
+			super.addMessageEncoder(DeleteIdentifierMessage.class, DeleteIdentifierEncoder.class);
 			super.addMessageEncoder(ExpireAttributeMessage.class, ExpireAttributeEncoder.class);
 			super.addMessageEncoder(DeleteAttributeMessage.class, DeleteAttributeEncoder.class);
 			
 			// Decoders for solver
-			super.addMessageDecoder(StartTransientDecoder.class);
-			super.addMessageDecoder(StopTransientDecoder.class);
+			super.addMessageDecoder(StartOnDemandDecoder.class);
+			super.addMessageDecoder(StopOnDemandDecoder.class);
 		} else {
 			// Encoders for World Model
-			super.addMessageEncoder(StartTransientMessage.class, StartTransientEncoder.class);
-			super.addMessageEncoder(StopTransientMessage.class, StopTransientEncoder.class);
+			super.addMessageEncoder(StartOnDemandMessage.class, StartOnDemandEncoder.class);
+			super.addMessageEncoder(StopOnDemandMessage.class, StopOnDemandEncoder.class);
 			
 			// Decoders for World Model
 			super.addMessageDecoder(AttributeUpdateDecoder.class);
-			super.addMessageDecoder(TypeAnnounceDecoder.class);
-			super.addMessageDecoder(CreateURIDecoder.class);
-			super.addMessageDecoder(ExpireURIDecoder.class);
-			super.addMessageDecoder(DeleteURIDecoder.class);
+			super.addMessageDecoder(AttributeAnnounceDecoder.class);
+			super.addMessageDecoder(CreateIdentifierDecoder.class);
+			super.addMessageDecoder(ExpireIdentifierDecoder.class);
+			super.addMessageDecoder(DeleteIdentifierDecoder.class);
 			super.addMessageDecoder(ExpireAttributeDecoder.class);
 			super.addMessageDecoder(DeleteAttributeDecoder.class);
 		}

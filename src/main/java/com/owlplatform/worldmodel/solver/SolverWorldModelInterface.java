@@ -41,19 +41,19 @@ import com.owlplatform.worldmodel.solver.WorldModelIoHandler;
 import com.owlplatform.worldmodel.solver.listeners.ConnectionListener;
 import com.owlplatform.worldmodel.solver.listeners.DataListener;
 import com.owlplatform.worldmodel.solver.protocol.codec.WorldModelSolverProtocolCodecFactory;
-import com.owlplatform.worldmodel.solver.protocol.messages.CreateURIMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.DataTransferMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.CreateIdentifierMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeUpdateMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.DeleteAttributeMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.DeleteURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.DeleteIdentifierMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.ExpireAttributeMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.ExpireURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.ExpireIdentifierMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.HandshakeMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.KeepAliveMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.StartTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.StopTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.TypeAnnounceMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.DataTransferMessage.Solution;
-import com.owlplatform.worldmodel.solver.protocol.messages.TypeAnnounceMessage.TypeSpecification;
+import com.owlplatform.worldmodel.solver.protocol.messages.StartOnDemandMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.StopOnDemandMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeUpdateMessage.Solution;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage.AttributeSpecification;
 
 /**
  * Handles low-level network interaction with the World Model for solvers.
@@ -169,7 +169,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   /**
    * List of solution types to be sent to the World Model after handshaking.
    */
-  private final ConcurrentLinkedQueue<TypeSpecification> solutions = new ConcurrentLinkedQueue<TypeSpecification>();
+  private final ConcurrentLinkedQueue<AttributeSpecification> solutions = new ConcurrentLinkedQueue<AttributeSpecification>();
 
   /**
    * Origin String for the solver, sent to the World Model.
@@ -436,20 +436,20 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     }
     this.sentTypeSpecifications = true;
     if (this.solutions.size() > 0) {
-      TypeAnnounceMessage message = new TypeAnnounceMessage();
+      AttributeAnnounceMessage message = new AttributeAnnounceMessage();
 
       message.setOrigin(this.originString);
 
-      ArrayList<TypeSpecification> specificationList = new ArrayList<TypeSpecification>();
+      ArrayList<AttributeSpecification> specificationList = new ArrayList<AttributeSpecification>();
       specificationList.addAll(this.solutions);
-      TypeSpecification[] specs = new TypeSpecification[specificationList
+      AttributeSpecification[] specs = new AttributeSpecification[specificationList
           .size()];
       int specAlias = 0;
-      for (TypeSpecification spec : specificationList) {
+      for (AttributeSpecification spec : specificationList) {
         specs[specAlias] = spec;
-        spec.setTypeAlias(specAlias++);
-        this.solutionTypeAliases.put(spec.getUriName(),
-            Integer.valueOf(spec.getTypeAlias()));
+        spec.setAlias(specAlias++);
+        this.solutionTypeAliases.put(spec.getAttributeName(),
+            Integer.valueOf(spec.getAlias()));
       }
       message.setTypeSpecifications(specs);
       this.session.write(message);
@@ -465,14 +465,14 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   @Override
   public void typeAnnounceReceived(IoSession session,
-      TypeAnnounceMessage message) {
+      AttributeAnnounceMessage message) {
     log.error("World Model should not send type announce messages to the solver.");
     this.disconnect();
   }
 
   @Override
   public void startTransientReceived(IoSession session,
-      StartTransientMessage message) {
+      StartOnDemandMessage message) {
     log.debug("Received Start Transient message from world model.");
     for (DataListener listener : this.dataListeners) {
       listener.startTransientReceived(this, message);
@@ -481,7 +481,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   @Override
   public void stopTransientReceived(IoSession session,
-      StopTransientMessage message) {
+      StopOnDemandMessage message) {
     log.debug("Received Stop Transient message from world model.");
     for (DataListener listener : this.dataListeners) {
       listener.stopTransientReceived(this, message);
@@ -490,25 +490,25 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   @Override
   public void dataTransferReceived(IoSession session,
-      DataTransferMessage message) {
+      AttributeUpdateMessage message) {
     log.error("World Model should not send Data Transfer messages to solvers.");
     this.disconnect();
   }
 
   @Override
-  public void createUriReceived(IoSession session, CreateURIMessage message) {
+  public void createUriReceived(IoSession session, CreateIdentifierMessage message) {
     log.error("World Model should not send Create URI messages to solvers.");
     this.disconnect();
   }
 
   @Override
-  public void expireUriReceived(IoSession session, ExpireURIMessage message) {
+  public void expireUriReceived(IoSession session, ExpireIdentifierMessage message) {
     log.error("World Model should not send Expire URI messages to solvers.");
     this.disconnect();
   }
 
   @Override
-  public void deleteUriReceived(IoSession session, DeleteURIMessage message) {
+  public void deleteUriReceived(IoSession session, DeleteIdentifierMessage message) {
     log.error("World Model should not send Delete URI messages to solvers.");
     this.disconnect();
   }
@@ -551,7 +551,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   }
 
   @Override
-  public void typeAnnounceSent(IoSession session, TypeAnnounceMessage message) {
+  public void typeAnnounceSent(IoSession session, AttributeAnnounceMessage message) {
     log.debug("Sent Type Announce message to {}: {}", this, message);
     for (DataListener listener : this.dataListeners) {
       listener.typeSpecificationsSent(this, message);
@@ -560,34 +560,34 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   @Override
   public void startTransientSent(IoSession session,
-      StartTransientMessage message) {
+      StartOnDemandMessage message) {
     log.error("Solver should not send Start Transient messages to the World Model.");
     this.disconnect();
   }
 
   @Override
-  public void stopTransientSent(IoSession session, StopTransientMessage message) {
+  public void stopTransientSent(IoSession session, StopOnDemandMessage message) {
     log.error("Solver should not send Stop Transient messages to the World Model.");
     this.disconnect();
   }
 
   @Override
-  public void dataTransferSent(IoSession session, DataTransferMessage message) {
+  public void dataTransferSent(IoSession session, AttributeUpdateMessage message) {
     log.debug("Sent Data Transfer to {}: {}", this, message);
   }
 
   @Override
-  public void createUriSent(IoSession session, CreateURIMessage message) {
+  public void createUriSent(IoSession session, CreateIdentifierMessage message) {
     log.debug("Sent Create URI to {}: {}", this, message);
   }
 
   @Override
-  public void expireUriSent(IoSession session, ExpireURIMessage message) {
+  public void expireUriSent(IoSession session, ExpireIdentifierMessage message) {
     log.debug("Sent Expire URI to {}: {}", this, message);
   }
 
   @Override
-  public void deleteUriSent(IoSession session, DeleteURIMessage message) {
+  public void deleteUriSent(IoSession session, DeleteIdentifierMessage message) {
     log.debug("Sent Delete URI to {}: {}", this, message);
   }
 
@@ -609,10 +609,10 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
       return false;
     }
 
-    DataTransferMessage message = new DataTransferMessage();
+    AttributeUpdateMessage message = new AttributeUpdateMessage();
 
-    message.setCreateUri(this.createUris);
-    message.setSolutions(new Solution[] { solution });
+    message.setCreateId(this.createUris);
+    message.setAttributes(new Solution[] { solution });
 
     Integer solutionTypeAlias = this.solutionTypeAliases.get(solution
         .getAttributeName());
@@ -648,18 +648,18 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
       soln.setAttributeNameAlias(solutionTypeAlias.intValue());
     }
 
-    DataTransferMessage message = new DataTransferMessage();
+    AttributeUpdateMessage message = new AttributeUpdateMessage();
 
-    message.setCreateUri(this.createUris);
+    message.setCreateId(this.createUris);
 
-    message.setSolutions(solutions.toArray(new Solution[] {}));
+    message.setAttributes(solutions.toArray(new Solution[] {}));
 
     this.session.write(message);
 
     return true;
   }
 
-  public void addType(TypeSpecification specification) {
+  public void addType(AttributeSpecification specification) {
     synchronized (this.solutions) {
       if (!this.solutions.contains(specification)) {
         this.solutions.add(specification);
@@ -751,9 +751,9 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
       log.error("Origin has not been set.  Cannot expire URIs without a valid origin.");
       return false;
     }
-    ExpireURIMessage message = new ExpireURIMessage();
+    ExpireIdentifierMessage message = new ExpireIdentifierMessage();
     message.setOrigin(this.originString);
-    message.setUri(uri);
+    message.setId(uri);
     message.setExpirationTime(expirationTime);
 
     this.session.write(message);
@@ -781,7 +781,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
     ExpireAttributeMessage message = new ExpireAttributeMessage();
 
-    message.setUri(uri);
+    message.setId(uri);
     message.setAttributeName(attribute);
     message.setExpirationTime(expirationTime);
     message.setOrigin(this.originString);
@@ -803,9 +803,9 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
       return false;
     }
 
-    DeleteURIMessage message = new DeleteURIMessage();
+    DeleteIdentifierMessage message = new DeleteIdentifierMessage();
     message.setOrigin(this.originString);
-    message.setUri(uri);
+    message.setId(uri);
 
     this.session.write(message);
     log.debug("Sent {}", message);
@@ -831,7 +831,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
     DeleteAttributeMessage message = new DeleteAttributeMessage();
     message.setOrigin(this.originString);
-    message.setUri(uri);
+    message.setId(uri);
     message.setAttributeName(attribute);
 
     this.session.write(message);
@@ -852,10 +852,10 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
       return false;
     }
 
-    CreateURIMessage message = new CreateURIMessage();
+    CreateIdentifierMessage message = new CreateIdentifierMessage();
     message.setCreationTime(System.currentTimeMillis());
     message.setOrigin(this.originString);
-    message.setUri(uri);
+    message.setId(uri);
 
     this.session.write(message);
     log.debug("Sent {}", message);

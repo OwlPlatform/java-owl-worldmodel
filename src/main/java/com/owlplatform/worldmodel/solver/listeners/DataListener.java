@@ -19,14 +19,14 @@
 package com.owlplatform.worldmodel.solver.listeners;
 
 import com.owlplatform.worldmodel.solver.SolverWorldModelInterface;
-import com.owlplatform.worldmodel.solver.protocol.messages.StartTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.StopTransientMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.StartOnDemandMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.StopOnDemandMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
 
 public interface DataListener {
-	public void startTransientReceived(SolverWorldModelInterface worldModel, StartTransientMessage message);
+	public void startTransientReceived(SolverWorldModelInterface worldModel, StartOnDemandMessage message);
 	
-	public void stopTransientReceived(SolverWorldModelInterface worldModel, StopTransientMessage message);
+	public void stopTransientReceived(SolverWorldModelInterface worldModel, StopOnDemandMessage message);
 	
 	public void typeSpecificationsSent(SolverWorldModelInterface worldModel, AttributeAnnounceMessage message);
 }

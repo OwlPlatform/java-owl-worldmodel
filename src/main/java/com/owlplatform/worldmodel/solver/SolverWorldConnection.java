@@ -28,11 +28,11 @@ import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.solver.listeners.ConnectionListener;
 import com.owlplatform.worldmodel.solver.listeners.DataListener;
-import com.owlplatform.worldmodel.solver.protocol.messages.StartTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.StopTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.TypeAnnounceMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.DataTransferMessage.Solution;
-import com.owlplatform.worldmodel.solver.protocol.messages.TypeAnnounceMessage.TypeSpecification;
+import com.owlplatform.worldmodel.solver.protocol.messages.StartOnDemandMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.StopOnDemandMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeUpdateMessage.Solution;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage.AttributeSpecification;
 
 /**
  * A simple class for solvers that need to push data into the World Model. This
@@ -103,7 +103,7 @@ public class SolverWorldConnection {
      */
     @Override
     public void startTransientReceived(SolverWorldModelInterface worldModel,
-        StartTransientMessage message) {
+        StartOnDemandMessage message) {
       this.parent.startTransientReceived(worldModel, message);
     }
 
@@ -113,7 +113,7 @@ public class SolverWorldConnection {
      */
     @Override
     public void stopTransientReceived(SolverWorldModelInterface worldModel,
-        StopTransientMessage message) {
+        StopOnDemandMessage message) {
       this.parent.stopTransientReceived(worldModel, message);
     }
 
@@ -123,7 +123,7 @@ public class SolverWorldConnection {
      */
     @Override
     public void typeSpecificationsSent(SolverWorldModelInterface worldModel,
-        TypeAnnounceMessage message) {
+        AttributeAnnounceMessage message) {
       this.parent.typeSpecificationsSent(worldModel, message);
     }
 
@@ -270,7 +270,7 @@ public class SolverWorldConnection {
    * @param spec
    *          the type specification to add to the world model interface.
    */
-  public void addSolutionType(TypeSpecification spec) {
+  public void addSolutionType(AttributeSpecification spec) {
     this.wmi.addType(spec);
   }
 
@@ -374,19 +374,19 @@ public class SolverWorldConnection {
   }
 
   void startTransientReceived(SolverWorldModelInterface worldModel,
-      StartTransientMessage message) {
+      StartOnDemandMessage message) {
     // TODO Auto-generated method stub
 
   }
 
   void stopTransientReceived(SolverWorldModelInterface worldModel,
-      StopTransientMessage message) {
+      StopOnDemandMessage message) {
     // TODO Auto-generated method stub
 
   }
 
   void typeSpecificationsSent(SolverWorldModelInterface worldModel,
-      TypeAnnounceMessage message) {
+      AttributeAnnounceMessage message) {
     this.canSend = true;
     this.sendBufferedSolutions();
   }

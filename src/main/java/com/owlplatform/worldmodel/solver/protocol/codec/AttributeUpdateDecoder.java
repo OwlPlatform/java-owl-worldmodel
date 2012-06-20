@@ -24,16 +24,17 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.owlplatform.worldmodel.Attribute;
 import com.owlplatform.worldmodel.solver.protocol.messages.AttributeUpdateMessage;
 
+
+/**
+ * Decoder for Attribute Update messages.
+ * @author Robert Moore
+ *
+ */
 public class AttributeUpdateDecoder implements MessageDecoder {
 
-	private static final Logger log = LoggerFactory.getLogger(AttributeUpdateDecoder.class);
-	
 	@Override
 	public MessageDecoderResult decodable(IoSession session, IoBuffer buffer) {
 		if (buffer.prefixedDataAvailable(4, 65536)) {
@@ -59,41 +60,30 @@ public class AttributeUpdateDecoder implements MessageDecoder {
 			ProtocolDecoderOutput out) throws Exception {
 		AttributeUpdateMessage message = new AttributeUpdateMessage();
 		
-		int messageLength = buffer.getInt();
+		buffer.getInt();
 		
-		byte messageType = buffer.get();
-		--messageLength;
-		
+		buffer.get();
 		byte createUris = buffer.get();
-		--messageLength;
 		message.setCreateId(createUris == (byte)0? false : true);
 		
 		int numSolutions = buffer.getInt();
-		messageLength -= 4;
-		
 		Attribute[] attributes = new Attribute[numSolutions];
 		for(int i = 0; i < numSolutions; ++i){
 			Attribute attr = new Attribute();
 			int attributeAlias = buffer.getInt();
-			messageLength -= 4;
 			attr.setAttributeNameAlias(attributeAlias);
 			
 			long time = buffer.getLong();
-			messageLength -= 8;
 			attr.setCreationDate(time);
 			
 			int idLength = buffer.getInt();
-			messageLength -= 4;
 			byte[] idBytes = new byte[idLength];
 			buffer.get(idBytes);
-			messageLength -= idLength;
 			attr.setId(new String(idBytes,"UTF-16BE"));
 			
 			int dataLength = buffer.getInt();
-			messageLength -= 4;
 			byte[] data = new byte[dataLength];
 			buffer.get(data);
-			messageLength -= dataLength;
 			attr.setData(data);
 			
 			attributes[i] = attr;

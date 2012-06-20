@@ -23,51 +23,50 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.solver.protocol.messages.ExpireAttributeMessage;
 
+/**
+ * Encoder for Expire Attribute messages.
+ * 
+ * @author Robert Moore
+ * 
+ */
 public class ExpireAttributeEncoder implements
-		MessageEncoder<ExpireAttributeMessage> {
+    MessageEncoder<ExpireAttributeMessage> {
 
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(ExpireAttributeEncoder.class);
-	
-	@Override
-	public void encode(IoSession session, ExpireAttributeMessage message,
-			ProtocolEncoderOutput out) throws Exception {
-		IoBuffer buffer = IoBuffer.allocate(message.getMessageLength()+4);
-		
-		// Message length
-		buffer.putInt(message.getMessageLength());
-		
-		// Message type
-		buffer.put(ExpireAttributeMessage.MESSAGE_TYPE);
-		
-		// Target URI
-		byte[] uriBytes = message.getUri().getBytes("UTF-16BE");
-		buffer.putInt(uriBytes.length);
-		buffer.put(uriBytes);
-		
-		// Attribute name
-		byte[] attributeNameByte = message.getAttributeName().getBytes("UTF-16BE");
-		buffer.putInt(attributeNameByte.length);
-		buffer.put(attributeNameByte);
-		
-		// Expiration time
-		buffer.putLong(message.getExpirationTime());
-		
-		buffer.put(message.getOrigin().getBytes("UTF-16BE"));
-		
-		buffer.flip();
-		
-		out.write(buffer);
-		
-		buffer.free();
+  @Override
+  public void encode(IoSession session, ExpireAttributeMessage message,
+      ProtocolEncoderOutput out) throws Exception {
+    IoBuffer buffer = IoBuffer.allocate(message.getMessageLength() + 4);
 
-	}
+    // Message length
+    buffer.putInt(message.getMessageLength());
+
+    // Message type
+    buffer.put(ExpireAttributeMessage.MESSAGE_TYPE);
+
+    // Target URI
+    byte[] uriBytes = message.getId().getBytes("UTF-16BE");
+    buffer.putInt(uriBytes.length);
+    buffer.put(uriBytes);
+
+    // Attribute name
+    byte[] attributeNameByte = message.getAttributeName().getBytes("UTF-16BE");
+    buffer.putInt(attributeNameByte.length);
+    buffer.put(attributeNameByte);
+
+    // Expiration time
+    buffer.putLong(message.getExpirationTime());
+
+    buffer.put(message.getOrigin().getBytes("UTF-16BE"));
+
+    buffer.flip();
+
+    out.write(buffer);
+
+    buffer.free();
+
+  }
 
 }

@@ -24,16 +24,16 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.StartTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.StartTransientMessage.TransientRequest;
+import com.owlplatform.worldmodel.solver.protocol.messages.ExpireIdentifierMessage;
 
-public class StartTransientDecoder implements MessageDecoder {
+/**
+ * Decoder for Expire Identifier messages.
+ * @author Robert Moore
+ *
+ */
+public class ExpireIdentifierDecoder implements MessageDecoder {
 
-	private static final Logger log = LoggerFactory.getLogger(StartTransientDecoder.class);
-	
 	@Override
 	public MessageDecoderResult decodable(IoSession session, IoBuffer buffer) {
 		if (buffer.prefixedDataAvailable(4, 65536)) {
@@ -46,7 +46,7 @@ public class StartTransientDecoder implements MessageDecoder {
 
 			byte messageType = buffer.get();
 			buffer.reset();
-			if (messageType == StartTransientMessage.MESSAGE_TYPE) {
+			if (messageType == ExpireIdentifierMessage.MESSAGE_TYPE) {
 				return MessageDecoderResult.OK;
 			}
 			return MessageDecoderResult.NOT_OK;
@@ -57,47 +57,26 @@ public class StartTransientDecoder implements MessageDecoder {
 	@Override
 	public MessageDecoderResult decode(IoSession session, IoBuffer buffer,
 			ProtocolDecoderOutput out) throws Exception {
-		StartTransientMessage message =new StartTransientMessage();
+		ExpireIdentifierMessage message = new ExpireIdentifierMessage();
 		
 		int messageLength = buffer.getInt();
-		byte messageType = buffer.get();
+		
+		buffer.get();
 		--messageLength;
 		
-		int numTransients = buffer.getInt();
+		int uriLength = buffer.getInt();
 		messageLength -= 4;
+		byte[] uriBytes = new byte[uriLength];
+		buffer.get(uriBytes);
+		messageLength -= uriBytes.length;
 		
-		if(numTransients > 0){
-			TransientRequest[] transients = new TransientRequest[numTransients];
-			
-			for(int i = 0; i < numTransients; ++i){
-				TransientRequest request = new TransientRequest();
-				request.setTransientAlias(buffer.getInt());
-				messageLength -= 4;
-				
-				int numUriPatterns = buffer.getInt();
-				messageLength -= 4;
-				
-				if(numUriPatterns > 0){
-					String[] uriPatterns = new String[numUriPatterns];
-					
-					for(int j = 0; j < numUriPatterns; ++j){
-						int uriLength = buffer.getInt();
-						messageLength -= 4;
-						
-						byte[] uriBytes = new byte[uriLength];
-						buffer.get(uriBytes);
-						messageLength -= uriLength;
-						
-						uriPatterns[j] = new String(uriBytes,"UTF-16BE");
-					}
-					
-					request.setUriPatterns(uriPatterns);
-				}
-				
-			}
-			
-			message.setTransientRequests(transients);
-		}
+		message.setId(new String(uriBytes,"UTF-16BE"));
+		
+		message.setExpirationTime(buffer.getLong());
+		messageLength -= 8;
+		
+		byte[] originBytes = new byte[messageLength];
+		message.setOrigin(new String(originBytes,"UTF-16BE"));
 		
 		out.write(message);
 		

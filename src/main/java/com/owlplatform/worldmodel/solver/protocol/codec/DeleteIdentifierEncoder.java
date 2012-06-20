@@ -24,35 +24,29 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.owlplatform.worldmodel.solver.protocol.messages.DeleteIdentifierMessage;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.ExpireIdentifierMessage;
+/**
+ * Encoder for Delete Identifier messages.
+ * @author Robert Moore
+ *
+ */
+public class DeleteIdentifierEncoder implements MessageEncoder<DeleteIdentifierMessage> {
 
-public class ExpireURIEncoder implements MessageEncoder<ExpireIdentifierMessage> {
-
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(ExpireURIEncoder.class);
-	
 	@Override
-	public void encode(IoSession session, ExpireIdentifierMessage message,
+	public void encode(IoSession session, DeleteIdentifierMessage message,
 			ProtocolEncoderOutput out) throws Exception {
 		IoBuffer buffer = IoBuffer.allocate(message.getMessageLength()+4);
 		
 		// Message length
 		buffer.putInt(message.getMessageLength());
 		// Message type
-		buffer.put(ExpireIdentifierMessage.MESSAGE_TYPE);
+		buffer.put(DeleteIdentifierMessage.MESSAGE_TYPE);
 		
-		// URI to expire
-		byte[] uriBytes = message.getUri().getBytes("UTF-16BE");
+		// URI to delete
+		byte[] uriBytes = message.getId().getBytes("UTF-16BE");
 		buffer.putInt(uriBytes.length);
 		buffer.put(uriBytes);
-		
-		// Creation time
-		buffer.putLong(message.getCreationTime());
 		
 		// Origin
 		byte[] originBytes = message.getOrigin().getBytes("UTF-16BE");

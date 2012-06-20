@@ -16,6 +16,7 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
 package com.owlplatform.worldmodel.solver.protocol.codec;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -24,11 +25,16 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.StopTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage.AttributeSpecification;
+import com.owlplatform.worldmodel.solver.protocol.messages.OnDemandRequest;
+import com.owlplatform.worldmodel.solver.protocol.messages.StopOnDemandMessage;
 
-public class TypeAnnounceDecoder implements MessageDecoder {
+/**
+ * Decoder for Stop On-Demand messages.
+ * @author Robert Moore
+ *
+ */
+public class StopOnDemandDecoder implements MessageDecoder {
+
 
 	@Override
 	public MessageDecoderResult decodable(IoSession session, IoBuffer buffer) {
@@ -42,7 +48,7 @@ public class TypeAnnounceDecoder implements MessageDecoder {
 
 			byte messageType = buffer.get();
 			buffer.reset();
-			if (messageType == AttributeAnnounceMessage.MESSAGE_TYPE) {
+			if (messageType == StopOnDemandMessage.MESSAGE_TYPE) {
 				return MessageDecoderResult.OK;
 			}
 			return MessageDecoderResult.NOT_OK;
@@ -53,47 +59,38 @@ public class TypeAnnounceDecoder implements MessageDecoder {
 	@Override
 	public MessageDecoderResult decode(IoSession session, IoBuffer buffer,
 			ProtocolDecoderOutput out) throws Exception {
-		AttributeAnnounceMessage message = new AttributeAnnounceMessage();
-		
-		int messageLength = buffer.getInt();
-		byte messageType = buffer.get();
-		--messageLength;
-		
-		int numTypes = buffer.getInt();
-		messageLength -= 4;
-		
-		if(numTypes > 0){
-			AttributeSpecification[] specs = new AttributeSpecification[numTypes];
-			
-			for(int i = 0; i < numTypes; ++i){
-				AttributeSpecification spec = new AttributeSpecification();
-				
-				int alias = buffer.getInt();
-				messageLength -= 4;
-				spec.setAlias(alias);
-				
-				int uriLength = buffer.getInt();
-				messageLength -= 4;
-				byte[] uriBytes = new byte[uriLength];
-				buffer.get(uriBytes);
-				messageLength -= uriLength;
-				spec.setAttributeName(new String(uriBytes,"UTF-16BE"));
-				
-				spec.setIsOnDemand(buffer.get() == (byte)0 ?  false : true);
-				--messageLength;
-				
-				specs[i] = spec;
+		StopOnDemandMessage message = new StopOnDemandMessage();
+
+		buffer.getInt();
+		buffer.get();
+		int numTransients = buffer.getInt();
+		if (numTransients > 0) {
+			OnDemandRequest[] transients = new OnDemandRequest[numTransients];
+
+			for (int i = 0; i < numTransients; ++i) {
+				OnDemandRequest request = new OnDemandRequest();
+				request.setAttributeAlias(buffer.getInt());
+				int numUriPatterns = buffer.getInt();
+				if (numUriPatterns > 0) {
+					String[] uriPatterns = new String[numUriPatterns];
+
+					for (int j = 0; j < numUriPatterns; ++j) {
+						int uriLength = buffer.getInt();
+						byte[] uriBytes = new byte[uriLength];
+						buffer.get(uriBytes);
+						uriPatterns[j] = new String(uriBytes, "UTF-16BE");
+					}
+
+					request.setIdPatterns(uriPatterns);
+				}
+
 			}
-			
-			message.setTypeSpecifications(specs);
+
+			message.setRequests(transients);
 		}
-		
-		byte[] originBytes = new byte[messageLength];
-		buffer.get(originBytes);
-		message.setOrigin(new String(originBytes, "UTF-16BE"));
-		
+
 		out.write(message);
-		
+
 		return MessageDecoderResult.OK;
 	}
 

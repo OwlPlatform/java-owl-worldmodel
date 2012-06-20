@@ -23,63 +23,44 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.StartTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.StartTransientMessage.TransientRequest;
+import com.owlplatform.worldmodel.solver.protocol.messages.CreateIdentifierMessage;
 
-public class StartTransientEncoder implements
-		MessageEncoder<StartTransientMessage> {
+/**
+ * Encoder for Create Identifier Messages.
+ * @author Robert Moore
+ *
+ */
+public class CreateIdentifierEncoder implements MessageEncoder<CreateIdentifierMessage> {
 
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(StartTransientEncoder.class);
-	
+
 	@Override
-	public void encode(IoSession session, StartTransientMessage message,
+	public void encode(IoSession session, CreateIdentifierMessage message,
 			ProtocolEncoderOutput out) throws Exception {
 		IoBuffer buffer = IoBuffer.allocate(message.getMessageLength()+4);
 		
 		// Message length
 		buffer.putInt(message.getMessageLength());
-		
 		// Message type
-		buffer.put(StartTransientMessage.MESSAGE_TYPE);
+		buffer.put(CreateIdentifierMessage.MESSAGE_TYPE);
 		
-		if(message.getTransientRequests() != null){
-			// Number of transient requests
-			buffer.putInt(message.getTransientRequests().length);
-			for(TransientRequest request : message.getTransientRequests()){
-				// Transient Alias
-				buffer.putInt(request.getTransientAlias());
-				if(request.getUriPatterns()!= null){
-					// Number of URI patterns
-					buffer.putInt(request.getUriPatterns().length);
-					for(String uriPattern : request.getUriPatterns()){
-						byte[] uriPatternByte = uriPattern.getBytes("UTF-16BE");
-						buffer.putInt(uriPatternByte.length);
-						buffer.put(uriPatternByte);
-					}
-				}
-				// No URI patterns
-				else{
-					buffer.putInt(0);
-				}
-			}
-		}
-		// No transient requests
-		else{
-			buffer.putInt(0);
-		}
+		// URI to create
+		byte[] uriBytes = message.getId().getBytes("UTF-16BE");
+		buffer.putInt(uriBytes.length);
+		buffer.put(uriBytes);
+		
+		// Creation time
+		buffer.putLong(message.getCreationTime());
+		
+		// Origin
+		byte[] originBytes = message.getOrigin().getBytes("UTF-16BE");
+		buffer.put(originBytes);
 		
 		buffer.flip();
 		
 		out.write(buffer);
 		
 		buffer.free();
-
 	}
 
 }

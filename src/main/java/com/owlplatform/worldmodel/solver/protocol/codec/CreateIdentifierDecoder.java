@@ -25,11 +25,14 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.DeleteIdentifierMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.CreateIdentifierMessage;
 
-
-
-public class DeleteURIDecoder implements MessageDecoder {
+/**
+ * Decoder for Create Identifier messages.
+ * @author Robert Moore
+ *
+ */
+public class CreateIdentifierDecoder implements MessageDecoder {
 
 	@Override
 	public MessageDecoderResult decodable(IoSession session, IoBuffer buffer) {
@@ -43,7 +46,7 @@ public class DeleteURIDecoder implements MessageDecoder {
 
 			byte messageType = buffer.get();
 			buffer.reset();
-			if (messageType == DeleteIdentifierMessage.MESSAGE_TYPE) {
+			if (messageType == CreateIdentifierMessage.MESSAGE_TYPE) {
 				return MessageDecoderResult.OK;
 			}
 			return MessageDecoderResult.NOT_OK;
@@ -54,11 +57,11 @@ public class DeleteURIDecoder implements MessageDecoder {
 	@Override
 	public MessageDecoderResult decode(IoSession session, IoBuffer buffer,
 			ProtocolDecoderOutput out) throws Exception {
-		DeleteIdentifierMessage message = new DeleteIdentifierMessage();
+		CreateIdentifierMessage message = new CreateIdentifierMessage();
 		
 		int messageLength = buffer.getInt();
 		
-		byte messageType = buffer.get();
+		buffer.get();
 		--messageLength;
 		
 		int uriLength = buffer.getInt();
@@ -68,7 +71,10 @@ public class DeleteURIDecoder implements MessageDecoder {
 		messageLength -= uriBytes.length;
 		
 		message.setId(new String(uriBytes,"UTF-16BE"));
-				
+		
+		message.setCreationTime(buffer.getLong());
+		messageLength -= 8;
+		
 		byte[] originBytes = new byte[messageLength];
 		message.setOrigin(new String(originBytes,"UTF-16BE"));
 		

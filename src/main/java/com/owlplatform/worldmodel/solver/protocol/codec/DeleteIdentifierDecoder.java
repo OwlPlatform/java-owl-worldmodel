@@ -25,10 +25,15 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.ExpireIdentifierMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.DeleteIdentifierMessage;
 
 
-public class ExpireURIDecoder implements MessageDecoder {
+/**
+ * Decoder for Delete Identifier messages.
+ * @author Robert Moore
+ *
+ */
+public class DeleteIdentifierDecoder implements MessageDecoder {
 
 	@Override
 	public MessageDecoderResult decodable(IoSession session, IoBuffer buffer) {
@@ -42,7 +47,7 @@ public class ExpireURIDecoder implements MessageDecoder {
 
 			byte messageType = buffer.get();
 			buffer.reset();
-			if (messageType == ExpireIdentifierMessage.MESSAGE_TYPE) {
+			if (messageType == DeleteIdentifierMessage.MESSAGE_TYPE) {
 				return MessageDecoderResult.OK;
 			}
 			return MessageDecoderResult.NOT_OK;
@@ -53,11 +58,11 @@ public class ExpireURIDecoder implements MessageDecoder {
 	@Override
 	public MessageDecoderResult decode(IoSession session, IoBuffer buffer,
 			ProtocolDecoderOutput out) throws Exception {
-		ExpireIdentifierMessage message = new ExpireIdentifierMessage();
+		DeleteIdentifierMessage message = new DeleteIdentifierMessage();
 		
 		int messageLength = buffer.getInt();
 		
-		byte messageType = buffer.get();
+		buffer.get();
 		--messageLength;
 		
 		int uriLength = buffer.getInt();
@@ -66,11 +71,8 @@ public class ExpireURIDecoder implements MessageDecoder {
 		buffer.get(uriBytes);
 		messageLength -= uriBytes.length;
 		
-		message.setUri(new String(uriBytes,"UTF-16BE"));
-		
-		message.setExpirationTime(buffer.getLong());
-		messageLength -= 8;
-		
+		message.setId(new String(uriBytes,"UTF-16BE"));
+				
 		byte[] originBytes = new byte[messageLength];
 		message.setOrigin(new String(originBytes,"UTF-16BE"));
 		

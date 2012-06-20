@@ -32,27 +32,39 @@ import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.solver.protocol.messages.HandshakeMessage;
 
+/**
+ * Decoder for Solver-World Model Handshake messages.
+ * @author Robert Moore
+ *
+ */
 public class HandshakeDecoder implements MessageDecoder {
 
+  /**
+   * Logger for this class.
+   */
 	private static final Logger log = LoggerFactory
 			.getLogger(HandshakeDecoder.class);
 
+	/**
+	 * Charset for ASCII strings.
+	 */
 	private static final Charset charsetASCII = Charset.forName("US-ASCII");
 
+	@Override
 	public MessageDecoderResult decodable(IoSession arg0, IoBuffer arg1) {
 
 		if (!arg1.prefixedDataAvailable(4,
 				HandshakeMessage.PROTOCOL_STRING_LENGTH)) {
 			log
-					.debug("Not yet decodable with only {} bytes.", arg1
-							.remaining());
+					.debug("Not yet decodable with only {} bytes.", Integer.valueOf(arg1
+							.remaining()));
 			return MessageDecoderResult.NEED_DATA;
 		}
 
-		// TODO: Need better logic to determine decodability
 		return MessageDecoderResult.OK;
 	}
 
+	@Override
 	public MessageDecoderResult decode(IoSession arg0, IoBuffer arg1,
 			ProtocolDecoderOutput arg2) throws Exception {
 
@@ -62,8 +74,8 @@ public class HandshakeDecoder implements MessageDecoder {
 			message.setStringLength(arg1.getInt());
 			if (message.getStringLength() != HandshakeMessage.PROTOCOL_STRING_LENGTH) {
 				throw new RuntimeException(String.format(
-						"Handshake protocol string length is incorrect: %d",
-						message.getStringLength()));
+						"Handshake protocol string length is incorrect: %d",Integer.valueOf(
+						message.getStringLength())));
 			}
 
 			message.setProtocolString(String.valueOf(arg1.getString(message
@@ -77,13 +89,14 @@ public class HandshakeDecoder implements MessageDecoder {
 			return MessageDecoderResult.OK;
 		}
 		// Entire message is not yet available
-		log.warn("Insufficient buffer size: {}.", arg1.remaining());
+		log.warn("Insufficient buffer size: {}.", Integer.valueOf(arg1.remaining()));
 		return MessageDecoderResult.NEED_DATA;
 	}
 
+	@Override
 	public void finishDecode(IoSession arg0, ProtocolDecoderOutput arg1)
 			throws Exception {
-		// Nothing to do
+	  // Nothing to do
 	}
 
 }

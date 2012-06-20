@@ -30,12 +30,17 @@ import com.owlplatform.common.util.NumericUtils;
 import com.owlplatform.worldmodel.Attribute;
 import com.owlplatform.worldmodel.solver.protocol.messages.AttributeUpdateMessage;
 
-public class DataTransferEncoder implements MessageEncoder<AttributeUpdateMessage> {
+/**
+ * Encoder for Attribute Update messages.
+ * @author Robert Moore
+ *
+ */
+public class AttributeUpdateEncoder implements MessageEncoder<AttributeUpdateMessage> {
 
 	/**
 	 * Logging facility for this class.
 	 */
-	private static final Logger log = LoggerFactory.getLogger(DataTransferEncoder.class);
+	private static final Logger log = LoggerFactory.getLogger(AttributeUpdateEncoder.class);
 	
 	@Override
 	public void encode(IoSession session, AttributeUpdateMessage message,

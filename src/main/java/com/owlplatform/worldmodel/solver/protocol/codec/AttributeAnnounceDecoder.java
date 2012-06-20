@@ -16,7 +16,6 @@
  * with this program; if not, write to the Free Software Foundation, Inc.,
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
 package com.owlplatform.worldmodel.solver.protocol.codec;
 
 import org.apache.mina.core.buffer.IoBuffer;
@@ -25,10 +24,15 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.CreateIdentifierMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage.AttributeSpecification;
 
-
-public class CreateURIDecoder implements MessageDecoder {
+/**
+ * Decoder for Attribute Announce messages.
+ * @author Robert Moore
+ *
+ */
+public class AttributeAnnounceDecoder implements MessageDecoder {
 
 	@Override
 	public MessageDecoderResult decodable(IoSession session, IoBuffer buffer) {
@@ -42,7 +46,7 @@ public class CreateURIDecoder implements MessageDecoder {
 
 			byte messageType = buffer.get();
 			buffer.reset();
-			if (messageType == CreateIdentifierMessage.MESSAGE_TYPE) {
+			if (messageType == AttributeAnnounceMessage.MESSAGE_TYPE) {
 				return MessageDecoderResult.OK;
 			}
 			return MessageDecoderResult.NOT_OK;
@@ -53,26 +57,44 @@ public class CreateURIDecoder implements MessageDecoder {
 	@Override
 	public MessageDecoderResult decode(IoSession session, IoBuffer buffer,
 			ProtocolDecoderOutput out) throws Exception {
-		CreateIdentifierMessage message = new CreateIdentifierMessage();
+		AttributeAnnounceMessage message = new AttributeAnnounceMessage();
 		
 		int messageLength = buffer.getInt();
-		
-		byte messageType = buffer.get();
+		buffer.get();
 		--messageLength;
 		
-		int uriLength = buffer.getInt();
+		int numTypes = buffer.getInt();
 		messageLength -= 4;
-		byte[] uriBytes = new byte[uriLength];
-		buffer.get(uriBytes);
-		messageLength -= uriBytes.length;
 		
-		message.setId(new String(uriBytes,"UTF-16BE"));
-		
-		message.setCreationTime(buffer.getLong());
-		messageLength -= 8;
+		if(numTypes > 0){
+			AttributeSpecification[] specs = new AttributeSpecification[numTypes];
+			
+			for(int i = 0; i < numTypes; ++i){
+				AttributeSpecification spec = new AttributeSpecification();
+				
+				int alias = buffer.getInt();
+				messageLength -= 4;
+				spec.setAlias(alias);
+				
+				int uriLength = buffer.getInt();
+				messageLength -= 4;
+				byte[] uriBytes = new byte[uriLength];
+				buffer.get(uriBytes);
+				messageLength -= uriLength;
+				spec.setAttributeName(new String(uriBytes,"UTF-16BE"));
+				
+				spec.setIsOnDemand(buffer.get() == (byte)0 ?  false : true);
+				--messageLength;
+				
+				specs[i] = spec;
+			}
+			
+			message.setTypeSpecifications(specs);
+		}
 		
 		byte[] originBytes = new byte[messageLength];
-		message.setOrigin(new String(originBytes,"UTF-16BE"));
+		buffer.get(originBytes);
+		message.setOrigin(new String(originBytes, "UTF-16BE"));
 		
 		out.write(message);
 		

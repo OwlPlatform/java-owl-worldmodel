@@ -23,17 +23,17 @@ import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
 
 import com.owlplatform.worldmodel.client.protocol.messages.OriginPreferenceMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.CreateURIMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.DataTransferMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.CreateIdentifierMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeUpdateMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.DeleteAttributeMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.DeleteURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.DeleteIdentifierMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.ExpireAttributeMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.ExpireURIMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.ExpireIdentifierMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.HandshakeMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.KeepAliveMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.StartTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.StopTransientMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.TypeAnnounceMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.StartOnDemandMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.StopOnDemandMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
 
 public interface SolverIoAdapter {
 
@@ -49,19 +49,19 @@ public interface SolverIoAdapter {
 
 	public void keepAliveReceived(IoSession session, KeepAliveMessage message);
 	
-	public void typeAnnounceReceived(IoSession session, TypeAnnounceMessage message);
+	public void typeAnnounceReceived(IoSession session, AttributeAnnounceMessage message);
 	
-	public void startTransientReceived(IoSession session, StartTransientMessage message);
+	public void startTransientReceived(IoSession session, StartOnDemandMessage message);
 	
-	public void stopTransientReceived(IoSession session, StopTransientMessage message);
+	public void stopTransientReceived(IoSession session, StopOnDemandMessage message);
 	
-	public void dataTransferReceived(IoSession session, DataTransferMessage message);
+	public void dataTransferReceived(IoSession session, AttributeUpdateMessage message);
 	
-	public void createUriReceived(IoSession session, CreateURIMessage message);
+	public void createUriReceived(IoSession session, CreateIdentifierMessage message);
 	
-	public void expireUriReceived(IoSession session, ExpireURIMessage message);
+	public void expireUriReceived(IoSession session, ExpireIdentifierMessage message);
 	
-	public void deleteUriReceived(IoSession session, DeleteURIMessage message);
+	public void deleteUriReceived(IoSession session, DeleteIdentifierMessage message);
 	
 	public void expireAttributeReceived(IoSession session, ExpireAttributeMessage message);
 	
@@ -71,19 +71,19 @@ public interface SolverIoAdapter {
 
 	public void keepAliveSent(IoSession session, KeepAliveMessage message);
 
-	public void typeAnnounceSent(IoSession session, TypeAnnounceMessage message);
+	public void typeAnnounceSent(IoSession session, AttributeAnnounceMessage message);
 	
-	public void startTransientSent(IoSession session, StartTransientMessage message);
+	public void startTransientSent(IoSession session, StartOnDemandMessage message);
 	
-	public void stopTransientSent(IoSession session, StopTransientMessage message);
+	public void stopTransientSent(IoSession session, StopOnDemandMessage message);
 	
-	public void dataTransferSent(IoSession session, DataTransferMessage message);
+	public void dataTransferSent(IoSession session, AttributeUpdateMessage message);
 	
-	public void createUriSent(IoSession session, CreateURIMessage message);
+	public void createUriSent(IoSession session, CreateIdentifierMessage message);
 	
-	public void expireUriSent(IoSession session, ExpireURIMessage message);
+	public void expireUriSent(IoSession session, ExpireIdentifierMessage message);
 	
-	public void deleteUriSent(IoSession session, DeleteURIMessage message);
+	public void deleteUriSent(IoSession session, DeleteIdentifierMessage message);
 	
 	public void expireAttributeSent(IoSession session, ExpireAttributeMessage message);
 	

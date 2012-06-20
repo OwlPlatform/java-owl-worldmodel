@@ -24,36 +24,57 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage.AttributeSpecification;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.DeleteIdentifierMessage;
+/**
+ * Encoder for Attribute Announce messages.
+ * @author Robert Moore
+ *
+ */
+public class AttributeAnnounceEncoder implements MessageEncoder<AttributeAnnounceMessage> {
 
-public class DeleteURIEncoder implements MessageEncoder<DeleteIdentifierMessage> {
-
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(DeleteURIEncoder.class);
-	
 	@Override
-	public void encode(IoSession session, DeleteIdentifierMessage message,
+	public void encode(IoSession session, AttributeAnnounceMessage message,
 			ProtocolEncoderOutput out) throws Exception {
 		IoBuffer buffer = IoBuffer.allocate(message.getMessageLength()+4);
 		
 		// Message length
 		buffer.putInt(message.getMessageLength());
+		
 		// Message type
-		buffer.put(DeleteIdentifierMessage.MESSAGE_TYPE);
+		buffer.put(AttributeAnnounceMessage.MESSAGE_TYPE);
 		
-		// URI to delete
-		byte[] uriBytes = message.getId().getBytes("UTF-16BE");
-		buffer.putInt(uriBytes.length);
-		buffer.put(uriBytes);
+		AttributeSpecification[] typeSpecs = message.getAttributeSpecifications();
+		if(typeSpecs != null){
+			// Number of Type specifications
+			buffer.putInt(typeSpecs.length);
+			for(AttributeSpecification spec : typeSpecs){
+				// Type alias 
+				buffer.putInt(spec.getAlias());
+				
+				// Solution URI name
+				if(spec.getAttributeName() != null){
+					byte[] uriNameByte = spec.getAttributeName().getBytes("UTF-16BE");
+					buffer.putInt(uriNameByte.length);
+					buffer.put(uriNameByte);
+				}
+				// No solution URI name
+				else{
+					buffer.putInt(0);
+				}
+				// Is transient (boolean as byte)
+				buffer.put(spec.getOnDemand() ? (byte)1 : (byte)0);
+			}
+		}
+		// No type specifications
+		else{
+			buffer.putInt(0);
+		}
 		
-		// Origin
-		byte[] originBytes = message.getOrigin().getBytes("UTF-16BE");
-		buffer.put(originBytes);
+		if(message.getOrigin() != null){
+			buffer.put(message.getOrigin().getBytes("UTF-16BE"));
+		}
 		
 		buffer.flip();
 		

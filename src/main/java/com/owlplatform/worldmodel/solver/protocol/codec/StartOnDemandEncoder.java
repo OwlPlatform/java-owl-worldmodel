@@ -23,21 +23,20 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage.AttributeSpecification;
+import com.owlplatform.worldmodel.solver.protocol.messages.OnDemandRequest;
+import com.owlplatform.worldmodel.solver.protocol.messages.StartOnDemandMessage;
 
-public class TypeAnnounceEncoder implements MessageEncoder<AttributeAnnounceMessage> {
+/**
+ * Encoder for Start On-Demand messages.
+ * @author Robert Moore
+ *
+ */
+public class StartOnDemandEncoder implements
+		MessageEncoder<StartOnDemandMessage> {
 
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(TypeAnnounceEncoder.class);
-	
 	@Override
-	public void encode(IoSession session, AttributeAnnounceMessage message,
+	public void encode(IoSession session, StartOnDemandMessage message,
 			ProtocolEncoderOutput out) throws Exception {
 		IoBuffer buffer = IoBuffer.allocate(message.getMessageLength()+4);
 		
@@ -45,37 +44,32 @@ public class TypeAnnounceEncoder implements MessageEncoder<AttributeAnnounceMess
 		buffer.putInt(message.getMessageLength());
 		
 		// Message type
-		buffer.put(AttributeAnnounceMessage.MESSAGE_TYPE);
+		buffer.put(StartOnDemandMessage.MESSAGE_TYPE);
 		
-		AttributeSpecification[] typeSpecs = message.getAttributeSpecifications();
-		if(typeSpecs != null){
-			// Number of Type specifications
-			buffer.putInt(typeSpecs.length);
-			for(AttributeSpecification spec : typeSpecs){
-				// Type alias 
-				buffer.putInt(spec.getAlias());
-				
-				// Solution URI name
-				if(spec.getAttributeName() != null){
-					byte[] uriNameByte = spec.getAttributeName().getBytes("UTF-16BE");
-					buffer.putInt(uriNameByte.length);
-					buffer.put(uriNameByte);
+		if(message.getRequests() != null){
+			// Number of transient requests
+			buffer.putInt(message.getRequests().length);
+			for(OnDemandRequest request : message.getRequests()){
+				// Transient Alias
+				buffer.putInt(request.getAttributeAlias());
+				if(request.getIdPatterns()!= null){
+					// Number of URI patterns
+					buffer.putInt(request.getIdPatterns().length);
+					for(String uriPattern : request.getIdPatterns()){
+						byte[] uriPatternByte = uriPattern.getBytes("UTF-16BE");
+						buffer.putInt(uriPatternByte.length);
+						buffer.put(uriPatternByte);
+					}
 				}
-				// No solution URI name
+				// No URI patterns
 				else{
 					buffer.putInt(0);
 				}
-				// Is transient (boolean as byte)
-				buffer.put(spec.getOnDemand() ? (byte)1 : (byte)0);
 			}
 		}
-		// No type specifications
+		// No transient requests
 		else{
 			buffer.putInt(0);
-		}
-		
-		if(message.getOrigin() != null){
-			buffer.put(message.getOrigin().getBytes("UTF-16BE"));
 		}
 		
 		buffer.flip();
@@ -83,6 +77,7 @@ public class TypeAnnounceEncoder implements MessageEncoder<AttributeAnnounceMess
 		out.write(buffer);
 		
 		buffer.free();
+
 	}
 
 }
