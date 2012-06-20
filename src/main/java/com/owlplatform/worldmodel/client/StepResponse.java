@@ -231,7 +231,7 @@ public class StepResponse {
    */
   public void cancel() {
 
-    this.conn.cancelSnapshot(this.ticketNumber);
+    this.conn.cancelRequest(this.ticketNumber);
   }
 
   /**

@@ -62,12 +62,12 @@ public class WorldModelClientProtocolCodecFactory extends
             super.addMessageEncoder(CancelRequestMessage.class,
                     CancelRequestEncoder.class);
             super.addMessageEncoder(IdSearchMessage.class,
-                    URISearchEncoder.class);
+                    IdSearchEncoder.class);
             super.addMessageEncoder(OriginPreferenceMessage.class,
                     OriginPreferenceEncoder.class);
 
             // Decoders for client
-            super.addMessageDecoder(URISearchResponseDecoder.class);
+            super.addMessageDecoder(IdSearchResponseDecoder.class);
             super.addMessageDecoder(OriginAliasDecoder.class);
             super.addMessageDecoder(AttributeAliasDecoder.class);
             super.addMessageDecoder(DataResponseDecoder.class);
@@ -80,7 +80,7 @@ public class WorldModelClientProtocolCodecFactory extends
             super.addMessageEncoder(DataResponseMessage.class,
                     DataResponseEncoder.class);
             super.addMessageEncoder(IdSearchResponseMessage.class,
-                    URISearchResponseEncoder.class);
+                    IdSearchResponseEncoder.class);
             super.addMessageEncoder(RequestCompleteMessage.class,
                     RequestCompleteEncoder.class);
             super.addMessageEncoder(OriginAliasMessage.class,
@@ -93,7 +93,7 @@ public class WorldModelClientProtocolCodecFactory extends
             super.addMessageDecoder(RangeRequestDecoder.class);
             super.addMessageDecoder(StreamRequestDecoder.class);
             super.addMessageDecoder(CancelRequestDecoder.class);
-            super.addMessageDecoder(URISearchDecoder.class);
+            super.addMessageDecoder(IdSearchDecoder.class);
             super.addMessageDecoder(OriginPreferenceDecoder.class);
         }
         // Decoders for both

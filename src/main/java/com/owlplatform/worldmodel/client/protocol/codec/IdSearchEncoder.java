@@ -22,43 +22,33 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.client.protocol.messages.IdSearchResponseMessage;
+import com.owlplatform.worldmodel.client.protocol.messages.IdSearchMessage;
 
-public class URISearchResponseEncoder implements
-		MessageEncoder<IdSearchResponseMessage> {
+/**
+ * Encoder for Identifier Search messages.
+ * @author Robert Moore
+ *
+ */
+public class IdSearchEncoder implements MessageEncoder<IdSearchMessage> {
 
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(URISearchResponseEncoder.class);
-	
+
 	@Override
-	public void encode(IoSession session, IdSearchResponseMessage message,
+	public void encode(IoSession session, IdSearchMessage message,
 			ProtocolEncoderOutput out) throws Exception {
-		int prefixLength = message.getMessageLength();
-		
-		IoBuffer buffer = IoBuffer.allocate(prefixLength+4);
-		
-		buffer.putInt(prefixLength);
-		buffer.put(IdSearchResponseMessage.MESSAGE_TYPE);
-		
-		if(message.getMatchingIds() != null){
-			for(String uri : message.getMatchingIds()){
-				byte[] uriByte = uri.getBytes("UTF-16BE");
-				buffer.putInt(uriByte.length);
-				buffer.put(uriByte);
-			}
+		IoBuffer buffer = IoBuffer.allocate(message.getMessageLength() + 4);
+		buffer.putInt(message.getMessageLength());
+		buffer.put(IdSearchMessage.MESSAGE_TYPE);
+		if (message.getIdRegex() != null) {
+			byte[] uriRegexByte = message.getIdRegex().getBytes("UTF-16BE");
+			buffer.put(uriRegexByte);
 		}
+
+		
 		
 		buffer.flip();
-		
 		out.write(buffer);
-		
 		buffer.free();
-		
 	}
 
 }

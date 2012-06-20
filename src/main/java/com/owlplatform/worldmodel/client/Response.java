@@ -160,7 +160,7 @@ public class Response {
 	 * Cancels the request associated with this {@code Response} object. 
 	 */
 	public void cancel() {
-		this.conn.cancelSnapshot(this.ticketNumber);
+		this.conn.cancelRequest(this.ticketNumber);
 	}
 
 	/**

@@ -25,18 +25,17 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.client.protocol.messages.StreamRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.IdSearchResponseMessage;
 
-public class URISearchResponseDecoder implements MessageDecoder {
+/**
+ * Decoder for Identifier Search responses.
+ * @author Robert Moore
+ *
+ */
+public class IdSearchResponseDecoder implements MessageDecoder {
 
-	private static final Logger log = LoggerFactory
-			.getLogger(URISearchResponseDecoder.class);
-
-	@Override
+  	@Override
 	public MessageDecoderResult decodable(IoSession session, IoBuffer buffer) {
 		if (buffer.prefixedDataAvailable(4)) {
 			buffer.mark();
@@ -63,7 +62,7 @@ public class URISearchResponseDecoder implements MessageDecoder {
 		IdSearchResponseMessage message = new IdSearchResponseMessage();
 		
 		int messageLength = buffer.getInt();
-		byte messageType = buffer.get();
+		buffer.get();
 		--messageLength;
 
 		if (messageLength > 0) {
