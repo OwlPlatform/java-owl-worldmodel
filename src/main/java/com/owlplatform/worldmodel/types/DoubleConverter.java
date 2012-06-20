@@ -20,10 +20,29 @@ package com.owlplatform.worldmodel.types;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Converter for {@code Double} objects.
+ * @author Robert Moore
+ *
+ */
 public class DoubleConverter implements TypeConverter<Double> {
 
-	public static final DoubleConverter CONVERTER = new DoubleConverter();
+  /**
+   * Returns a thread-safe instance of this converter.
+   * @return a thread-safe instance of the converter.
+   */
+  public static DoubleConverter get(){
+    return CONVERTER;
+  }
+  
+  /**
+   * Singleton instance.
+   */
+	private static final DoubleConverter CONVERTER = new DoubleConverter();
 	
+	/**
+	 * Private constructor to prevent external instantiation.
+	 */
 	private DoubleConverter(){super();}
 	
 	@Override
@@ -35,10 +54,11 @@ public class DoubleConverter implements TypeConverter<Double> {
 	@Override
 	public byte[] encode(Double object) {
 		ByteBuffer buff = ByteBuffer.allocate(8);
-		buff.putDouble(object);
+		buff.putDouble(object.doubleValue());
 		return buff.array();
 	}
 	
+	@Override
 	public String getTypeName(){
 		return "Double";
 	}

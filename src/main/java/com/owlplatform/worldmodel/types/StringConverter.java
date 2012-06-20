@@ -24,12 +24,34 @@ import java.io.UnsupportedEncodingException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Attribute converter for UTF16-BE strings.
+ * @author Robert Moore
+ *
+ */
 public class StringConverter implements TypeConverter<String> {
 
+  /**
+   * Logger for this class.
+   */
 	private static final Logger log = LoggerFactory.getLogger(StringConverter.class);
+
+	/**
+   * Returns a thread-safe instance of this converter.
+   * @return a thread-safe instance of the converter.
+   */
+	public static StringConverter get(){
+	  return THE_ONE;
+	}
 	
-	public static final StringConverter CONVERTER = new StringConverter();
+	/**
+	 * Singleton instance of the converter.
+	 */
+	private static final StringConverter THE_ONE = new StringConverter();
 	
+	/**
+	 * Private constructor to prevent external instantiation.
+	 */
 	private StringConverter(){super();}
 	
 	@Override
@@ -52,6 +74,7 @@ public class StringConverter implements TypeConverter<String> {
 		}
 	}
 
+	@Override
 	public String getTypeName(){
 		return "String";
 	}

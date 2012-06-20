@@ -18,6 +18,13 @@
  */
 package com.owlplatform.worldmodel.types;
 
+/**
+ * Interface for converting between primitives/objects and their representation
+ * as Attribute values in the Owl Platform world model.
+ * @author Robert Moore
+ *
+ * @param <T> some type to convert.
+ */
 public interface TypeConverter <T>{
 	
 	/**
@@ -25,39 +32,39 @@ public interface TypeConverter <T>{
 	 * @param data the object's value as a byte[].
 	 * @return a new object of the specified type containing the same value.
 	 */
-	public T decode(final byte[] data);
+	T decode(final byte[] data);
 	
 	/**
 	 * Encodes an object to a byte[].
 	 * @param object the object to encode.
 	 * @return a new byte[] containing the encoded form of the object.
 	 */
-	public byte[] encode(final T object);
+	byte[] encode(final T object);
 	
 	/**
 	 * Decodes a String into the specified data type.
 	 * @param asString the object's value as a String
 	 * @return a new object of the specified type containing the same value.
 	 */
-	public T decode(final String asString);
+	T decode(final String asString);
 	
 	/**
 	 * Encodes a String-encoded form of an object into a byte[]-encoded form.
 	 * @param asString the object's value as a String.
 	 * @return the object's value as a byte[].
 	 */
-	public byte[] encode(final String asString);
+	byte[] encode(final String asString);
 
 	/**
 	 * Returns a human-readable name for the type that this converter handles.
 	 * @return a human-readable name for the type of this converter.
 	 */
-	public String getTypeName();
+	String getTypeName();
 	
 	/**
 	 * Returns a String representation for the object provided.
 	 * @param object the object to parse as a String.
 	 * @return a String representing the object.
 	 */
-	public String asString(final T object);
+	String asString(final T object);
 }

@@ -18,10 +18,29 @@
  */
 package com.owlplatform.worldmodel.types;
 
+/**
+ * Converter for {@code Boolean} objects.
+ * @author Robert Moore
+ *
+ */
 public class BooleanConverter implements TypeConverter<Boolean> {
 
-	public static final BooleanConverter CONVERTER = new BooleanConverter();
+  /**
+   * Returns a thread-safe instance of this converter.
+   * @return a thread-safe instance of the converter.
+   */
+  public static BooleanConverter get(){
+    return CONVERTER;
+  }
+  
+  /**
+   * Singleton instance.
+   */
+	private static final BooleanConverter CONVERTER = new BooleanConverter();
 
+	/**
+	 * Private constructor to prevent external instantiation.
+	 */
 	private BooleanConverter() {super();}
 
 	@Override
@@ -36,7 +55,7 @@ public class BooleanConverter implements TypeConverter<Boolean> {
 
 	@Override
 	public Boolean decode(String asString) {
-		return Boolean.parseBoolean(asString);
+		return Boolean.valueOf(asString);
 	}
 
 	@Override

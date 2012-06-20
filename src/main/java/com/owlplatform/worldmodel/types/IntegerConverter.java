@@ -20,10 +20,29 @@ package com.owlplatform.worldmodel.types;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Converter for {@code Integer} objects. 
+ * @author Robert Moore
+ *
+ */
 public class IntegerConverter implements TypeConverter<Integer>{
 
-	public static final IntegerConverter CONVERTER = new IntegerConverter();
+  /**
+   * Returns a thread-safe instance of this converter.
+   * @return a thread-safe instance of the converter.
+   */
+  public static IntegerConverter get(){
+    return CONVERTER;
+  }
+  
+  /**
+   * Singleton converter.
+   */
+	private static final IntegerConverter CONVERTER = new IntegerConverter();
 	
+	/**
+	 * Private constructor to prevet external instantiation.
+	 */
 	private IntegerConverter(){super();}
 	
 	@Override
@@ -39,6 +58,7 @@ public class IntegerConverter implements TypeConverter<Integer>{
 		return buff.array();
 	}
 
+	@Override
 	public String getTypeName(){
 		return "Integer";
 	}

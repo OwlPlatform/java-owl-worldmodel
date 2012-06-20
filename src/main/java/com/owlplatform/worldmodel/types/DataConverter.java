@@ -26,70 +26,96 @@ import org.slf4j.LoggerFactory;
 
 import com.owlplatform.common.util.NumericUtils;
 
+/**
+ * Convenience class for converting Attribute values between their binary
+ * representation and Java objects. Attribute names must be mapped to their
+ * types using {@link #putConverter(String, String)} before
+ * {@link #decode(String, byte[])} can be called.
+ * 
+ * @author Robert Moore
+ * 
+ */
 public class DataConverter {
+  /**
+   * Logger for this class.
+   */
   private static final Logger log = LoggerFactory
       .getLogger(DataConverter.class);
 
-  private static final Map<String, TypeConverter> converterNames = new ConcurrentHashMap<String, TypeConverter>();
+  /**
+   * Converter names to determine which types can be converted.
+   */
+  private static final Map<String, TypeConverter<?>> converterClasses = new ConcurrentHashMap<String, TypeConverter<?>>();
 
   static {
 
-    converterNames.put(BooleanConverter.CONVERTER.getTypeName(),
-        BooleanConverter.CONVERTER);
-    converterNames.put(ByteArrayConverter.CONVERTER.getTypeName(),
-        ByteArrayConverter.CONVERTER);
-    converterNames.put(DoubleConverter.CONVERTER.getTypeName(),
-        DoubleConverter.CONVERTER);
-    converterNames.put(IntegerConverter.CONVERTER.getTypeName(),
-        IntegerConverter.CONVERTER);
-    converterNames.put(LongConverter.CONVERTER.getTypeName(),
-        LongConverter.CONVERTER);
-    converterNames.put(StringConverter.CONVERTER.getTypeName(),
-        StringConverter.CONVERTER);
+    converterClasses.put(BooleanConverter.get().getTypeName(),
+        BooleanConverter.get());
+    converterClasses.put(ByteArrayConverter.get().getTypeName(),
+        ByteArrayConverter.get());
+    converterClasses.put(DoubleConverter.get().getTypeName(),
+        DoubleConverter.get());
+    converterClasses.put(IntegerConverter.get().getTypeName(),
+        IntegerConverter.get());
+    converterClasses.put(LongConverter.get().getTypeName(),
+        LongConverter.get());
+    converterClasses.put(StringConverter.get().getTypeName(),
+        StringConverter.get());
   }
 
-  private static final Map<String, TypeConverter> attributeConverters = new ConcurrentHashMap<String, TypeConverter>();
+  /**
+   * Mapped converters for different Attribute names.
+   */
+  private static final Map<String, TypeConverter<?>> attributeConverters = new ConcurrentHashMap<String, TypeConverter<?>>();
 
   static {
-    attributeConverters.put("location.x_offset", DoubleConverter.CONVERTER);
-    attributeConverters.put("location.y_offset", DoubleConverter.CONVERTER);
-    attributeConverters.put("location.xoffset", DoubleConverter.CONVERTER);
-    attributeConverters.put("location.yoffset", DoubleConverter.CONVERTER);
-    attributeConverters.put("location.maxx", DoubleConverter.CONVERTER);
-    attributeConverters.put("location.maxy", DoubleConverter.CONVERTER);
-    attributeConverters.put("location.xstddev", DoubleConverter.CONVERTER);
-    attributeConverters.put("location.ystddev", DoubleConverter.CONVERTER);
-    attributeConverters.put("location.uri",StringConverter.CONVERTER);
-    attributeConverters.put("units", StringConverter.CONVERTER);
-    attributeConverters.put("room_num", StringConverter.CONVERTER);
-    attributeConverters.put("dimension.width", DoubleConverter.CONVERTER);
-    attributeConverters.put("dimension.height", DoubleConverter.CONVERTER);
-    attributeConverters.put("dimension.units", StringConverter.CONVERTER);
-    attributeConverters.put("closed", BooleanConverter.CONVERTER);
-    attributeConverters.put("on", BooleanConverter.CONVERTER);
-    attributeConverters.put("image.url", StringConverter.CONVERTER);
-    attributeConverters.put("room", StringConverter.CONVERTER);
-    attributeConverters.put("channel", IntegerConverter.CONVERTER);
-    attributeConverters.put("creation", LongConverter.CONVERTER);
-    attributeConverters.put("mobility", BooleanConverter.CONVERTER);
-    attributeConverters.put("sensor.mobility", ByteArrayConverter.CONVERTER);
-		attributeConverters.put("zip code", StringConverter.CONVERTER);
-		attributeConverters.put("empty", BooleanConverter.CONVERTER);
-		attributeConverters.put("idle", BooleanConverter.CONVERTER);
-		attributeConverters.put("region", StringConverter.CONVERTER);
-		
+    attributeConverters.put("location.x_offset", DoubleConverter.get());
+    attributeConverters.put("location.y_offset", DoubleConverter.get());
+    attributeConverters.put("location.xoffset", DoubleConverter.get());
+    attributeConverters.put("location.yoffset", DoubleConverter.get());
+    attributeConverters.put("location.maxx", DoubleConverter.get());
+    attributeConverters.put("location.maxy", DoubleConverter.get());
+    attributeConverters.put("location.xstddev", DoubleConverter.get());
+    attributeConverters.put("location.ystddev", DoubleConverter.get());
+    attributeConverters.put("location.uri", StringConverter.get());
+    attributeConverters.put("units", StringConverter.get());
+    attributeConverters.put("room_num", StringConverter.get());
+    attributeConverters.put("dimension.width", DoubleConverter.get());
+    attributeConverters.put("dimension.height", DoubleConverter.get());
+    attributeConverters.put("dimension.units", StringConverter.get());
+    attributeConverters.put("closed", BooleanConverter.get());
+    attributeConverters.put("on", BooleanConverter.get());
+    attributeConverters.put("image.url", StringConverter.get());
+    attributeConverters.put("room", StringConverter.get());
+    attributeConverters.put("channel", IntegerConverter.get());
+    attributeConverters.put("creation", LongConverter.get());
+    attributeConverters.put("mobility", BooleanConverter.get());
+    attributeConverters.put("sensor.mobility", ByteArrayConverter.get());
+    attributeConverters.put("zip code", StringConverter.get());
+    attributeConverters.put("empty", BooleanConverter.get());
+    attributeConverters.put("idle", BooleanConverter.get());
+    attributeConverters.put("region", StringConverter.get());
+
   }
 
-  public static byte[] encodeUri(final String attributeUri, final Object obj) {
+  /**
+   * Encodes attribute data into the standard binary representation for the
+   * type.
+   * @param attributeName the name of the attribute
+   * @param obj the object to encode
+   * @return the encoded form of the object as a byte[].
+   */
+  @SuppressWarnings({ "rawtypes", "unchecked"})
+  public static byte[] encode(final String attributeName, final Object obj) {
     TypeConverter converter = DataConverter.attributeConverters
-        .get(attributeUri);
+        .get(attributeName);
     if (converter == null) {
       log.warn(
           "Unable to find a suitable data converter for attribute URI {}.",
-          attributeUri);
+          attributeName);
       throw new IllegalArgumentException(
           "Unable to find a suitable data converter for attribute URI \""
-              + attributeUri + "\".");
+              + attributeName + "\".");
     }
 
     if (obj instanceof String) {
@@ -98,54 +124,95 @@ public class DataConverter {
     return converter.encode(obj);
   }
 
-  public static Object decodeUri(final String attributeUri,
+  /**
+   * Decodes a byte[] into the Java type mapped to the Attribute name provided.
+   * @param attributeName the name of the Attribute being decoded.
+   * @param encodedBytes the encoded form of the Attribute data.
+   * @return an Object of the mapped type, decoded from the byte[].
+   */
+  public static Object decode(final String attributeName,
       final byte[] encodedBytes) {
+    @SuppressWarnings("rawtypes")
     TypeConverter converter = DataConverter.attributeConverters
-        .get(attributeUri);
+        .get(attributeName);
     if (converter == null) {
       log.warn(
           "Unable to find a suitable data converter for attribute URI {}.",
-          attributeUri);
+          attributeName);
       throw new IllegalArgumentException(
           "Unable to find a suitable data converter for attribute URI \""
-              + attributeUri + "\".");
+              + attributeName + "\".");
     }
 
     return converter.decode(encodedBytes);
   }
 
-  public static boolean hasConverterForURI(final String attributeUri) {
-    return DataConverter.attributeConverters.containsKey(attributeUri);
+  /**
+   * Returns true if a {@code TypeConverter} has been mapped for the Attribute name.
+   * @param attributeName the name of the Attribute
+   * @return {@code true} if there exists a mapping for the attribute name, else {@code false}.
+   */
+  public static boolean hasConverterForAttribute(final String attributeName) {
+    return DataConverter.attributeConverters.containsKey(attributeName);
   }
 
+  /**
+   * Determines if there is a mapped converter for the Java type name.
+   * @param type the common name of the java type.
+   * @return {@code true} if a converter mapping exists, else {@code false}.
+   * @see #getSupportedTypes()
+   */
   public static boolean hasConverterForType(final String type) {
-    return DataConverter.converterNames.containsKey(type);
+    return DataConverter.converterClasses.containsKey(type);
   }
 
+  /**
+   * Returns an array of Java type names that are currently supported.
+   * @return an array of Java type names that are currently supported
+   */
   public static String[] getSupportedTypes() {
-    return DataConverter.converterNames.keySet().toArray(new String[] {});
+    return DataConverter.converterClasses.keySet().toArray(new String[] {});
   }
 
-  public static TypeConverter putConverter(final String attributeUri,
+  /**
+   * Maps a converter for an Attribute name.
+   * @param attributeName the name of the Attribute.
+   * @param type the type of the Attribute (<i>e.g.</i>, "String", "Integer", "byte[]")
+   * @return the converter that was mapped
+   * @throws IllegalArgumentException if no converter is available for the type
+   * @see #getSupportedTypes()
+   */
+  public static TypeConverter<?> putConverter(final String attributeName,
       final String type) {
-    TypeConverter conv = DataConverter.converterNames.get(type);
+    TypeConverter<?> conv = DataConverter.converterClasses.get(type);
     if (conv == null) {
       log.warn("Could not find a converter for data type {}.", type);
       throw new IllegalArgumentException(
           "Could not find a converter for data type \"" + type + "\".");
     }
-    return DataConverter.attributeConverters.put(attributeUri, conv);
+    return DataConverter.attributeConverters.put(attributeName, conv);
   }
 
-  
-  public static String asString(final String attributeUri,
+  /**
+   * Decodes the Attribute data into its String form.  A convenience method
+   * for components that want to print or otherwise provide Attribute values as 
+   * Strings.  If no appropriate converter is mapped, then returns {@code encodedBytes}
+   * as a hexadecimal string
+   * @param attributeName the name of the attribute
+   * @param encodedBytes the encoded form of the attribute data
+   * @return the attribute data, decoded to a String representation.
+   * @see NumericUtils#toHexString(byte)
+   */
+  @SuppressWarnings("unchecked")
+  public static String asString(final String attributeName,
       final byte[] encodedBytes) {
+    @SuppressWarnings("rawtypes")
     TypeConverter converter = DataConverter.attributeConverters
-        .get(attributeUri);
+        .get(attributeName);
     if (converter == null) {
       log.warn(
           "Unable to find a suitable data converter for attribute URI {}.",
-          attributeUri);
+          attributeName);
       return NumericUtils.toHexString(encodedBytes);
     }
 

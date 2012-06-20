@@ -217,7 +217,7 @@ public class Attribute {
 		}
 		sb.append(":");
 		if (this.data != null) {
-			if(this.attributeName != null && DataConverter.hasConverterForURI(this.attributeName)){
+			if(this.attributeName != null && DataConverter.hasConverterForAttribute(this.attributeName)){
 				sb.append(DataConverter.asString(this.attributeName, this.data));
 			}else{
 				sb.append(NumericUtils.toHexString(this.data));

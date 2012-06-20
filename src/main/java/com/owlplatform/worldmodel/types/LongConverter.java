@@ -20,10 +20,29 @@ package com.owlplatform.worldmodel.types;
 
 import java.nio.ByteBuffer;
 
+/**
+ * Converter for {@code Long} objects.
+ * @author Robert Moore
+ *
+ */
 public class LongConverter implements TypeConverter<Long>{
 
-	public static final LongConverter CONVERTER = new LongConverter();
+  /**
+   * Returns a thread-safe instance of this converter.
+   * @return a thread-safe instance of the converter.
+   */
+  public static LongConverter get(){
+    return THE_ONE;
+  }
+  
+  /**
+   * Singleton instance
+   */
+	private static final LongConverter THE_ONE = new LongConverter();
 	
+	/**
+	 * Private constructor to prevent external instantiation.
+	 */
 	private LongConverter(){super();}
 	
 	@Override
@@ -39,6 +58,7 @@ public class LongConverter implements TypeConverter<Long>{
 		return buff.array();
 	}
 
+	@Override
 	public String getTypeName(){
 		return "Long";
 	}

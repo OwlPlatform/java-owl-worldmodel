@@ -20,9 +20,29 @@ package com.owlplatform.worldmodel.types;
 
 import com.owlplatform.common.util.NumericUtils;
 
+/**
+ * Converter for {@code byte[]} objects.  This is really more of a convenience for
+ * applications that make use of {@link DataConverter} and don't handle byte[] separately.
+ * @author Robert Moore
+ *
+ */
 public class ByteArrayConverter implements TypeConverter<byte[]> {
-  public static final ByteArrayConverter CONVERTER = new ByteArrayConverter();
+  /**
+   * Returns a thread-safe instance of this converter.
+   * @return a thread-safe instance of the converter.
+   */
+  public static ByteArrayConverter get(){
+    return CONVERTER;
+  }
+  
+  /**
+   * Singleton instance.
+   */
+  private static final ByteArrayConverter CONVERTER = new ByteArrayConverter();
 
+  /**
+   * Private constructor to prevent external instantiation.
+   */
   private ByteArrayConverter() {
     super();
   }
