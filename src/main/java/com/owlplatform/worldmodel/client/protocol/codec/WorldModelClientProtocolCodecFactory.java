@@ -34,72 +34,78 @@ import com.owlplatform.worldmodel.client.protocol.messages.StreamRequestMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.IdSearchMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.IdSearchResponseMessage;
 
+/**
+ * Protocol codec factory for the Client-World Model protocol.
+ * 
+ * @author Robert Moore
+ * 
+ */
 public class WorldModelClientProtocolCodecFactory extends
-        DemuxingProtocolCodecFactory
-{
+    DemuxingProtocolCodecFactory {
 
-    public static final String CODEC_NAME = "Grail Client-World Model codec";
+  /**
+   * Unique codec name.
+   */
+  public static final String CODEC_NAME = "Owl Platform Client-World Model codec";
 
-    public WorldModelClientProtocolCodecFactory(final boolean isClient)
-    {
-        super();
+  /**
+   * Generates a protocol codec factory depending on whether the connection is for the World Model (server)
+   * or client.
+   * @param isClient {@code true} if the codec will be for the client, or {@code false} if it is for the World Model.
+   */
+  public WorldModelClientProtocolCodecFactory(final boolean isClient) {
+    super();
 
-        // Encoders for both sides
-        super.addMessageEncoder(HandshakeMessage.class,
-                HandshakeEncoder.class);
-        super.addMessageEncoder(KeepAliveMessage.class,
-                KeepAliveEncoder.class);
+    // Encoders for both sides
+    super.addMessageEncoder(HandshakeMessage.class, HandshakeEncoder.class);
+    super.addMessageEncoder(KeepAliveMessage.class, KeepAliveEncoder.class);
 
-        if (isClient)
-        {
-            // Encoders for client
-            super.addMessageEncoder(SnapshotRequestMessage.class,
-                    SnapshotRequestEncoder.class);
-            super.addMessageEncoder(RangeRequestMessage.class,
-                    RangeRequestEncoder.class);
-            super.addMessageEncoder(StreamRequestMessage.class,
-                    StreamRequestEncoder.class);
-            super.addMessageEncoder(CancelRequestMessage.class,
-                    CancelRequestEncoder.class);
-            super.addMessageEncoder(IdSearchMessage.class,
-                    IdSearchEncoder.class);
-            super.addMessageEncoder(OriginPreferenceMessage.class,
-                    OriginPreferenceEncoder.class);
+    if (isClient) {
+      // Encoders for client
+      super.addMessageEncoder(SnapshotRequestMessage.class,
+          SnapshotRequestEncoder.class);
+      super.addMessageEncoder(RangeRequestMessage.class,
+          RangeRequestEncoder.class);
+      super.addMessageEncoder(StreamRequestMessage.class,
+          StreamRequestEncoder.class);
+      super.addMessageEncoder(CancelRequestMessage.class,
+          CancelRequestEncoder.class);
+      super.addMessageEncoder(IdSearchMessage.class, IdSearchEncoder.class);
+      super.addMessageEncoder(OriginPreferenceMessage.class,
+          OriginPreferenceEncoder.class);
 
-            // Decoders for client
-            super.addMessageDecoder(IdSearchResponseDecoder.class);
-            super.addMessageDecoder(OriginAliasDecoder.class);
-            super.addMessageDecoder(AttributeAliasDecoder.class);
-            super.addMessageDecoder(DataResponseDecoder.class);
-            super.addMessageDecoder(RequestCompleteDecoder.class);
+      // Decoders for client
+      super.addMessageDecoder(IdSearchResponseDecoder.class);
+      super.addMessageDecoder(OriginAliasDecoder.class);
+      super.addMessageDecoder(AttributeAliasDecoder.class);
+      super.addMessageDecoder(DataResponseDecoder.class);
+      super.addMessageDecoder(RequestCompleteDecoder.class);
 
-        }
-        else
-        {
-            // Encoders for World Model
-            super.addMessageEncoder(DataResponseMessage.class,
-                    DataResponseEncoder.class);
-            super.addMessageEncoder(IdSearchResponseMessage.class,
-                    IdSearchResponseEncoder.class);
-            super.addMessageEncoder(RequestCompleteMessage.class,
-                    RequestCompleteEncoder.class);
-            super.addMessageEncoder(OriginAliasMessage.class,
-                    OriginAliasEncoder.class);
-            super.addMessageEncoder(AttributeAliasMessage.class,
-                    AttributeAliasEncoder.class);
+    } else {
+      // Encoders for World Model
+      super.addMessageEncoder(DataResponseMessage.class,
+          DataResponseEncoder.class);
+      super.addMessageEncoder(IdSearchResponseMessage.class,
+          IdSearchResponseEncoder.class);
+      super.addMessageEncoder(RequestCompleteMessage.class,
+          RequestCompleteEncoder.class);
+      super.addMessageEncoder(OriginAliasMessage.class,
+          OriginAliasEncoder.class);
+      super.addMessageEncoder(AttributeAliasMessage.class,
+          AttributeAliasEncoder.class);
 
-            // Decoders for World Model
-            super.addMessageDecoder(SnapshotRequestDecoder.class);
-            super.addMessageDecoder(RangeRequestDecoder.class);
-            super.addMessageDecoder(StreamRequestDecoder.class);
-            super.addMessageDecoder(CancelRequestDecoder.class);
-            super.addMessageDecoder(IdSearchDecoder.class);
-            super.addMessageDecoder(OriginPreferenceDecoder.class);
-        }
-        // Decoders for both
-        super.addMessageDecoder(KeepAliveDecoder.class);
-        super.addMessageDecoder(HandshakeDecoder.class);
-
+      // Decoders for World Model
+      super.addMessageDecoder(SnapshotRequestDecoder.class);
+      super.addMessageDecoder(RangeRequestDecoder.class);
+      super.addMessageDecoder(StreamRequestDecoder.class);
+      super.addMessageDecoder(CancelRequestDecoder.class);
+      super.addMessageDecoder(IdSearchDecoder.class);
+      super.addMessageDecoder(OriginPreferenceDecoder.class);
     }
+    // Decoders for both
+    super.addMessageDecoder(KeepAliveDecoder.class);
+    super.addMessageDecoder(HandshakeDecoder.class);
+
+  }
 
 }

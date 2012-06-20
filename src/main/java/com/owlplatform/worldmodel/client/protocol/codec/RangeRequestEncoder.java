@@ -22,19 +22,17 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.client.protocol.messages.RangeRequestMessage;
 
+/**
+ * Encoder for Range Request messages.
+ * @author Robert Moore
+ *
+ */
 public class RangeRequestEncoder implements
 		MessageEncoder<RangeRequestMessage> {
 
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(RangeRequestEncoder.class);
-	
 	@Override
 	public void encode(IoSession session, RangeRequestMessage message,
 			ProtocolEncoderOutput out) throws Exception {

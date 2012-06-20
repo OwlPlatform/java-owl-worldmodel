@@ -24,15 +24,16 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.owlplatform.worldmodel.client.protocol.messages.DataResponseMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.KeepAliveMessage;
 
+/**
+ * Decoder for keep-alive messages.
+ * @author Robert Moore
+ *
+ */
 public class KeepAliveDecoder implements MessageDecoder {
 	
-	private static final Logger log = LoggerFactory.getLogger(KeepAliveDecoder.class);
 
 	@Override
 	public MessageDecoderResult decodable(IoSession session, IoBuffer buffer) {
@@ -58,7 +59,7 @@ public class KeepAliveDecoder implements MessageDecoder {
 	public MessageDecoderResult decode(IoSession session, IoBuffer buffer,
 			ProtocolDecoderOutput out) throws Exception {
 		
-		int messageLength = buffer.getInt();
+		buffer.getInt();
 		// Message type
 		buffer.get();
 		

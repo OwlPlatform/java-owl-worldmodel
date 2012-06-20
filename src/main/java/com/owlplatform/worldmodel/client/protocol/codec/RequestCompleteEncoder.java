@@ -22,15 +22,16 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.client.protocol.messages.RequestCompleteMessage;
 
+/**
+ * Encoder for Request Complete messages.
+ * @author Robert Moore
+ *
+ */
 public class RequestCompleteEncoder implements
 		MessageEncoder<RequestCompleteMessage> {
-
-	private static final Logger log = LoggerFactory.getLogger(RequestCompleteEncoder.class);
 	
 	@Override
 	public void encode(IoSession session, RequestCompleteMessage message,

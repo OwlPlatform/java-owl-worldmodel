@@ -32,9 +32,6 @@ import com.owlplatform.common.util.NumericUtils;
  * ensure that both sides are speaking the same protocol, and eventually, the same version of the
  * protocol.
  * 
- * <a href="http://sourceforge.net/apps/mediawiki/grailrtls/index.php?title=Solver-World_Model_protocol">Documentation is available</a>
- * on the project Wiki.
- * 
  * @author Robert Moore
  *
  */

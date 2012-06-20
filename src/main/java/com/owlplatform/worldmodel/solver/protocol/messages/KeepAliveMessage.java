@@ -26,8 +26,6 @@ import org.slf4j.LoggerFactory;
  * Keep-Alive messages are exchanged across a World Model solver connection when no other message has been
  * sent for 30 seconds, or to actively check if a connection is still live.
  * 
- * <a href="http://sourceforge.net/apps/mediawiki/grailrtls/index.php?title=Solver-World_Model_protocol">Documentation is available</a> on the project Wiki.
- * 
  * @author Robert Moore
  *
  */

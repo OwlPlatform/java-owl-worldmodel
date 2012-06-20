@@ -35,7 +35,7 @@ import com.owlplatform.worldmodel.solver.protocol.messages.TypeAnnounceMessage;
 public class WorldModelSolverProtocolCodecFactory extends
 		DemuxingProtocolCodecFactory {
 
-	public static final String CODEC_NAME = "Grail Solver-World Model codec";
+	public static final String CODEC_NAME = "Owl Platform Solver-World Model codec";
 
 	public WorldModelSolverProtocolCodecFactory(final boolean isSolver) {
 		super();

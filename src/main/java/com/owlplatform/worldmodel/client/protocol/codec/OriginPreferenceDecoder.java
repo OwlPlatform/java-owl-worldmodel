@@ -23,17 +23,17 @@ import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.client.protocol.messages.OriginPreferenceMessage;
 
+/**
+ * Decoder for Origin Preference messages.
+ * @author Robert Moore
+ *
+ */
 public class OriginPreferenceDecoder implements MessageDecoder {
 
-	private static final Logger log = LoggerFactory
-			.getLogger(OriginPreferenceDecoder.class);
-
-	@Override
+  @Override
 	public MessageDecoderResult decodable(IoSession session, IoBuffer buffer) {
 		if (buffer.prefixedDataAvailable(4)) {
 			buffer.mark();
@@ -61,7 +61,7 @@ public class OriginPreferenceDecoder implements MessageDecoder {
 
 		int messageLength = buffer.getInt();
 
-		byte messageType = buffer.get();
+		buffer.get();
 		--messageLength;
 
 		
@@ -85,8 +85,7 @@ public class OriginPreferenceDecoder implements MessageDecoder {
 	@Override
 	public void finishDecode(IoSession arg0, ProtocolDecoderOutput arg1)
 			throws Exception {
-		// TODO Auto-generated method stub
-
+	  // Nothing to do
 	}
 
 }

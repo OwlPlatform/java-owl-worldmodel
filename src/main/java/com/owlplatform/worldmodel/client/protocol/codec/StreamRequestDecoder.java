@@ -26,7 +26,11 @@ import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 
 import com.owlplatform.worldmodel.client.protocol.messages.StreamRequestMessage;
 
-
+/**
+ * Decoder for Stream Request messages.
+ * @author Robert Moore
+ *
+ */
 public class StreamRequestDecoder implements MessageDecoder {
 
 	@Override
@@ -54,38 +58,26 @@ public class StreamRequestDecoder implements MessageDecoder {
 			ProtocolDecoderOutput out) throws Exception {
 		StreamRequestMessage message = new StreamRequestMessage();
 
-		int messageLength = buffer.getInt();
+		buffer.getInt();
 
-		byte messageType = buffer.get();
-		--messageLength;
-
+		buffer.get();
 		int ticketNumber = buffer.getInt();
-		messageLength -= 4;
 		message.setTicketNumber(ticketNumber);
 		
 		int queryLength = buffer.getInt();
-		messageLength -= 4;
-
 		byte[] queryBytes = new byte[queryLength];
 		buffer.get(queryBytes);
-		messageLength -= queryLength;
 		String query = new String(queryBytes, "UTF-16BE");
 		
 		message.setIdRegex(query);
 
 		int numAttributes = buffer.getInt();
-		messageLength -= 4;
-
 		if (numAttributes > 0) {
 			String[] attributes = new String[numAttributes];
 			for (int i = 0; i < attributes.length; ++i) {
 				int attribLength = buffer.getInt();
-				messageLength -= 4;
-
 				byte[] attribBytes = new byte[attribLength];
 				buffer.get(attribBytes);
-				messageLength -= attribLength;
-				
 				String attribute = new String(attribBytes,"UTF-16BE");
 				attributes[i] = attribute;
 			}
@@ -94,11 +86,9 @@ public class StreamRequestDecoder implements MessageDecoder {
 		}
 
 		long beginTime = buffer.getLong();
-		messageLength -= 8;
 		message.setBeginTimestamp(beginTime);
 		
 		long updateInterval = buffer.getLong();
-		messageLength -= 8;
 		message.setUpdateInterval(updateInterval);
 		
 		out.write(message);
@@ -109,8 +99,7 @@ public class StreamRequestDecoder implements MessageDecoder {
 	@Override
 	public void finishDecode(IoSession arg0, ProtocolDecoderOutput arg1)
 			throws Exception {
-		// TODO Auto-generated method stub
-
+		// Nothing to do
 	}
 
 }

@@ -22,19 +22,17 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.client.protocol.messages.OriginPreferenceMessage;
 
+/**
+ * Encoder for Origin Preference messages.
+ * @author Robert Moore
+ *
+ */
 public class OriginPreferenceEncoder implements
 		MessageEncoder<OriginPreferenceMessage> {
-
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(OriginPreferenceEncoder.class);
-	
+  
 	@Override
 	public void encode(IoSession session, OriginPreferenceMessage message,
 			ProtocolEncoderOutput out) throws Exception {
@@ -44,7 +42,7 @@ public class OriginPreferenceEncoder implements
 		buffer.putInt(message.getMessageLength());
 		
 		// Message type
-		buffer.put(message.MESSAGE_TYPE);
+		buffer.put(OriginPreferenceMessage.MESSAGE_TYPE);
 		
 		if(message.getWeights().size() > 0){
 		    for(String origin : message.getWeights().keySet()){

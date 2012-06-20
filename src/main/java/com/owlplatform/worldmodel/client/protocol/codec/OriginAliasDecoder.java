@@ -31,8 +31,16 @@ import org.slf4j.LoggerFactory;
 import com.owlplatform.worldmodel.client.protocol.messages.OriginAliasMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.OriginAliasMessage.OriginAlias;
 
+/**
+ * Decoder for Origin Alias messages.
+ * @author Robert Moore
+ *
+ */
 public class OriginAliasDecoder implements MessageDecoder {
 
+  /**
+   * Logger for this class.
+   */
 	private static final Logger log = LoggerFactory
 			.getLogger(OriginAliasDecoder.class);
 
@@ -62,41 +70,30 @@ public class OriginAliasDecoder implements MessageDecoder {
 
 		OriginAliasMessage message = new OriginAliasMessage();
 
-		int messageLength = buffer.getInt();
+		buffer.getInt();
 
-		byte messageType = buffer.get();
-		--messageLength;
-
+		buffer.get();
 		int numAliases = buffer.getInt();
-		messageLength -= 4;
-
 		if (numAliases > 0) {
 			ArrayList<OriginAlias> aliases = new ArrayList<OriginAlias>();
-			log.debug("Decoding {} aliases.", numAliases);
+			log.debug("Decoding {} aliases.", Integer.valueOf(numAliases));
 
 			for (int i = 0; i < numAliases; ++i) {
 				int aliasNumber = buffer.getInt();
-				log.debug("Next origin number is {}.", aliasNumber);
 				int nameLength = buffer.getInt();
-				log.debug("Next origin name is {} bytes.", nameLength);
-				messageLength -= 8;
 				
 				// Default to an empty origin name, to handle null names
 				String name = "";
 				if (nameLength != 0) {
 					byte[] nameBytes = new byte[nameLength];
 					buffer.get(nameBytes);
-					messageLength -= nameLength;
-
 					name = new String(nameBytes, "UTF-16BE");
 
 				}else{
-					log.warn("World Model sent an empty origin name for alias number {}.",aliasNumber);
+					log.warn("World Model sent an empty origin name for alias number {}.",Integer.valueOf(aliasNumber));
 				}
 
 				aliases.add(new OriginAlias(aliasNumber, name));
-				log.debug("Alias[{}] {}->" + name, Integer.valueOf(i),
-						Integer.valueOf(aliasNumber));
 			}
 
 			message.setAliases(aliases.toArray(new OriginAlias[] {}));

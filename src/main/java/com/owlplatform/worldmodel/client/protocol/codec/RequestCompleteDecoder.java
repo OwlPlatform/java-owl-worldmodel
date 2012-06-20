@@ -24,9 +24,13 @@ import org.apache.mina.filter.codec.ProtocolDecoderOutput;
 import org.apache.mina.filter.codec.demux.MessageDecoder;
 import org.apache.mina.filter.codec.demux.MessageDecoderResult;
 
-import com.owlplatform.worldmodel.client.protocol.messages.DataResponseMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.RequestCompleteMessage;
 
+/**
+ * Decoder for Request Complete messages.
+ * @author Robert Moore
+ *
+ */
 public class RequestCompleteDecoder implements MessageDecoder {
 
 	@Override
@@ -52,8 +56,8 @@ public class RequestCompleteDecoder implements MessageDecoder {
 	@Override
 	public MessageDecoderResult decode(IoSession session, IoBuffer buffer,
 			ProtocolDecoderOutput out) throws Exception {
-		int messageLength = buffer.getInt();
-		byte messageType = buffer.get();
+		buffer.getInt();
+		buffer.get();
 		int ticketNumber = buffer.getInt();
 		RequestCompleteMessage message = new RequestCompleteMessage();
 		message.setTicketNumber(ticketNumber);
@@ -63,9 +67,8 @@ public class RequestCompleteDecoder implements MessageDecoder {
 
 	@Override
 	public void finishDecode(IoSession arg0, ProtocolDecoderOutput arg1)
-			throws Exception {
-		// TODO Auto-generated method stub
-
+  			throws Exception {
+	  // Nothing to do
 	}
 
 }

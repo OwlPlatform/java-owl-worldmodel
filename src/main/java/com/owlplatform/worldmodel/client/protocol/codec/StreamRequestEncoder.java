@@ -22,18 +22,17 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.client.protocol.messages.StreamRequestMessage;
 
+/**
+ * Encoder for Stream Request messages.
+ * @author Robert Moore
+ *
+ */
 public class StreamRequestEncoder implements
 		MessageEncoder<StreamRequestMessage> {
 
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(StreamRequestEncoder.class);
 	
 	@Override
 	public void encode(IoSession session, StreamRequestMessage message,

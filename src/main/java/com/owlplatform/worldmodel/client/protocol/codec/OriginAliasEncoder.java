@@ -22,20 +22,18 @@ import org.apache.mina.core.buffer.IoBuffer;
 import org.apache.mina.core.session.IoSession;
 import org.apache.mina.filter.codec.ProtocolEncoderOutput;
 import org.apache.mina.filter.codec.demux.MessageEncoder;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.client.protocol.messages.OriginAliasMessage;
 import com.owlplatform.worldmodel.client.protocol.messages.OriginAliasMessage.OriginAlias;
 
+/**
+ * Encoder for Origin Alias messages.
+ * @author Robert Moore
+ *
+ */
 public class OriginAliasEncoder implements
 		MessageEncoder<OriginAliasMessage> {
 
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(OriginAliasEncoder.class);
-	
 	@Override
 	public void encode(IoSession session, OriginAliasMessage message,
 			ProtocolEncoderOutput out) throws Exception {
