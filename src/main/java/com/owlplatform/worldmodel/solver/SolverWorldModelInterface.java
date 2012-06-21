@@ -82,7 +82,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   /**
    * Port on which the World Model is listening for solver connections.
    */
-  private int port = 7012;
+  private int port = 7009;
 
   /**
    * The IoSession used to connect to the World Model
@@ -154,8 +154,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   /**
    * Thread pool filter for handling messages/events in non-IO threads.
    */
-  private final ExecutorFilter executors = new ExecutorFilter(Runtime
-      .getRuntime().availableProcessors());
+  private ExecutorFilter executors;
 
   /**
    * Attribute aliases for the current connection.
@@ -281,7 +280,9 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
       log.error("Port value is invalid {}.", Integer.valueOf(this.port));
       return false;
     }
-
+    if (this.executors == null) {
+      this.executors = new ExecutorFilter(1);
+    }
     this.connector = new NioSocketConnector();
     this.connector.getSessionConfig().setIdleTime(IdleStatus.WRITER_IDLE,
         SolverWorldModelInterface.TIMEOUT_PERIOD / 2);
@@ -307,9 +308,9 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
    * @return true if the connection is established.
    */
   public boolean connect(long maxWait) {
-    
+
     long timeout = maxWait;
-    if(timeout <= 0){
+    if (timeout <= 0) {
       timeout = this.connectionTimeout;
     }
     if (this.connector == null) {
@@ -355,7 +356,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     } while (this.stayConnected);
 
     this._disconnect();
-    // this.finishConnection();
+    this.finishConnection();
 
     return false;
   }
@@ -369,7 +370,10 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     for (ConnectionListener listener : this.connectionListeners) {
       listener.connectionEnded(this);
     }
-    this.executors.destroy();
+    if (this.executors != null) {
+      this.executors.destroy();
+      this.executors = null;
+    }
   }
 
   /**

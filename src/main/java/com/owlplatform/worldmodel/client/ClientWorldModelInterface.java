@@ -157,8 +157,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
   /**
    * Worker threadpool for handling IO events.
    */
-  private final ExecutorFilter executors = new ExecutorFilter(Runtime
-      .getRuntime().availableProcessors());
+  private ExecutorFilter executors;
 
   /**
    * Flag to indicate whether or not the registered Identifier search requests
@@ -242,6 +241,9 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
       log.error("Port value is invalid {}.", Integer.valueOf(this.port));
       return false;
     }
+    if (this.executors == null) {
+      this.executors = new ExecutorFilter(1);
+    }
 
     this.connector = new NioSocketConnector();
     this.connector.getSessionConfig().setIdleTime(IdleStatus.WRITER_IDLE,
@@ -263,13 +265,15 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   /**
    * Initiates a connection to the World Model (if it is not yet connected).
-   * @param maxWait how long to wait for the connection, in milliseconds
+   * 
+   * @param maxWait
+   *          how long to wait for the connection, in milliseconds
    * 
    * @return true if the connection is established.
    */
   public boolean connect(long maxWait) {
     long timeout = maxWait;
-    if(timeout <= 0){
+    if (timeout <= 0) {
       timeout = this.connectionTimeout;
     }
     if (this.connector == null) {
@@ -294,9 +298,9 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
       if (this.stayConnected) {
         long retryDelay = this.connectionRetryDelay;
-        if(timeout < this.connectionRetryDelay*2){
-          retryDelay = timeout /2 ;
-          if(retryDelay < 500){
+        if (timeout < this.connectionRetryDelay * 2) {
+          retryDelay = timeout / 2;
+          if (retryDelay < 500) {
             retryDelay = 500;
           }
         }
@@ -315,7 +319,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
     } while (this.stayConnected);
 
     this._disconnect();
-    // this.finishConnection();
+    this.finishConnection();
 
     return false;
   }
@@ -330,8 +334,10 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
     for (ConnectionListener listener : this.connectionListeners) {
       listener.connectionEnded(this);
     }
-    this.executors.destroy();
-    // this.workers.shutdown(true);
+    if (this.executors != null) {
+      this.executors.destroy();
+      this.executors = null;
+    }
   }
 
   /**
@@ -345,7 +351,9 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   /**
    * Attempts a connection to the world model.
-   * @param timeout the connection timeout value in milliseconds.
+   * 
+   * @param timeout
+   *          the connection timeout value in milliseconds.
    * 
    * @return {@code true} if the attempt succeeds, else {@code false}.
    */
@@ -368,8 +376,9 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
           Integer.valueOf(this.port));
       this.session = connFuture.getSession();
     } catch (RuntimeIoException ioe) {
-      log.error(String.format("Could not create session to World Model (C) %s:%d.",
-          this.host, Integer.valueOf(this.port)), ioe);
+      log.error(String.format(
+          "Could not create session to World Model (C) %s:%d.", this.host,
+          Integer.valueOf(this.port)), ioe);
       return false;
     }
     return true;
@@ -446,7 +455,6 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
       if (this.connect(this.connectionTimeout)) {
         return;
       }
-
     }
 
     this.finishConnection();
@@ -638,7 +646,9 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   /**
    * Sends a request message to the world model.
-   * @param message the message to send.
+   * 
+   * @param message
+   *          the message to send.
    * @return the ticket number of the request.
    */
   public synchronized long sendMessage(AbstractRequestMessage message) {
@@ -651,9 +661,12 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
   }
 
   /**
-   * Cancels the request with the specified ticket number.  Does nothing if the ticket is already complete or the ticket number
-   * doesn't match an existing request.
-   * @param ticketNumber the ticket number of the request to cancel.
+   * Cancels the request with the specified ticket number. Does nothing if the
+   * ticket is already complete or the ticket number doesn't match an existing
+   * request.
+   * 
+   * @param ticketNumber
+   *          the ticket number of the request to cancel.
    */
   public void cancelRequest(long ticketNumber) {
     if (this.session != null
@@ -768,10 +781,11 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
     this._disconnect();
   }
 
-  
   /**
    * Search for an Identifier regular expression.
-   * @param idRegex the regular expression to search.
+   * 
+   * @param idRegex
+   *          the regular expression to search.
    * @return {@code true} if the request was sent, else {@code false}.
    */
   public boolean searchIdRegex(final String idRegex) {
@@ -798,6 +812,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   /**
    * Gets the world model host.
+   * 
    * @return the host value.
    */
   public String getHost() {
@@ -806,7 +821,9 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   /**
    * Sets the world model host.
-   * @param host the new host value
+   * 
+   * @param host
+   *          the new host value
    */
   public void setHost(String host) {
     this.host = host;
@@ -814,6 +831,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   /**
    * Gets the world model port.
+   * 
    * @return the world model port.
    */
   public int getPort() {
@@ -822,15 +840,18 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   /**
    * Sets the world model port.
-   * @param port the new port value.
+   * 
+   * @param port
+   *          the new port value.
    */
   public void setPort(int port) {
     this.port = port;
   }
 
   /**
-   * Gets the connection timeout value in milliseconds.  Connection attempts will give-up after
-   * this timeout expires.
+   * Gets the connection timeout value in milliseconds. Connection attempts will
+   * give-up after this timeout expires.
+   * 
    * @return the connection timeout value in milliseconds.
    */
   public long getConnectionTimeout() {
@@ -838,9 +859,11 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
   }
 
   /**
-   * Sets the connection timeout value in milliseconds.  Connection attempts will give-up after
-   * this timeout expires.
-   * @param connectionTimeout the new connection timeout value in milliseconds.
+   * Sets the connection timeout value in milliseconds. Connection attempts will
+   * give-up after this timeout expires.
+   * 
+   * @param connectionTimeout
+   *          the new connection timeout value in milliseconds.
    */
   public void setConnectionTimeout(long connectionTimeout) {
     this.connectionTimeout = connectionTimeout;
@@ -848,6 +871,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   /**
    * Gets the connection retry delay, the interval between connection attempts.
+   * 
    * @return the connection retry delay in milliseconds.
    */
   public long getConnectionRetryDelay() {
@@ -856,7 +880,9 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   /**
    * Sets the connection retry delay, the interval between connection attempts.
-   * @param connectionRetryDelay the new connection retry delay in milliseconds.
+   * 
+   * @param connectionRetryDelay
+   *          the new connection retry delay in milliseconds.
    */
   public void setConnectionRetryDelay(long connectionRetryDelay) {
     this.connectionRetryDelay = connectionRetryDelay;
@@ -864,6 +890,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   /**
    * Whether uncaught exceptions should cause a disconnect.
+   * 
    * @return if uncaught exceptions should cause a disconnect.
    */
   public boolean isDisconnectOnException() {
@@ -872,14 +899,19 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   /**
    * Sets whether uncaught exceptions should cause a disconnect.
-   * @param disconectOnException {@code true} to disconnect on exception, {@code false} to remain connected.
+   * 
+   * @param disconectOnException
+   *          {@code true} to disconnect on exception, {@code false} to remain
+   *          connected.
    */
   public void setDisconnectOnException(boolean disconectOnException) {
     this.disconnectOnException = disconectOnException;
   }
 
   /**
-   * Whether or not to reconnect when a disconnect is caused by something other than a call to {@code disconnect()}.
+   * Whether or not to reconnect when a disconnect is caused by something other
+   * than a call to {@code disconnect()}.
+   * 
    * @return whether or not to automatically reconnect.
    */
   public boolean isStayConnected() {
@@ -887,8 +919,11 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
   }
 
   /**
-   * Sets whether or not to reconnect when a disconect is caused by something other than a call to {@code disconnect()}.
-   * @param stayConnected {@code true}to reconnect, {@code false} to stay disconected. 
+   * Sets whether or not to reconnect when a disconect is caused by something
+   * other than a call to {@code disconnect()}.
+   * 
+   * @param stayConnected
+   *          {@code true}to reconnect, {@code false} to stay disconected.
    */
   public void setStayConnected(boolean stayConnected) {
     this.stayConnected = stayConnected;
