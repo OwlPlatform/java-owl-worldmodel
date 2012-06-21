@@ -221,7 +221,7 @@ public class ClientWorldConnection {
   }
 
   /**
-   * Permanently disconnects from the world model.
+   * Permanently disconnects from the world model.  
    */
   public void disconnect() {
     this.wmi.disconnect();

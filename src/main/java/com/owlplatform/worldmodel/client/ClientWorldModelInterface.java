@@ -26,6 +26,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.RuntimeIoException;
+import org.apache.mina.core.future.CloseFuture;
 import org.apache.mina.core.future.ConnectFuture;
 import org.apache.mina.core.session.IdleStatus;
 import org.apache.mina.core.session.IoSession;
@@ -388,11 +389,15 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
    * Disconnects from the world model.
    */
   protected void _disconnect() {
+    log.info("Disconnect called.");
     if (this.session != null) {
-      log.debug(
+      log.info(
           "Closing connection to World Model (client) at {} (waiting {}ms).",
           this.session.getRemoteAddress(), Long.valueOf(this.connectionTimeout));
-      this.session.close(false).awaitUninterruptibly(this.connectionTimeout);
+      while(!this.session.close(false).awaitUninterruptibly(this.connectionTimeout)){
+        log.error("Connection didn't close after {}ms.",Long.valueOf(this.connectionTimeout));
+      }
+      
       this.session = null;
       this.sentHandshake = null;
       this.receivedHandshake = null;
