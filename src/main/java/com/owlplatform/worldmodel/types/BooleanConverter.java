@@ -50,7 +50,7 @@ public class BooleanConverter implements TypeConverter<Boolean> {
 
 	@Override
 	public byte[] encode(Boolean object) {
-		return new byte[] { object.booleanValue() ? (byte) 1 : 0 };
+		return new byte[] { object.booleanValue() ? (byte) 0xFF : 0 };
 	}
 
 	@Override
