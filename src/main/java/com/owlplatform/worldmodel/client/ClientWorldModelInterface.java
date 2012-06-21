@@ -296,8 +296,8 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
         long retryDelay = this.connectionRetryDelay;
         if(timeout < this.connectionRetryDelay*2){
           retryDelay = timeout /2 ;
-          if(retryDelay < 100){
-            retryDelay = 100;
+          if(retryDelay < 500){
+            retryDelay = 500;
           }
         }
         try {
