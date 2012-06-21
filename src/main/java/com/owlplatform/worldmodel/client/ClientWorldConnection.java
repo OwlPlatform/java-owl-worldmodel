@@ -207,10 +207,13 @@ public class ClientWorldConnection {
   /**
    * Connects to the world model at the configured host and port.
    * 
+   * @param timeout
+   *          the maximum time to attempt the connection or 0 for the configured timeout
+   * 
    * @return {@code true} if the connection succeeds, else {@code false}.
    */
-  public boolean connect() {
-    if (this.wmi.connect()) {
+  public boolean connect(long timeout) {
+    if (this.wmi.connect(timeout)) {
       this.wmi.setStayConnected(true);
       return true;
     }

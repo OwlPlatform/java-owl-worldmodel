@@ -263,10 +263,15 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   /**
    * Initiates a connection to the World Model (if it is not yet connected).
+   * @param maxWait how long to wait for the connection, in milliseconds
    * 
    * @return true if the connection is established.
    */
-  public boolean connect() {
+  public boolean connect(long maxWait) {
+    long timeout = maxWait;
+    if(timeout <= 0){
+      timeout = this.connectionTimeout;
+    }
     if (this.connector == null) {
       if (!this.setConnector()) {
         log.error("Unable to set up connection to the World Model.");
@@ -279,23 +284,33 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
       return false;
     }
 
+    long waitTime = timeout;
     do {
-      if (this._connect()) {
+      long startAttempt = System.currentTimeMillis();
+      if (this._connect(waitTime)) {
         log.debug("Connection succeeded!");
         return true;
       }
 
       if (this.stayConnected) {
+        long retryDelay = this.connectionRetryDelay;
+        if(timeout < this.connectionRetryDelay*2){
+          retryDelay = timeout /2 ;
+          if(retryDelay < 100){
+            retryDelay = 100;
+          }
+        }
         try {
           log.warn(String
               .format(
                   "Connection to World Model at %s:%d failed, waiting %dms before retrying.",
                   this.host, Integer.valueOf(this.port),
-                  Long.valueOf(this.connectionRetryDelay)));
-          Thread.sleep(this.connectionRetryDelay);
+                  Long.valueOf(retryDelay)));
+          Thread.sleep(retryDelay);
         } catch (InterruptedException ie) {
           // Ignored
         }
+        waitTime = waitTime - (System.currentTimeMillis() - startAttempt);
       }
     } while (this.stayConnected);
 
@@ -330,14 +345,15 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   /**
    * Attempts a connection to the world model.
+   * @param timeout the connection timeout value in milliseconds.
    * 
    * @return {@code true} if the attempt succeeds, else {@code false}.
    */
-  protected boolean _connect() {
+  protected boolean _connect(long timeout) {
     log.debug("Attempting connection...");
     ConnectFuture connFuture = this.connector.connect(new InetSocketAddress(
         this.host, this.port));
-    if (!connFuture.awaitUninterruptibly(this.connectionTimeout)) {
+    if (!connFuture.awaitUninterruptibly(timeout)) {
       log.warn("Unable to connect to world model after {}ms.",
           Long.valueOf(this.connectionTimeout));
       return false;
@@ -352,7 +368,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
           Integer.valueOf(this.port));
       this.session = connFuture.getSession();
     } catch (RuntimeIoException ioe) {
-      log.error(String.format("Could not create session to World Model %s:%d.",
+      log.error(String.format("Could not create session to World Model (C) %s:%d.",
           this.host, Integer.valueOf(this.port)), ioe);
       return false;
     }
@@ -417,16 +433,23 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
   @Override
   public void connectionClosed(IoSession session) {
     this._disconnect();
-    if (this.stayConnected) {
-      log.info("Reconnecting to World Model (Client) at {}:{}", this.host,
+    while (this.stayConnected) {
+      log.info("Reconnecting to World Model (C) {}:{}", this.host,
           Integer.valueOf(this.port));
-      if (this.connect()) {
+
+      try {
+        Thread.sleep(this.connectionRetryDelay);
+      } catch (InterruptedException ie) {
+        // Ignored
+      }
+
+      if (this.connect(this.connectionTimeout)) {
         return;
       }
-      this.finishConnection();
-    } else {
-      this.finishConnection();
+
     }
+
+    this.finishConnection();
   }
 
   @Override

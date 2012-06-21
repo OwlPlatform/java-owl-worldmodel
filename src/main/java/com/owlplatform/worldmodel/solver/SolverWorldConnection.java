@@ -208,11 +208,13 @@ public class SolverWorldConnection {
    * Connects to the world model at the configured host and port. Returns
    * immediately if the connection fails. If the connection succeeds, automatic
    * reconnect will be in effect until {@link #disconnect()} is called.
+   * @param timeout how long to wait for the connection, in milliseconds. If 0, the
+   * configured timeout value will be used.
    * 
    * @return {@code true} if the connection succeeds, else {@code false}.
    */
-  public boolean connect() {
-    if (this.wmi.connect()) {
+  public boolean connect(long timeout) {
+    if (this.wmi.connect(timeout)) {
       this.wmi.setStayConnected(true);
       return true;
     }

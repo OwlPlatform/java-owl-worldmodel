@@ -301,9 +301,17 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   /**
    * Initiates a connection to the World Model (if it is not yet connected).
    * 
-   * @return true if the connection is established, else {@code false}.
+   * @param maxWait
+   *          how long to wait for the connection, in milliseconds
+   * 
+   * @return true if the connection is established.
    */
-  public boolean connect() {
+  public boolean connect(long maxWait) {
+    
+    long timeout = maxWait;
+    if(timeout <= 0){
+      timeout = this.connectionTimeout;
+    }
     if (this.connector == null) {
       if (!this.setConnector()) {
         log.error("Unable to set up connection to the World Model.");
@@ -316,28 +324,38 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
       return false;
     }
 
+    long waitTime = timeout;
     do {
-      if (this._connect()) {
+      long startAttempt = System.currentTimeMillis();
+      if (this._connect(waitTime)) {
         log.debug("Connection succeeded!");
         return true;
       }
 
       if (this.stayConnected) {
+        long retryDelay = this.connectionRetryDelay;
+        if (timeout < this.connectionRetryDelay * 2) {
+          retryDelay = timeout / 2;
+          if (retryDelay < 100) {
+            retryDelay = 100;
+          }
+        }
         try {
           log.warn(String
               .format(
                   "Connection to World Model at %s:%d failed, waiting %dms before retrying.",
                   this.host, Integer.valueOf(this.port),
-                  Long.valueOf(this.connectionRetryDelay)));
-          Thread.sleep(this.connectionRetryDelay);
+                  Long.valueOf(retryDelay)));
+          Thread.sleep(retryDelay);
         } catch (InterruptedException ie) {
           // Ignored
         }
+        waitTime = waitTime - (System.currentTimeMillis() - startAttempt);
       }
     } while (this.stayConnected);
 
     this._disconnect();
-    this.finishConnection();
+    // this.finishConnection();
 
     return false;
   }
@@ -368,16 +386,22 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   /**
    * Connects to the world model with the current parameter set.
    * 
+   * @param timeout
+   *          the connection timeout value in milliseconds.
+   * 
    * @return {@code true} if successful, else {@code false}.
    */
-  protected boolean _connect() {
-
+  protected boolean _connect(long timeout) {
+    log.debug("Attempting connection...");
     ConnectFuture connFuture = this.connector.connect(new InetSocketAddress(
         this.host, this.port));
-    if (!connFuture.awaitUninterruptibly(this.connectionTimeout)) {
+    if (!connFuture.awaitUninterruptibly(timeout)) {
+      log.warn("Unable to connect to world model after {}ms.",
+          Long.valueOf(this.connectionTimeout));
       return false;
     }
     if (!connFuture.isConnected()) {
+      log.debug("Failed to connect.");
       return false;
     }
 
@@ -386,8 +410,9 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
           Integer.valueOf(this.port));
       this.session = connFuture.getSession();
     } catch (RuntimeIoException ioe) {
-      log.error(String.format("Could not create session to World Model %s:%d.",
-          this.host, Integer.valueOf(this.port)), ioe);
+      log.error(String.format(
+          "Could not create session to World Model (S) %s:%d.", this.host,
+          Integer.valueOf(this.port)), ioe);
       return false;
     }
     return true;
@@ -441,20 +466,24 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   @Override
   public void connectionClosed(IoSession session) {
-    this.connectionReady = false;
     this._disconnect();
-    if (this.stayConnected) {
-      log.info("Reconnecting to World Model (solver) at {}:{}", this.host,
+    while (this.stayConnected) {
+      log.info("Reconnecting to World Model (S) {}:{}", this.host,
           Integer.valueOf(this.port));
 
-      if (this.connect()) {
+      try {
+        Thread.sleep(this.connectionRetryDelay);
+      } catch (InterruptedException ie) {
+        // Ignored
+      }
+
+      if (this.connect(this.connectionTimeout)) {
         return;
       }
-      SolverWorldModelInterface.this.finishConnection();
 
-    } else {
-      this.finishConnection();
     }
+
+    this.finishConnection();
   }
 
   @Override
@@ -655,7 +684,8 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   }
 
   @Override
-  public void attributeUpdateSent(IoSession session, AttributeUpdateMessage message) {
+  public void attributeUpdateSent(IoSession session,
+      AttributeUpdateMessage message) {
     log.debug("Sent Data Transfer to {}: {}", this, message);
   }
 
@@ -723,9 +753,11 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   /**
    * Sends a multiple Attribute update messages to the world model.
-   * @param attributes the Attribute values to update
-   * @return {@code true} if the messages were written, or {@code false} if
-   * one or more messages failed to send.
+   * 
+   * @param attributes
+   *          the Attribute values to update
+   * @return {@code true} if the messages were written, or {@code false} if one
+   *         or more messages failed to send.
    */
   public boolean updateAttributes(final Collection<Attribute> attributes) {
     if (!this.sentAttrSpecifications) {
@@ -758,7 +790,9 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   /**
    * Adds an attribute specification to the world model session.
-   * @param specification the Attribute that will be sent later.
+   * 
+   * @param specification
+   *          the Attribute that will be sent later.
    */
   public void addAttribute(AttributeSpecification specification) {
     synchronized (this.attributes) {
@@ -774,25 +808,31 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   /**
    * Gets the currently-configured world model host. This may differ from the
-   * current connection information if it was changed since the connection was established.
-   * @return the current world model host value. 
+   * current connection information if it was changed since the connection was
+   * established.
+   * 
+   * @return the current world model host value.
    */
   public String getHost() {
     return this.host;
   }
 
   /**
-   * Sets the world model host value.  Setting this value has no effect until the next
-   * attempt to connect to the world model.
-   * @param host the new host value.
+   * Sets the world model host value. Setting this value has no effect until the
+   * next attempt to connect to the world model.
+   * 
+   * @param host
+   *          the new host value.
    */
   public void setHost(String host) {
     this.host = host;
   }
 
   /**
-   * Gets the currently-configured world model port value. This may differ from the
-   * current connection information if it was changed since the connection was established.
+   * Gets the currently-configured world model port value. This may differ from
+   * the current connection information if it was changed since the connection
+   * was established.
+   * 
    * @return the currently world model port value.
    */
   public int getPort() {
@@ -800,9 +840,11 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   }
 
   /**
-   * Sets the world model port value for Solver connections. Note that this setting
-   * only takes effect on the next connection attempt.
-   * @param port the new world model port value.
+   * Sets the world model port value for Solver connections. Note that this
+   * setting only takes effect on the next connection attempt.
+   * 
+   * @param port
+   *          the new world model port value.
    */
   public void setPort(int port) {
     this.port = port;
@@ -810,6 +852,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   /**
    * Gets the current connection timeout value.
+   * 
    * @return the connection timeout value, in milliseconds.
    */
   public long getConnectionTimeout() {
@@ -819,15 +862,18 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   /**
    * Sets the timeout for making connections to the world model. Connections
    * wait at most this period of time before declaring the connection failed.
-   * @param connectionTimeout the new connection timeout value, in milliseconds.
+   * 
+   * @param connectionTimeout
+   *          the new connection timeout value, in milliseconds.
    */
   public void setConnectionTimeout(long connectionTimeout) {
     this.connectionTimeout = connectionTimeout;
   }
 
   /**
-   * Get the current connection retry delay value.  The amount of time to wait
+   * Get the current connection retry delay value. The amount of time to wait
    * between a disconnect and reconnect attempt.
+   * 
    * @return the current connection retry delay value, in milliseconds.
    */
   public long getConnectionRetryDelay() {
@@ -835,9 +881,11 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   }
 
   /**
-   * Sets the connection retry delay value.  This is the amount of time to wait between
-   * a disconnect event and a reconnection attempt.
-   * @param connectionRetryDelay the new reconnect delay value, in milliseconds.
+   * Sets the connection retry delay value. This is the amount of time to wait
+   * between a disconnect event and a reconnection attempt.
+   * 
+   * @param connectionRetryDelay
+   *          the new reconnect delay value, in milliseconds.
    */
   public void setConnectionRetryDelay(long connectionRetryDelay) {
     this.connectionRetryDelay = connectionRetryDelay;
@@ -845,6 +893,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   /**
    * If exceptions should cause a disconnect from the world model.
+   * 
    * @return {@code true} if exceptions will cause a disconnect.
    */
   public boolean isDisconnectOnException() {
@@ -853,7 +902,9 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   /**
    * Set whether to disconnect from the world model when exceptions are thrown.
-   * @param disconnectOnException {@code true} to disconnect when exceptions are thrown.
+   * 
+   * @param disconnectOnException
+   *          {@code true} to disconnect when exceptions are thrown.
    */
   public void setDisconnectOnException(boolean disconnectOnException) {
     this.disconnectOnException = disconnectOnException;
@@ -861,16 +912,19 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   /**
    * If an automatic reconnect should be attempted on connection failures.
+   * 
    * @return {@code true} if automatic reconnection is enabled.
    */
   public boolean isStayConnected() {
     return this.stayConnected;
   }
+
   /**
    * Set whether to automatically attempt to reconnect to the world model if the
    * connection fails.
+   * 
    * @param stayConnected
-   * {@code true} to automatically reconnect.
+   *          {@code true} to automatically reconnect.
    */
   public void setStayConnected(boolean stayConnected) {
     this.stayConnected = stayConnected;
@@ -878,6 +932,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   /**
    * Returns the currently-configured origin value for this connection.
+   * 
    * @return the current origin value.
    */
   public String getOriginString() {
@@ -886,7 +941,9 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   /**
    * Sets the origin value for this connection.
-   * @param originString the new origin value.
+   * 
+   * @param originString
+   *          the new origin value.
    */
   public void setOriginString(String originString) {
     this.originString = originString;
@@ -907,10 +964,14 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   }
 
   /**
-   * Expires all Attributes for an  Identifier in the world model.
-   * @param identifier the identifier to expire.
-   * @param expirationTime the expiration timestamp.
-   * @return {@code true} if the message is sent successfully, else {@code false}.
+   * Expires all Attributes for an Identifier in the world model.
+   * 
+   * @param identifier
+   *          the identifier to expire.
+   * @param expirationTime
+   *          the expiration timestamp.
+   * @return {@code true} if the message is sent successfully, else
+   *         {@code false}.
    */
   public boolean expireId(final String identifier, final long expirationTime) {
 
@@ -936,13 +997,18 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   /**
    * Expire a particular Attribute for an Identifier in the world model.
-   * @param identifier the Identifier to expire.
-   * @param attribute the Attribute to expire.
-   * @param expirationTime the expiration timestamp.
-   * @return {@code true} if the message was sent successfully, else {@code false}.
+   * 
+   * @param identifier
+   *          the Identifier to expire.
+   * @param attribute
+   *          the Attribute to expire.
+   * @param expirationTime
+   *          the expiration timestamp.
+   * @return {@code true} if the message was sent successfully, else
+   *         {@code false}.
    */
-  public boolean expireAttribute(final String identifier, final String attribute,
-      final long expirationTime) {
+  public boolean expireAttribute(final String identifier,
+      final String attribute, final long expirationTime) {
     if (identifier == null) {
       log.error("Unable to expire an attribute with a null Identifier value.");
       return false;
@@ -972,10 +1038,12 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   }
 
   /**
-   * Deletes an Identifier and all of its Attributes from the world model.  All data
-   * for the Identifier will be removed permanently.  Callers
-   * may also wish to consider expiring the Identifier instead.
-   * @param identifier the Identifier to delete
+   * Deletes an Identifier and all of its Attributes from the world model. All
+   * data for the Identifier will be removed permanently. Callers may also wish
+   * to consider expiring the Identifier instead.
+   * 
+   * @param identifier
+   *          the Identifier to delete
    * @return {@code true} if the message was sent successfully
    */
   public boolean deleteId(final String identifier) {
@@ -1000,10 +1068,13 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   }
 
   /**
-   * Deletes an Attribute and its entire history from the world model.  Callers may wish
-   * to expire the Attribute value instead.
-   * @param identifier the Identifier of the Attribute to expire.
-   * @param attribute the Attribute to expire.
+   * Deletes an Attribute and its entire history from the world model. Callers
+   * may wish to expire the Attribute value instead.
+   * 
+   * @param identifier
+   *          the Identifier of the Attribute to expire.
+   * @param attribute
+   *          the Attribute to expire.
    * @return {@code true} if the message was sent successfully.
    */
   public boolean deleteAttribute(final String identifier, final String attribute) {
@@ -1035,7 +1106,9 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   /**
    * Creates a new Identifier in the world model.
-   * @param identifier the Identifier to create
+   * 
+   * @param identifier
+   *          the Identifier to create
    * @return {@code true} if the message was sent successfully.
    */
   public boolean createId(final String identifier) {
@@ -1062,8 +1135,9 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   }
 
   /**
-   * The number of messages that have been written to the session
-   * but not yet sent to the network.
+   * The number of messages that have been written to the session but not yet
+   * sent to the network.
+   * 
    * @return the number of cached messages.
    */
   public int getCachedWrites() {
