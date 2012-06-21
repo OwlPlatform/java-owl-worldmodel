@@ -37,6 +37,7 @@ import org.apache.mina.transport.socket.nio.NioSocketConnector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.owlplatform.worldmodel.Attribute;
 import com.owlplatform.worldmodel.solver.WorldModelIoHandler;
 import com.owlplatform.worldmodel.solver.listeners.ConnectionListener;
 import com.owlplatform.worldmodel.solver.listeners.DataListener;
@@ -52,7 +53,6 @@ import com.owlplatform.worldmodel.solver.protocol.messages.KeepAliveMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.StartOnDemandMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.StopOnDemandMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.AttributeUpdateMessage.Solution;
 import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage.AttributeSpecification;
 
 /**
@@ -141,20 +141,26 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     return this.connectionReady;
   }
 
+  /**
+   * MINA connector for the socket.
+   */
   private NioSocketConnector connector = null;
 
+  /**
+   * Private IOHandler to hide interface methods.
+   */
   private WorldModelIoHandler ioHandler = new WorldModelIoHandler(this);
 
+  /**
+   * Thread pool filter for handling messages/events in non-IO threads.
+   */
   private final ExecutorFilter executors = new ExecutorFilter(Runtime
       .getRuntime().availableProcessors());
 
-  private final ConcurrentHashMap<String, Integer> solutionTypeAliases = new ConcurrentHashMap<String, Integer>();
-
   /**
-   * Number of times the receiving side of the connection has become idle
-   * (.5*TIMEOUT_PERIOD).
+   * Attribute aliases for the current connection.
    */
-  private volatile int receiveIdleTimes = 0;
+  private final ConcurrentHashMap<String, Integer> attributeAliases = new ConcurrentHashMap<String, Integer>();
 
   /**
    * Queue of interfaces that are interested in connection status events.
@@ -167,9 +173,9 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   private final ConcurrentLinkedQueue<DataListener> dataListeners = new ConcurrentLinkedQueue<DataListener>();
 
   /**
-   * List of solution types to be sent to the World Model after handshaking.
+   * List of Attribute types to be sent to the World Model after handshaking.
    */
-  private final ConcurrentLinkedQueue<AttributeSpecification> solutions = new ConcurrentLinkedQueue<AttributeSpecification>();
+  private final ConcurrentLinkedQueue<AttributeSpecification> attributes = new ConcurrentLinkedQueue<AttributeSpecification>();
 
   /**
    * Origin String for the solver, sent to the World Model.
@@ -177,33 +183,76 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   private String originString = null;
 
   /**
-   * Whether or not to create target URI values if they don't already exist in
+   * Whether or not to create target Identifiers if they don't already exist in
    * the World Model.
    */
-  private boolean createUris = true;
+  private boolean createIds = true;
 
-  public boolean isCreateUris() {
-    return createUris;
+  /**
+   * Gets whether or not to automatically create Identifiers in the world model
+   * when Attribute updates are sent.
+   * 
+   * @return {@code true} if Identifiers are automatically created, else
+   *         {@code false}.
+   */
+  public boolean isCreateIds() {
+    return this.createIds;
   }
 
-  public void setCreateUris(boolean createUris) {
-    this.createUris = createUris;
+  /**
+   * Sets whether to automatically create Identifiers in the world model when
+   * Attribute values are updated.
+   * 
+   * @param createIds
+   *          the new value: {@code true} to automatically create Identifiers,
+   *          or {@code false} to ignore Attribute values for uncreated
+   *          Identifiers.
+   */
+  public void setCreateIds(boolean createIds) {
+    this.createIds = createIds;
   }
 
-  private boolean sentTypeSpecifications = false;
+  /**
+   * Flag to indicate whether attribute specifications have been sent.
+   */
+  private boolean sentAttrSpecifications = false;
 
+  /**
+   * Registers a connection listener for the world model connection.
+   * 
+   * @param listener
+   *          the listener to add.
+   */
   public void addConnectionListener(final ConnectionListener listener) {
     this.connectionListeners.add(listener);
   }
 
+  /**
+   * Unregisters a connection listener from the world model connection.
+   * 
+   * @param listener
+   *          the listener to remove.
+   */
   public void removeConnectionListener(final ConnectionListener listener) {
     this.connectionListeners.remove(listener);
   }
 
+  /**
+   * Registers a data listener for the world model connection.
+   * 
+   * @param listener
+   *          the listener to add.
+   */
   public void addDataListener(final DataListener listener) {
     this.dataListeners.add(listener);
   }
 
+  /**
+   * Unregisters a data listener from the world model connection.
+   * 
+   * @param listener
+   *          the listener to remove.
+   */
   public void removeDataListener(final DataListener listener) {
     this.dataListeners.remove(listener);
   }
@@ -213,32 +262,38 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     log.warn("Exception caught for {}: {}", this, cause);
     cause.printStackTrace();
     if (this.disconnectOnException) {
-      this.disconnect();
+      this._disconnect();
     }
   }
 
+  /**
+   * Sets the MINA connector and establishes the connection to the world model.
+   * Adds protocol filters.
+   * 
+   * @return {@code true} if connection is set-up correctly, else {@code false}.
+   */
   protected boolean setConnector() {
     if (this.host == null) {
       log.error("No host value set, cannot set up socket connector.");
       return false;
     }
     if (this.port < 0 || this.port > 65535) {
-      log.error("Port value is invalid {}.", this.port);
+      log.error("Port value is invalid {}.", Integer.valueOf(this.port));
       return false;
     }
 
-    connector = new NioSocketConnector();
+    this.connector = new NioSocketConnector();
     this.connector.getSessionConfig().setIdleTime(IdleStatus.WRITER_IDLE,
         SolverWorldModelInterface.TIMEOUT_PERIOD / 2);
-    if (!connector.getFilterChain().contains(
+    if (!this.connector.getFilterChain().contains(
         WorldModelSolverProtocolCodecFactory.CODEC_NAME)) {
-      connector.getFilterChain().addLast(
+      this.connector.getFilterChain().addLast(
           WorldModelSolverProtocolCodecFactory.CODEC_NAME,
           new ProtocolCodecFilter(
               new WorldModelSolverProtocolCodecFactory(true)));
     }
-    connector.getFilterChain().addLast("ExecutorPool", this.executors);
-    connector.setHandler(this.ioHandler);
+    this.connector.getFilterChain().addLast("ExecutorPool", this.executors);
+    this.connector.setHandler(this.ioHandler);
     log.debug("Connector set up successful.");
     return true;
   }
@@ -246,9 +301,9 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   /**
    * Initiates a connection to the World Model (if it is not yet connected).
    * 
-   * @return true if the connection is established.
+   * @return true if the connection is established, else {@code false}.
    */
-  public boolean doConnectionSetup() {
+  public boolean connect() {
     if (this.connector == null) {
       if (!this.setConnector()) {
         log.error("Unable to set up connection to the World Model.");
@@ -262,7 +317,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     }
 
     do {
-      if (this.connect()) {
+      if (this._connect()) {
         log.debug("Connection succeeded!");
         return true;
       }
@@ -272,7 +327,8 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
           log.warn(String
               .format(
                   "Connection to World Model at %s:%d failed, waiting %dms before retrying.",
-                  this.host, this.port, this.connectionRetryDelay));
+                  this.host, Integer.valueOf(this.port),
+                  Long.valueOf(this.connectionRetryDelay)));
           Thread.sleep(this.connectionRetryDelay);
         } catch (InterruptedException ie) {
           // Ignored
@@ -280,12 +336,15 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
       }
     } while (this.stayConnected);
 
-    this.disconnect();
+    this._disconnect();
     this.finishConnection();
 
     return false;
   }
 
+  /**
+   * Takes care of any post-disconnect cleanup necessary for the connection.
+   */
   void finishConnection() {
     this.connector.dispose();
     this.connector = null;
@@ -295,17 +354,27 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     this.executors.destroy();
   }
 
-  public void doConnectionTearDown() {
-    // Make sure we don't automatically reconnect
+  /**
+   * Disconnects from the world model. Automatic reconnect is disabled for this
+   * operation.
+   */
+  public void disconnect() {
+    boolean tmp = this.stayConnected;
     this.stayConnected = false;
-    this.disconnect();
+    this._disconnect();
+    this.stayConnected = tmp;
   }
 
-  protected boolean connect() {
+  /**
+   * Connects to the world model with the current parameter set.
+   * 
+   * @return {@code true} if successful, else {@code false}.
+   */
+  protected boolean _connect() {
 
     ConnectFuture connFuture = this.connector.connect(new InetSocketAddress(
         this.host, this.port));
-    if (!connFuture.awaitUninterruptibly(connectionTimeout)) {
+    if (!connFuture.awaitUninterruptibly(this.connectionTimeout)) {
       return false;
     }
     if (!connFuture.isConnected()) {
@@ -313,27 +382,30 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     }
 
     try {
-      log.debug("Attempting connection to {}:{}.", this.host, this.port);
+      log.debug("Attempting connection to {}:{}.", this.host,
+          Integer.valueOf(this.port));
       this.session = connFuture.getSession();
     } catch (RuntimeIoException ioe) {
       log.error(String.format("Could not create session to World Model %s:%d.",
-          this.host, this.port), ioe);
+          this.host, Integer.valueOf(this.port)), ioe);
       return false;
     }
     return true;
   }
 
-  protected void disconnect() {
+  /**
+   * Disconnects from the world model.
+   */
+  protected void _disconnect() {
     if (this.session != null) {
       log.debug(
           "Closing connection to World Model (solver) at {} (waiting {}ms).",
-          this.session.getRemoteAddress(), this.connectionTimeout);
-      this.session.close(false).awaitUninterruptibly(connectionTimeout);
+          this.session.getRemoteAddress(), Long.valueOf(this.connectionTimeout));
+      this.session.close(false).awaitUninterruptibly(this.connectionTimeout);
       this.session = null;
       this.sentHandshake = null;
       this.receivedHandshake = null;
-      this.receiveIdleTimes = 0;
-      this.sentTypeSpecifications = false;
+      this.sentAttrSpecifications = false;
       for (ConnectionListener listener : this.connectionListeners) {
         listener.connectionInterrupted(this);
       }
@@ -370,12 +442,12 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   @Override
   public void connectionClosed(IoSession session) {
     this.connectionReady = false;
-    this.disconnect();
+    this._disconnect();
     if (this.stayConnected) {
       log.info("Reconnecting to World Model (solver) at {}:{}", this.host,
-          this.port);
+          Integer.valueOf(this.port));
 
-      if (this.doConnectionSetup()) {
+      if (this.connect()) {
         return;
       }
       SolverWorldModelInterface.this.finishConnection();
@@ -387,7 +459,6 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   @Override
   public void handshakeReceived(IoSession session, HandshakeMessage message) {
-    this.receiveIdleTimes = 0;
     log.debug("Received {}", message);
     this.receivedHandshake = message;
     Boolean handshakeCheck = this.checkHandshake();
@@ -397,13 +468,20 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
     if (Boolean.FALSE.equals(handshakeCheck)) {
       log.warn("Handshakes did not match.");
-      this.disconnect();
+      this._disconnect();
     }
     if (Boolean.TRUE.equals(handshakeCheck)) {
       log.debug("Handshakes matched with {}.", this);
     }
   }
 
+  /**
+   * Verifies the sent and received handshakes.
+   * 
+   * @return {@code null} if one or both handshakes are not yet exchanged,
+   *         {@code Boolean#TRUE} if the handshakes are valid, or
+   *         {@code Boolean#FALSE} if one or both handshakes are invalid.
+   */
   protected Boolean checkHandshake() {
     if (this.sentHandshake == null) {
       log.debug("Sent handshake is null, not checking.");
@@ -420,111 +498,116 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
           this.session.getRemoteAddress());
       boolean prevValue = this.stayConnected;
       this.stayConnected = false;
-      this.disconnect();
+      this._disconnect();
       this.stayConnected = prevValue;
       return Boolean.FALSE;
     }
     this.connectionReady = true;
-    this.announceTypes();
+    this.announceAttributes();
     return Boolean.TRUE;
   }
 
-  protected void announceTypes() {
+  /**
+   * Sends the Attribute aliases to the world model.
+   */
+  protected void announceAttributes() {
     if (this.originString == null) {
       log.error("Unable to announce solution types, no Origin String set.");
       return;
     }
-    this.sentTypeSpecifications = true;
-    if (this.solutions.size() > 0) {
+    this.sentAttrSpecifications = true;
+    if (this.attributes.size() > 0) {
       AttributeAnnounceMessage message = new AttributeAnnounceMessage();
 
       message.setOrigin(this.originString);
 
       ArrayList<AttributeSpecification> specificationList = new ArrayList<AttributeSpecification>();
-      specificationList.addAll(this.solutions);
+      specificationList.addAll(this.attributes);
       AttributeSpecification[] specs = new AttributeSpecification[specificationList
           .size()];
       int specAlias = 0;
       for (AttributeSpecification spec : specificationList) {
         specs[specAlias] = spec;
         spec.setAlias(specAlias++);
-        this.solutionTypeAliases.put(spec.getAttributeName(),
+        this.attributeAliases.put(spec.getAttributeName(),
             Integer.valueOf(spec.getAlias()));
       }
       message.setTypeSpecifications(specs);
       this.session.write(message);
-      this.sentTypeSpecifications = true;
+      this.sentAttrSpecifications = true;
     }
   }
 
   @Override
   public void keepAliveReceived(IoSession session, KeepAliveMessage message) {
-    this.receiveIdleTimes = 0;
     log.debug("Received Keep-Alive message.");
   }
 
   @Override
-  public void typeAnnounceReceived(IoSession session,
+  public void attributeAnnounceReceived(IoSession session,
       AttributeAnnounceMessage message) {
     log.error("World Model should not send type announce messages to the solver.");
-    this.disconnect();
+    this._disconnect();
   }
 
   @Override
-  public void startTransientReceived(IoSession session,
+  public void startOnDemandReceived(IoSession session,
       StartOnDemandMessage message) {
     log.debug("Received Start Transient message from world model.");
     for (DataListener listener : this.dataListeners) {
-      listener.startTransientReceived(this, message);
+      listener.startOnDemandReceived(this, message);
     }
   }
 
   @Override
-  public void stopTransientReceived(IoSession session,
+  public void stopOnDemandReceived(IoSession session,
       StopOnDemandMessage message) {
     log.debug("Received Stop Transient message from world model.");
     for (DataListener listener : this.dataListeners) {
-      listener.stopTransientReceived(this, message);
+      listener.stopOnDemandReceived(this, message);
     }
   }
 
   @Override
-  public void dataTransferReceived(IoSession session,
+  public void attributeUpdateReceived(IoSession session,
       AttributeUpdateMessage message) {
     log.error("World Model should not send Data Transfer messages to solvers.");
-    this.disconnect();
+    this._disconnect();
   }
 
   @Override
-  public void createUriReceived(IoSession session, CreateIdentifierMessage message) {
-    log.error("World Model should not send Create URI messages to solvers.");
-    this.disconnect();
+  public void createIdReceived(IoSession session,
+      CreateIdentifierMessage message) {
+    log.error("World Model should not send Create Identifier messages to solvers.");
+    this._disconnect();
   }
 
   @Override
-  public void expireUriReceived(IoSession session, ExpireIdentifierMessage message) {
-    log.error("World Model should not send Expire URI messages to solvers.");
-    this.disconnect();
+  public void expireIdReceived(IoSession session,
+      ExpireIdentifierMessage message) {
+    log.error("World Model should not send Expire Identifier messages to solvers.");
+    this._disconnect();
   }
 
   @Override
-  public void deleteUriReceived(IoSession session, DeleteIdentifierMessage message) {
-    log.error("World Model should not send Delete URI messages to solvers.");
-    this.disconnect();
+  public void deleteIdReceived(IoSession session,
+      DeleteIdentifierMessage message) {
+    log.error("World Model should not send Delete Identifier messages to solvers.");
+    this._disconnect();
   }
 
   @Override
   public void expireAttributeReceived(IoSession session,
       ExpireAttributeMessage message) {
     log.error("World Model should not send Expire Attribute messages to solvers.");
-    this.disconnect();
+    this._disconnect();
   }
 
   @Override
   public void deleteAttributeReceived(IoSession session,
       DeleteAttributeMessage message) {
     log.error("World Model should ot send Delete Attribute messages to solvers.");
-    this.disconnect();
+    this._disconnect();
   }
 
   @Override
@@ -538,7 +621,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
     if (Boolean.FALSE.equals(handshakeCheck)) {
       log.warn("Handshakes did not match.");
-      this.disconnect();
+      this._disconnect();
     }
     if (Boolean.TRUE.equals(handshakeCheck)) {
       log.debug("Handshakes matched with {}.", this);
@@ -551,44 +634,44 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   }
 
   @Override
-  public void typeAnnounceSent(IoSession session, AttributeAnnounceMessage message) {
+  public void attributeAnnounceSent(IoSession session,
+      AttributeAnnounceMessage message) {
     log.debug("Sent Type Announce message to {}: {}", this, message);
     for (DataListener listener : this.dataListeners) {
-      listener.typeSpecificationsSent(this, message);
+      listener.attributeSpecificationsSent(this, message);
     }
   }
 
   @Override
-  public void startTransientSent(IoSession session,
-      StartOnDemandMessage message) {
+  public void startOnDemandSent(IoSession session, StartOnDemandMessage message) {
     log.error("Solver should not send Start Transient messages to the World Model.");
-    this.disconnect();
+    this._disconnect();
   }
 
   @Override
-  public void stopTransientSent(IoSession session, StopOnDemandMessage message) {
+  public void stopOnDemandSent(IoSession session, StopOnDemandMessage message) {
     log.error("Solver should not send Stop Transient messages to the World Model.");
-    this.disconnect();
+    this._disconnect();
   }
 
   @Override
-  public void dataTransferSent(IoSession session, AttributeUpdateMessage message) {
+  public void attributeUpdateSent(IoSession session, AttributeUpdateMessage message) {
     log.debug("Sent Data Transfer to {}: {}", this, message);
   }
 
   @Override
-  public void createUriSent(IoSession session, CreateIdentifierMessage message) {
-    log.debug("Sent Create URI to {}: {}", this, message);
+  public void createIdSent(IoSession session, CreateIdentifierMessage message) {
+    log.debug("Sent Create Identifier to {}: {}", this, message);
   }
 
   @Override
-  public void expireUriSent(IoSession session, ExpireIdentifierMessage message) {
-    log.debug("Sent Expire URI to {}: {}", this, message);
+  public void expireIdSent(IoSession session, ExpireIdentifierMessage message) {
+    log.debug("Sent Expire Identifier to {}: {}", this, message);
   }
 
   @Override
-  public void deleteUriSent(IoSession session, DeleteIdentifierMessage message) {
-    log.debug("Sent Delete URI to {}: {}", this, message);
+  public void deleteIdSent(IoSession session, DeleteIdentifierMessage message) {
+    log.debug("Sent Delete Identifier to {}: {}", this, message);
   }
 
   @Override
@@ -603,26 +686,34 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     log.debug("Sent Delete Attribute to {}: {}", this, message);
   }
 
-  public boolean sendSolution(final Solution solution) {
-    if (!this.sentTypeSpecifications) {
+  /**
+   * Sends a single Attribute update message to the world model.
+   * 
+   * @param attribute
+   *          the new Attribute value.
+   * @return {@code true} if the message was sent successfully, else
+   *         {@code false}.
+   */
+  public boolean updateAttribute(final Attribute attribute) {
+    if (!this.sentAttrSpecifications) {
       log.error("Haven't sent type specifications yet, can't send solutions.");
       return false;
     }
 
     AttributeUpdateMessage message = new AttributeUpdateMessage();
 
-    message.setCreateId(this.createUris);
-    message.setAttributes(new Solution[] { solution });
+    message.setCreateId(this.createIds);
+    message.setAttributes(new Attribute[] { attribute });
 
-    Integer solutionTypeAlias = this.solutionTypeAliases.get(solution
+    Integer attributeAlias = this.attributeAliases.get(attribute
         .getAttributeName());
-    if (solutionTypeAlias == null) {
-      log.error("Cannot send solution: Unregistered attribute type: {}",
-          solution.getAttributeName());
+    if (attributeAlias == null) {
+      log.error("Cannot update attribute: Unregistered attribute type: {}",
+          attribute.getAttributeName());
       return false;
     }
 
-    solution.setAttributeNameAlias(solutionTypeAlias.intValue());
+    attribute.setAttributeNameAlias(attributeAlias.intValue());
 
     this.session.write(message);
     log.debug("Sent {} to {}", message, this);
@@ -630,14 +721,20 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     return true;
   }
 
-  public boolean sendSolutions(final Collection<Solution> solutions) {
-    if (!this.sentTypeSpecifications) {
+  /**
+   * Sends a multiple Attribute update messages to the world model.
+   * @param attributes the Attribute values to update
+   * @return {@code true} if the messages were written, or {@code false} if
+   * one or more messages failed to send.
+   */
+  public boolean updateAttributes(final Collection<Attribute> attributes) {
+    if (!this.sentAttrSpecifications) {
       log.error("Haven't sent type specifications yet, can't send solutions.");
       return false;
     }
-    for (Iterator<Solution> iter = solutions.iterator(); iter.hasNext();) {
-      Solution soln = iter.next();
-      Integer solutionTypeAlias = this.solutionTypeAliases.get(soln
+    for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();) {
+      Attribute soln = iter.next();
+      Integer solutionTypeAlias = this.attributeAliases.get(soln
           .getAttributeName());
       if (solutionTypeAlias == null) {
         log.error("Cannot send solution: Unregistered attribute type: {}",
@@ -650,83 +747,152 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
     AttributeUpdateMessage message = new AttributeUpdateMessage();
 
-    message.setCreateId(this.createUris);
+    message.setCreateId(this.createIds);
 
-    message.setAttributes(solutions.toArray(new Solution[] {}));
+    message.setAttributes(this.attributes.toArray(new Attribute[] {}));
 
     this.session.write(message);
 
     return true;
   }
 
-  public void addType(AttributeSpecification specification) {
-    synchronized (this.solutions) {
-      if (!this.solutions.contains(specification)) {
-        this.solutions.add(specification);
+  /**
+   * Adds an attribute specification to the world model session.
+   * @param specification the Attribute that will be sent later.
+   */
+  public void addAttribute(AttributeSpecification specification) {
+    synchronized (this.attributes) {
+      if (!this.attributes.contains(specification)) {
+        this.attributes.add(specification);
 
-        if (this.sentTypeSpecifications) {
-          this.announceTypes();
+        if (this.sentAttrSpecifications) {
+          this.announceAttributes();
         }
       }
     }
   }
 
+  /**
+   * Gets the currently-configured world model host. This may differ from the
+   * current connection information if it was changed since the connection was established.
+   * @return the current world model host value. 
+   */
   public String getHost() {
-    return host;
+    return this.host;
   }
 
+  /**
+   * Sets the world model host value.  Setting this value has no effect until the next
+   * attempt to connect to the world model.
+   * @param host the new host value.
+   */
   public void setHost(String host) {
     this.host = host;
   }
 
+  /**
+   * Gets the currently-configured world model port value. This may differ from the
+   * current connection information if it was changed since the connection was established.
+   * @return the currently world model port value.
+   */
   public int getPort() {
-    return port;
+    return this.port;
   }
 
+  /**
+   * Sets the world model port value for Solver connections. Note that this setting
+   * only takes effect on the next connection attempt.
+   * @param port the new world model port value.
+   */
   public void setPort(int port) {
     this.port = port;
   }
 
+  /**
+   * Gets the current connection timeout value.
+   * @return the connection timeout value, in milliseconds.
+   */
   public long getConnectionTimeout() {
-    return connectionTimeout;
+    return this.connectionTimeout;
   }
 
+  /**
+   * Sets the timeout for making connections to the world model. Connections
+   * wait at most this period of time before declaring the connection failed.
+   * @param connectionTimeout the new connection timeout value, in milliseconds.
+   */
   public void setConnectionTimeout(long connectionTimeout) {
     this.connectionTimeout = connectionTimeout;
   }
 
+  /**
+   * Get the current connection retry delay value.  The amount of time to wait
+   * between a disconnect and reconnect attempt.
+   * @return the current connection retry delay value, in milliseconds.
+   */
   public long getConnectionRetryDelay() {
-    return connectionRetryDelay;
+    return this.connectionRetryDelay;
   }
 
+  /**
+   * Sets the connection retry delay value.  This is the amount of time to wait between
+   * a disconnect event and a reconnection attempt.
+   * @param connectionRetryDelay the new reconnect delay value, in milliseconds.
+   */
   public void setConnectionRetryDelay(long connectionRetryDelay) {
     this.connectionRetryDelay = connectionRetryDelay;
   }
 
+  /**
+   * If exceptions should cause a disconnect from the world model.
+   * @return {@code true} if exceptions will cause a disconnect.
+   */
   public boolean isDisconnectOnException() {
-    return disconnectOnException;
+    return this.disconnectOnException;
   }
 
+  /**
+   * Set whether to disconnect from the world model when exceptions are thrown.
+   * @param disconnectOnException {@code true} to disconnect when exceptions are thrown.
+   */
   public void setDisconnectOnException(boolean disconnectOnException) {
     this.disconnectOnException = disconnectOnException;
   }
 
+  /**
+   * If an automatic reconnect should be attempted on connection failures.
+   * @return {@code true} if automatic reconnection is enabled.
+   */
   public boolean isStayConnected() {
-    return stayConnected;
+    return this.stayConnected;
   }
-
+  /**
+   * Set whether to automatically attempt to reconnect to the world model if the
+   * connection fails.
+   * @param stayConnected
+   * {@code true} to automatically reconnect.
+   */
   public void setStayConnected(boolean stayConnected) {
     this.stayConnected = stayConnected;
   }
 
+  /**
+   * Returns the currently-configured origin value for this connection.
+   * @return the current origin value.
+   */
   public String getOriginString() {
-    return originString;
+    return this.originString;
   }
 
+  /**
+   * Sets the origin value for this connection.
+   * @param originString the new origin value.
+   */
   public void setOriginString(String originString) {
     this.originString = originString;
   }
 
+  @Override
   public String toString() {
     StringBuffer sb = new StringBuffer("Solver-World Model Interface");
     if (this.host != null) {
@@ -740,10 +906,16 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
   }
 
-  public boolean expireUri(final String uri, final long expirationTime) {
+  /**
+   * Expires all Attributes for an  Identifier in the world model.
+   * @param identifier the identifier to expire.
+   * @param expirationTime the expiration timestamp.
+   * @return {@code true} if the message is sent successfully, else {@code false}.
+   */
+  public boolean expireId(final String identifier, final long expirationTime) {
 
-    if (uri == null) {
-      log.error("Unable to expire a null URI value.");
+    if (identifier == null) {
+      log.error("Unable to expire a null Identifier value.");
       return false;
     }
 
@@ -753,7 +925,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     }
     ExpireIdentifierMessage message = new ExpireIdentifierMessage();
     message.setOrigin(this.originString);
-    message.setId(uri);
+    message.setId(identifier);
     message.setExpirationTime(expirationTime);
 
     this.session.write(message);
@@ -762,10 +934,17 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     return true;
   }
 
-  public boolean expireAttribute(final String uri, final String attribute,
+  /**
+   * Expire a particular Attribute for an Identifier in the world model.
+   * @param identifier the Identifier to expire.
+   * @param attribute the Attribute to expire.
+   * @param expirationTime the expiration timestamp.
+   * @return {@code true} if the message was sent successfully, else {@code false}.
+   */
+  public boolean expireAttribute(final String identifier, final String attribute,
       final long expirationTime) {
-    if (uri == null) {
-      log.error("Unable to expire an attribute with a null URI value.");
+    if (identifier == null) {
+      log.error("Unable to expire an attribute with a null Identifier value.");
       return false;
     }
 
@@ -781,7 +960,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
     ExpireAttributeMessage message = new ExpireAttributeMessage();
 
-    message.setId(uri);
+    message.setId(identifier);
     message.setAttributeName(attribute);
     message.setExpirationTime(expirationTime);
     message.setOrigin(this.originString);
@@ -792,20 +971,27 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     return true;
   }
 
-  public boolean deleteUri(final String uri) {
-    if (uri == null) {
-      log.error("Unable to delete a null URI value.");
+  /**
+   * Deletes an Identifier and all of its Attributes from the world model.  All data
+   * for the Identifier will be removed permanently.  Callers
+   * may also wish to consider expiring the Identifier instead.
+   * @param identifier the Identifier to delete
+   * @return {@code true} if the message was sent successfully
+   */
+  public boolean deleteId(final String identifier) {
+    if (identifier == null) {
+      log.error("Unable to delete a null Identifier value.");
       return false;
     }
 
     if (this.originString == null) {
-      log.error("Origin has not been set.  Cannot delete URIs without a valid origin.");
+      log.error("Origin has not been set.  Cannot delete Identifiers without a valid origin.");
       return false;
     }
 
     DeleteIdentifierMessage message = new DeleteIdentifierMessage();
     message.setOrigin(this.originString);
-    message.setId(uri);
+    message.setId(identifier);
 
     this.session.write(message);
     log.debug("Sent {}", message);
@@ -813,9 +999,16 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     return true;
   }
 
-  public boolean deleteAttribute(final String uri, final String attribute) {
-    if (uri == null) {
-      log.error("Unable to delete an attribute with a null URI value.");
+  /**
+   * Deletes an Attribute and its entire history from the world model.  Callers may wish
+   * to expire the Attribute value instead.
+   * @param identifier the Identifier of the Attribute to expire.
+   * @param attribute the Attribute to expire.
+   * @return {@code true} if the message was sent successfully.
+   */
+  public boolean deleteAttribute(final String identifier, final String attribute) {
+    if (identifier == null) {
+      log.error("Unable to delete an attribute with a null Identifier value.");
       return false;
     }
 
@@ -831,7 +1024,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
     DeleteAttributeMessage message = new DeleteAttributeMessage();
     message.setOrigin(this.originString);
-    message.setId(uri);
+    message.setId(identifier);
     message.setAttributeName(attribute);
 
     this.session.write(message);
@@ -840,22 +1033,27 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     return true;
   }
 
-  public boolean createUri(final String uri) {
+  /**
+   * Creates a new Identifier in the world model.
+   * @param identifier the Identifier to create
+   * @return {@code true} if the message was sent successfully.
+   */
+  public boolean createId(final String identifier) {
 
-    if (uri == null) {
-      log.error("Unable to create a null URI.");
+    if (identifier == null) {
+      log.error("Unable to create a null Identifier.");
       return false;
     }
 
     if (this.originString == null) {
-      log.error("Origin has not been set.  Cannot create URIs without a valid origin.");
+      log.error("Origin has not been set.  Cannot create Identifiers without a valid origin.");
       return false;
     }
 
     CreateIdentifierMessage message = new CreateIdentifierMessage();
     message.setCreationTime(System.currentTimeMillis());
     message.setOrigin(this.originString);
-    message.setId(uri);
+    message.setId(identifier);
 
     this.session.write(message);
     log.debug("Sent {}", message);
@@ -863,6 +1061,11 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     return true;
   }
 
+  /**
+   * The number of messages that have been written to the session
+   * but not yet sent to the network.
+   * @return the number of cached messages.
+   */
   public int getCachedWrites() {
     return this.session.getScheduledWriteMessages();
   }

@@ -20,19 +20,18 @@ package com.owlplatform.worldmodel.solver;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.owlplatform.worldmodel.Attribute;
 import com.owlplatform.worldmodel.solver.listeners.ConnectionListener;
 import com.owlplatform.worldmodel.solver.listeners.DataListener;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
+import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage.AttributeSpecification;
 import com.owlplatform.worldmodel.solver.protocol.messages.StartOnDemandMessage;
 import com.owlplatform.worldmodel.solver.protocol.messages.StopOnDemandMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage;
-import com.owlplatform.worldmodel.solver.protocol.messages.AttributeUpdateMessage.Solution;
-import com.owlplatform.worldmodel.solver.protocol.messages.AttributeAnnounceMessage.AttributeSpecification;
 
 /**
  * A simple class for solvers that need to push data into the World Model. This
@@ -102,9 +101,9 @@ public class SolverWorldConnection {
      * message.
      */
     @Override
-    public void startTransientReceived(SolverWorldModelInterface worldModel,
+    public void startOnDemandReceived(SolverWorldModelInterface worldModel,
         StartOnDemandMessage message) {
-      this.parent.startTransientReceived(worldModel, message);
+      this.parent.startOnDemandReceived(worldModel, message);
     }
 
     /**
@@ -112,9 +111,9 @@ public class SolverWorldConnection {
      * stopped.
      */
     @Override
-    public void stopTransientReceived(SolverWorldModelInterface worldModel,
+    public void stopOnDemandReceived(SolverWorldModelInterface worldModel,
         StopOnDemandMessage message) {
-      this.parent.stopTransientReceived(worldModel, message);
+      this.parent.stopOnDemand(worldModel, message);
     }
 
     /**
@@ -122,9 +121,9 @@ public class SolverWorldConnection {
      * sent to the world model.
      */
     @Override
-    public void typeSpecificationsSent(SolverWorldModelInterface worldModel,
-        AttributeAnnounceMessage message) {
-      this.parent.typeSpecificationsSent(worldModel, message);
+    public void attributeSpecificationsSent(
+        SolverWorldModelInterface worldModel, AttributeAnnounceMessage message) {
+      this.parent.attributeSpecificationsSent(worldModel, message);
     }
 
   }
@@ -160,14 +159,24 @@ public class SolverWorldConnection {
    * A queue of solutions that should be sent to the world model the next time
    * the connection is available.
    */
-  private final LinkedBlockingQueue<Solution> solutionBuffer = new LinkedBlockingQueue<Solution>(
+  private final LinkedBlockingQueue<Attribute> attributeBuffer = new LinkedBlockingQueue<Attribute>(
       1000);
 
+  /**
+   * Creates a new {@code SolverWorldConnection} with the following parameters:
+   * <ul>
+   * <li>Connection retry delay: 5 seconds</li>
+   * <li>Connection timeout: 5 seconds</li>
+   * <li>Auto-create Identifiers: {@code true}</li>
+   * <li>Disconnect on exception: {@code true}</li>
+   * <li>Stay connected: {@code true}</li>
+   * </ul>
+   */
   public SolverWorldConnection() {
     super();
     this.wmi.setConnectionRetryDelay(5000l);
     this.wmi.setConnectionTimeout(5000l);
-    this.wmi.setCreateUris(true);
+    this.wmi.setCreateIds(true);
     this.wmi.setDisconnectOnException(true);
     this.wmi.setStayConnected(false);
 
@@ -175,21 +184,35 @@ public class SolverWorldConnection {
     this.wmi.addDataListener(this.handler);
   }
 
+  /**
+   * Set the world model host or IP address.
+   * 
+   * @param wmHost
+   *          the new world model hostname or IP address.
+   */
   public void setHost(final String wmHost) {
     this.wmi.setHost(wmHost);
   }
 
+  /**
+   * Set the world model port number.
+   * 
+   * @param wmPort
+   *          the new port number.
+   */
   public void setPort(final int wmPort) {
     this.wmi.setPort(wmPort);
   }
 
   /**
-   * Connects to the world model at the configured host and port.
+   * Connects to the world model at the configured host and port. Returns
+   * immediately if the connection fails. If the connection succeeds, automatic
+   * reconnect will be in effect until {@link #disconnect()} is called.
    * 
    * @return {@code true} if the connection succeeds, else {@code false}.
    */
   public boolean connect() {
-    if (this.wmi.doConnectionSetup()) {
+    if (this.wmi.connect()) {
       this.wmi.setStayConnected(true);
       return true;
     }
@@ -197,10 +220,10 @@ public class SolverWorldConnection {
   }
 
   /**
-   * Permanently disconnects from the world model.
+   * Disconnects from the world model. Automatic reconnection will not occur.
    */
   public void disconnect() {
-    this.wmi.doConnectionTearDown();
+    this.wmi.disconnect();
   }
 
   @Override
@@ -209,43 +232,18 @@ public class SolverWorldConnection {
   }
 
   /**
-   * Sends a single solution to the world model, or buffers it to be sent later
-   * if the World Model is not connected.
+   * Sends a single attribute value update to the world model, or buffers it to
+   * be sent later if the World Model is not connected.
    * 
-   * @param solution
-   *          the solution to send.
-   * @return {@code true} if the solution was sent immediately or bufffered, and
+   * @param attribute
+   *          the Attribute value to send.
+   * @return {@code true} if the solution was sent immediately or buffered, and
    *         {@code false} if it was unable to be sent or buffered.
    * @throws IllegalStateException
    *           if this method is called once the world model connection has been
    *           destroyed.
    */
-  public boolean sendSolution(Solution solution) throws IllegalStateException {
-    if (this.terminated) {
-      throw new IllegalStateException(
-          "Cannot send solutions to the World Model once the connection has been destroyed.");
-    }
-
-    if (this.canSend) {
-      return this.wmi.sendSolution(solution);
-    }
-    return this.solutionBuffer.offer(solution);
-  }
-
-  /**
-   * Sends a collection of solutions to the world model, or buffers them to be
-   * sent later if the World Model is not connected.
-   * 
-   * @param solutions
-   *          the solutions to send.
-   * @return {@code true} if the solutions were able to be sent immediately, and
-   *         {@code false} if one or more were unable to be sent or were
-   *         buffered for later transmission.
-   * @throws IllegalStateException
-   *           if this method is called once the world model connection has been
-   *           destroyed.
-   */
-  public boolean sendSolutions(Collection<Solution> solutions)
+  public boolean updateAttribute(Attribute attribute)
       throws IllegalStateException {
     if (this.terminated) {
       throw new IllegalStateException(
@@ -253,144 +251,218 @@ public class SolverWorldConnection {
     }
 
     if (this.canSend) {
-      return this.wmi.sendSolutions(solutions);
-    } else {
-      for (Solution s : solutions) {
-        if (!this.solutionBuffer.offer(s)) {
-          return false;
-        }
+      return this.wmi.updateAttribute(attribute);
+    }
+    return this.attributeBuffer.offer(attribute);
+  }
+
+  /**
+   * Sends a collection of updated Attribute values to the world model, or
+   * buffers them to be sent later if the World Model is not connected.
+   * 
+   * @param attributes
+   *          the Attribute values to send.
+   * @return {@code true} if the solutions were able to be sent immediately, and
+   *         {@code false} if one or more were unable to be sent or were
+   *         buffered for later transmission.
+   * @throws IllegalStateException
+   *           if this method is called once the world model connection has been
+   *           destroyed.
+   */
+  public boolean updateAttributes(Collection<Attribute> attributes)
+      throws IllegalStateException {
+    if (this.terminated) {
+      throw new IllegalStateException(
+          "Cannot send solutions to the World Model once the connection has been destroyed.");
+    }
+
+    if (this.canSend) {
+      return this.wmi.updateAttributes(attributes);
+    }
+    for (Attribute a : attributes) {
+      if (!this.attributeBuffer.offer(a)) {
+        return false;
       }
     }
+
     return true;
   }
 
   /**
-   * Adds the type specification to the world model interface.
+   * Adds the Attribute specification to the world model connection.
    * 
    * @param spec
-   *          the type specification to add to the world model interface.
+   *          the Attribute specification to add to the world model connection.
    */
-  public void addSolutionType(AttributeSpecification spec) {
-    this.wmi.addType(spec);
+  public void addAttribute(AttributeSpecification spec) {
+    this.wmi.addAttribute(spec);
   }
 
   /**
-   * Sets the origin string value for this world model interface. The origin
+   * Sets the origin string value for this world model connection. The origin
    * string uniquely identifies a solver to the world model.
    * 
    * @param origin
-   *          the origin string for this world model interface.
+   *          the origin string for this world model connection.
    */
   public void setOriginString(final String origin) {
     this.wmi.setOriginString(origin);
   }
 
   /**
-   * Creates the specified URI in the world model, returning {@code true} on
-   * success.
+   * Creates the specified Identifier in the world model, returning {@code true}
+   * on success.
    * 
-   * @param uri
-   *          the URI to create in the world model.
+   * @param identifier
+   *          the Identifier to create in the world model.
    * @return {@code true} if the command succeeds, else {@code false}.
    */
-  public boolean createURI(final String uri) {
-    return this.wmi.createUri(uri);
+  public boolean createId(final String identifier) {
+    return this.wmi.createId(identifier);
   }
 
   /**
-   * Expires a URI, or one or more attributes of that URI. If attributes are
-   * specified, then they will be expired instead of the URI.
+   * Expires an Identifier, or one or more attributes of that Identifier. If
+   * Attributes are specified, then they will be expired instead of the
+   * Identifier.
    * 
-   * @param uri
-   *          the URI to expire, or the URI of the attributes to expire.
+   * @param identifier
+   *          the Identifier to expire, or the Identifier of the attributes to
+   *          expire.
    * @param attributes
    *          one or more attribute names to expire. If none are specified, then
-   *          the URI itself is expired.
-   * @returns {@code true} if all expirations are successful, else {@code false}
+   *          the Identifier itself is expired.
+   * @return {@code true} if all expirations are successful, else {@code false}
    *          .
    */
-  public boolean expire(final String uri, final String... attributes) {
+  public boolean expire(final String identifier, final String... attributes) {
     long now = System.currentTimeMillis();
     if (attributes == null || attributes.length == 0) {
-      return this.wmi.expireUri(uri, now);
+      return this.wmi.expireId(identifier, now);
     }
 
     boolean retVal = true;
     for (String attribute : attributes) {
-      retVal = retVal && this.wmi.expireAttribute(uri, attribute, now);
+      retVal = retVal && this.wmi.expireAttribute(identifier, attribute, now);
     }
     return retVal;
   }
 
   /**
-   * Deletes the specified URI or attributes. If {@code attributes} is null or
-   * of length 0, then the URI is deleted, otherwise the specified attributes
-   * are deleted for the URI.
+   * Deletes the specified Identifier or Attributes. If {@code attributes} is
+   * null or of length 0, then the Identifier is deleted, otherwise the
+   * specified attributes are deleted for the Identifier.
    * 
-   * @param uri
-   *          the URI to delete, or the URI for the attributes to delete.
+   * @param identifier
+   *          the Identifier to delete, or the Identifier for the attributes to
+   *          delete.
    * @param attributes
    *          one or more attributes to delete. If none are specified, then the
-   *          URI itself is deleted.
+   *          Identifier itself is deleted.
    * @return {@code true} if all deletions are successful, else {@code false}.
    */
-  public boolean delete(final String uri, final String... attributes) {
+  public boolean delete(final String identifier, final String... attributes) {
     if (attributes == null || attributes.length == 0) {
-      return this.wmi.deleteUri(uri);
+      return this.wmi.deleteId(identifier);
     }
     boolean retVal = true;
     for (String attribute : attributes) {
-      retVal = retVal && this.wmi.deleteAttribute(uri, attribute);
+      retVal = retVal && this.wmi.deleteAttribute(identifier, attribute);
     }
     return retVal;
   }
 
   /**
-   * Sends any buffered solutions to the world model.
+   * Sends any buffered Attribute values to the world model.
    */
-  private void sendBufferedSolutions() {
-    ArrayList<Solution> solutionsToSend = new ArrayList<Solution>();
+  private void sendBufferedValues() {
+    ArrayList<Attribute> attributesToSend = new ArrayList<Attribute>();
     int num = 0;
-    while (!this.solutionBuffer.isEmpty()) {
-      num += this.solutionBuffer.drainTo(solutionsToSend);
+    while (!this.attributeBuffer.isEmpty()) {
+      num += this.attributeBuffer.drainTo(attributesToSend);
     }
     if (num > 0) {
-      this.wmi.sendSolutions(solutionsToSend);
-      log.info("Sent {} buffered solutions.", num);
+      this.wmi.updateAttributes(attributesToSend);
+      log.info("Sent {} buffered attribute updates.", Integer.valueOf(num));
     }
   }
 
+  /**
+   * Marks the {@code canSend} flag to false.
+   * 
+   * @param worldModel
+   *          the connection to the world model.
+   */
   void connectionInterrupted(SolverWorldModelInterface worldModel) {
     this.canSend = false;
   }
 
+  /**
+   * Marks this connection as terminated, {@code canSend} as false.
+   * 
+   * @param worldModel
+   *          the connection to the world model.
+   */
   void connectionEnded(SolverWorldModelInterface worldModel) {
     this.terminated = true;
     this.canSend = false;
   }
 
+  /**
+   * Marks this connection as non-terminated, but {@code canSend} remains
+   * {@code false}.
+   * 
+   * @param worldModel
+   *          the connection to the world model.
+   */
   void connectionEstablished(SolverWorldModelInterface worldModel) {
     this.terminated = false;
   }
 
-  void startTransientReceived(SolverWorldModelInterface worldModel,
+  /**
+   * Does nothing for now.
+   * 
+   * @param worldModel
+   * @param message
+   */
+  void startOnDemandReceived(SolverWorldModelInterface worldModel,
       StartOnDemandMessage message) {
-    // TODO Auto-generated method stub
+    // Nothing to do.
 
   }
 
-  void stopTransientReceived(SolverWorldModelInterface worldModel,
+  /**
+   * Does nothing for now.
+   * 
+   * @param worldModel
+   * @param message
+   */
+  void stopOnDemand(SolverWorldModelInterface worldModel,
       StopOnDemandMessage message) {
-    // TODO Auto-generated method stub
+    // Nothing to do
 
   }
 
-  void typeSpecificationsSent(SolverWorldModelInterface worldModel,
+  /**
+   * Marks {@code canSend} as true, sends any buffered Attribute updates.
+   * 
+   * @param worldModel
+   *          the connection to the world model.
+   * @param message
+   *          the Attribute Specification message that was sent.
+   */
+  void attributeSpecificationsSent(SolverWorldModelInterface worldModel,
       AttributeAnnounceMessage message) {
     this.canSend = true;
-    this.sendBufferedSolutions();
+    this.sendBufferedValues();
   }
 
+  /**
+   * Returns {@code true} if handshakes have been exchanged on an active
+   * connection, else {@code false}.
+   * 
+   * @return {@code true} if the connection is ready for message exchange.
+   */
   public boolean isConnectionLive() {
     return this.wmi.isReady();
   }
