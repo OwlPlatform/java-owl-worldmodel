@@ -1,0 +1,9 @@
+# Eclipse files
+.project
+.classpath
+.settings
+
+# Compiled files
+*.class
+target
+bin
