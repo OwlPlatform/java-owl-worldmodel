@@ -64,13 +64,13 @@ public class WorldState {
   }
 
   /**
-   * Returns a collection containing the same URI Strings as this WorldState
+   * Returns a collection containing the same Identifier Strings as this WorldState
    * object. Modifications to the returned Collection do not impact this
    * WorldState.
    * 
-   * @return a collection containing the same URI Strings as this WorldState.
+   * @return a collection containing the same Identifier Strings as this WorldState.
    */
-  public Collection<String> getURIs() {
+  public Collection<String> getIdentifiers() {
     List<String> keys = new LinkedList<String>();
     keys.addAll(this.stateMap.keySet());
     return keys;
