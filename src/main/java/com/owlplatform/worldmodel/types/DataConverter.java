@@ -75,6 +75,8 @@ public class DataConverter {
     attributeConverters.put("location.yoffset", DoubleConverter.get());
     attributeConverters.put("location.maxx", DoubleConverter.get());
     attributeConverters.put("location.maxy", DoubleConverter.get());
+    attributeConverters.put("location.minx", DoubleConverter.get());
+    attributeConverters.put("location.miny", DoubleConverter.get());
     attributeConverters.put("location.xstddev", DoubleConverter.get());
     attributeConverters.put("location.ystddev", DoubleConverter.get());
     attributeConverters.put("location.uri", StringConverter.get());
@@ -95,7 +97,7 @@ public class DataConverter {
     attributeConverters.put("empty", BooleanConverter.get());
     attributeConverters.put("idle", BooleanConverter.get());
     attributeConverters.put("region", StringConverter.get());
-
+    attributeConverters.put("fingerprinting on", BooleanConverter.get());
   }
 
   /**
