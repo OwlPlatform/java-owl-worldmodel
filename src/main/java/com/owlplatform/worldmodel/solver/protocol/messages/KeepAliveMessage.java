@@ -58,6 +58,6 @@ public class KeepAliveMessage {
 	
 	@Override
 	public String toString() {
-		return "Keep-Alive (World Model Client)";
+		return "Keep-Alive (World Model Solver)";
 	}
 }
