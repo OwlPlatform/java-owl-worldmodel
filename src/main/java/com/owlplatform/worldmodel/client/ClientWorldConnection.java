@@ -296,6 +296,7 @@ public class ClientWorldConnection {
 
       return resp;
     } catch (Exception e) {
+      log.error("Unable to send " + req + ".",e);
       resp.setError(e);
       return resp;
     }

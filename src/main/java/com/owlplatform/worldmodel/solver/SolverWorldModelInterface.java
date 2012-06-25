@@ -759,17 +759,17 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   /**
    * Sends a multiple Attribute update messages to the world model.
    * 
-   * @param attributes
+   * @param attrToSend
    *          the Attribute values to update
    * @return {@code true} if the messages were written, or {@code false} if one
    *         or more messages failed to send.
    */
-  public boolean updateAttributes(final Collection<Attribute> attributes) {
+  public boolean updateAttributes(final Collection<Attribute> attrToSend) {
     if (!this.sentAttrSpecifications) {
       log.error("Haven't sent type specifications yet, can't send solutions.");
       return false;
     }
-    for (Iterator<Attribute> iter = attributes.iterator(); iter.hasNext();) {
+    for (Iterator<Attribute> iter = attrToSend.iterator(); iter.hasNext();) {
       Attribute soln = iter.next();
       Integer solutionTypeAlias = this.attributeAliases.get(soln
           .getAttributeName());
@@ -786,7 +786,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 
     message.setCreateId(this.createIds);
 
-    message.setAttributes(this.attributes.toArray(new Attribute[] {}));
+    message.setAttributes(attrToSend.toArray(new Attribute[] {}));
 
     this.session.write(message);
 

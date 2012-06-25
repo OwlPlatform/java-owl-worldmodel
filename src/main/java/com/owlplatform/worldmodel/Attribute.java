@@ -109,7 +109,7 @@ public class Attribute {
     // Id,
     if (this.identifier != null) {
       try {
-        length += this.identifier.getBytes("UTF16-BE").length;
+        length += this.identifier.getBytes("UTF-16BE").length;
       } catch (UnsupportedEncodingException e) {
         throw new RuntimeException("Unable to encode UTF16 strings.", e);
       }
