@@ -353,7 +353,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
         }
         waitTime = waitTime - (System.currentTimeMillis() - startAttempt);
       }
-    } while (this.stayConnected);
+    } while (this.stayConnected && waitTime > 0);
 
     this._disconnect();
     this.finishConnection();

@@ -284,6 +284,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
     long waitTime = timeout;
     do {
       long startAttempt = System.currentTimeMillis();
+      this.connector.setConnectTimeoutMillis(waitTime-5);
       if (this._connect(waitTime)) {
         log.debug("Connection succeeded!");
         return true;
@@ -309,7 +310,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
         }
         waitTime = waitTime - (System.currentTimeMillis() - startAttempt);
       }
-    } while (this.stayConnected);
+    } while (this.stayConnected && waitTime > 0);
 
     this._disconnect();
     this.finishConnection();
