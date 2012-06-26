@@ -208,8 +208,10 @@ public class SolverWorldConnection {
    * Connects to the world model at the configured host and port. Returns
    * immediately if the connection fails. If the connection succeeds, automatic
    * reconnect will be in effect until {@link #disconnect()} is called.
-   * @param timeout how long to wait for the connection, in milliseconds. If 0, the
-   * configured timeout value will be used.
+   * 
+   * @param timeout
+   *          how long to wait for the connection, in milliseconds. If 0, the
+   *          configured timeout value will be used.
    * 
    * @return {@code true} if the connection succeeds, else {@code false}.
    */
@@ -331,23 +333,42 @@ public class SolverWorldConnection {
    * @param identifier
    *          the Identifier to expire, or the Identifier of the attributes to
    *          expire.
+   * @param timestamp
+   *          the time at which the values are expired, in milliseconds since the UNIX epoch.
    * @param attributes
    *          one or more attribute names to expire. If none are specified, then
    *          the Identifier itself is expired.
    * @return {@code true} if all expirations are successful, else {@code false}
-   *          .
+   *         .
    */
-  public boolean expire(final String identifier, final String... attributes) {
-    long now = System.currentTimeMillis();
+  public boolean expire(final String identifier, final long timestamp,
+      final String... attributes) {
+    
     if (attributes == null || attributes.length == 0) {
-      return this.wmi.expireId(identifier, now);
+      return this.wmi.expireId(identifier, timestamp);
     }
 
     boolean retVal = true;
     for (String attribute : attributes) {
-      retVal = retVal && this.wmi.expireAttribute(identifier, attribute, now);
+      retVal = retVal && this.wmi.expireAttribute(identifier, attribute, timestamp);
     }
     return retVal;
+  }
+  
+  /**
+   * Expires an Identifier, or one or more attributes of that Identifier. If
+   * Attributes are specified, then they will be expired instead of the
+   * Identifier.  The expiration time will be the current local time.
+   * @param identifier
+   *          the Identifier to expire, or the Identifier of the attributes to
+   *          expire.
+   * @param attributes
+   *          one or more attribute names to expire. If none are specified, then
+   *          the Identifier itself is expired.
+   * @return {@code true} if all expirations are successful, else {@code false}
+   */
+  public boolean expire(final String identifier, final String... attributes){
+    return this.expire(identifier, System.currentTimeMillis(),attributes);
   }
 
   /**
