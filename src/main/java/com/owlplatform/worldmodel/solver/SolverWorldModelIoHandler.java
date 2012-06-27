@@ -43,13 +43,13 @@ import com.owlplatform.worldmodel.solver.protocol.messages.StopOnDemandMessage;
  * @author Robert Moore
  * 
  */
-public class WorldModelIoHandler implements IoHandler {
+public class SolverWorldModelIoHandler implements IoHandler {
 
   /**
    * Logging facility for this class.
    */
   private static final Logger log = LoggerFactory
-      .getLogger(WorldModelIoHandler.class);
+      .getLogger(SolverWorldModelIoHandler.class);
 
   /**
    * An adapter for receiving event and message notifications.
@@ -60,7 +60,7 @@ public class WorldModelIoHandler implements IoHandler {
    * Creates a new {@code WorldModelIoHandler} with the specified adapter.
    * @param ioAdapter the IOAdapter for receiving the events and messages.
    */
-  public WorldModelIoHandler(final SolverIoAdapter ioAdapter) {
+  public SolverWorldModelIoHandler(final SolverIoAdapter ioAdapter) {
     this.ioAdapter = ioAdapter;
   }
 

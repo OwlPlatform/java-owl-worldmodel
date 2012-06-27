@@ -160,7 +160,7 @@ public interface ClientIoAdapter {
    * @param session the session that received the message.
    * @param message the message.
    */
-  public void URISearchResponseReceived(IoSession session,
+  public void idSearchResponseReceived(IoSession session,
       IdSearchResponseMessage message);
 
   /**

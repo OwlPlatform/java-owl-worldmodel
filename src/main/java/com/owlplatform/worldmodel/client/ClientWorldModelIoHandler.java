@@ -45,13 +45,13 @@ import com.owlplatform.worldmodel.client.protocol.messages.IdSearchResponseMessa
  * @author Robert Moore
  * 
  */
-public class WorldModelIoHandler implements IoHandler {
+public class ClientWorldModelIoHandler implements IoHandler {
 
   /**
    * Logging facility for this class.
    */
   private static final Logger log = LoggerFactory
-      .getLogger(WorldModelIoHandler.class);
+      .getLogger(ClientWorldModelIoHandler.class);
 
   /**
    * The recipient of the demultiplexed messages.
@@ -64,7 +64,7 @@ public class WorldModelIoHandler implements IoHandler {
    * @param ioAdapter
    *          the IOAdapter that should receive the messages and events.
    */
-  public WorldModelIoHandler(final ClientIoAdapter ioAdapter) {
+  public ClientWorldModelIoHandler(final ClientIoAdapter ioAdapter) {
     this.ioAdapter = ioAdapter;
   }
 
@@ -134,7 +134,7 @@ public class WorldModelIoHandler implements IoHandler {
     } else if (message instanceof IdSearchMessage) {
       this.ioAdapter.idSearchReceived(session, (IdSearchMessage) message);
     } else if (message instanceof IdSearchResponseMessage) {
-      this.ioAdapter.URISearchResponseReceived(session,
+      this.ioAdapter.idSearchResponseReceived(session,
           (IdSearchResponseMessage) message);
     } else if (message instanceof OriginPreferenceMessage) {
       this.ioAdapter.originPreferenceReceived(session,

@@ -38,7 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.owlplatform.worldmodel.Attribute;
-import com.owlplatform.worldmodel.solver.WorldModelIoHandler;
+import com.owlplatform.worldmodel.solver.SolverWorldModelIoHandler;
 import com.owlplatform.worldmodel.solver.listeners.ConnectionListener;
 import com.owlplatform.worldmodel.solver.listeners.DataListener;
 import com.owlplatform.worldmodel.solver.protocol.codec.WorldModelSolverProtocolCodecFactory;
@@ -149,7 +149,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
   /**
    * Private IOHandler to hide interface methods.
    */
-  private WorldModelIoHandler ioHandler = new WorldModelIoHandler(this);
+  private SolverWorldModelIoHandler ioHandler = new SolverWorldModelIoHandler(this);
 
   /**
    * Thread pool filter for handling messages/events in non-IO threads.
@@ -425,7 +425,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
    */
   protected void _disconnect() {
     log.info("Disconnect called.");
-    if (this.session != null) {
+    if (this.session != null && !this.session.isClosing()) {
       log.info(
           "Closing connection to World Model (solver) at {} (waiting {}ms).",
           this.session.getRemoteAddress(), Long.valueOf(this.connectionTimeout));
@@ -952,6 +952,11 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
    */
   public void setOriginString(String originString) {
     this.originString = originString;
+    if(this.sentAttrSpecifications){
+      AttributeAnnounceMessage msg = new AttributeAnnounceMessage();
+      msg.setOrigin(originString);
+      this.session.write(msg);
+    }
   }
 
   @Override

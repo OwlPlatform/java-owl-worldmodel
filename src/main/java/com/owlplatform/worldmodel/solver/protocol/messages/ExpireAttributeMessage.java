@@ -20,6 +20,8 @@
 package com.owlplatform.worldmodel.solver.protocol.messages;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,6 +183,12 @@ public class ExpireAttributeMessage {
    */
   public void setOrigin(String origin) {
     this.origin = origin;
+  }
+  
+  @Override
+  public String toString(){
+    DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.LONG);
+    return "Expire " + this.identifier + "/" + this.attributeName + " @ " + df.format(new Date(this.expirationTime)) + " from " + this.origin;
   }
 
 }

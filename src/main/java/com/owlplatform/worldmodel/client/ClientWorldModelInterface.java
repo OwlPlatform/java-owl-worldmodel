@@ -151,7 +151,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
   /**
    * IOHandler for demultiplexing messages and events.
    */
-  private WorldModelIoHandler ioHandler = new WorldModelIoHandler(this);
+  private ClientWorldModelIoHandler ioHandler = new ClientWorldModelIoHandler(this);
 
   /**
    * Worker threadpool for handling IO events.
@@ -383,7 +383,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
    */
   protected void _disconnect() {
     log.info("Disconnect called.");
-    if (this.session != null) {
+    if (this.session != null && !this.session.isClosing()) {
       log.info(
           "Closing connection to World Model (client) at {} (waiting {}ms).",
           this.session.getRemoteAddress(), Long.valueOf(this.connectionTimeout));
@@ -684,7 +684,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
   }
 
   @Override
-  public void URISearchResponseReceived(IoSession session,
+  public void idSearchResponseReceived(IoSession session,
       IdSearchResponseMessage message) {
     log.debug("Received URI search response from {}: {}", this, message);
     for (DataListener listener : this.dataListeners) {

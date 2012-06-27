@@ -83,7 +83,6 @@ public class AttributeUpdateEncoder implements MessageEncoder<AttributeUpdateMes
 		buffer.flip();
 		
 		byte[] bufBytes = buffer.array();
-		log.debug("MSG: {}",NumericUtils.toHexString(bufBytes));
 		
 		out.write(buffer);
 		

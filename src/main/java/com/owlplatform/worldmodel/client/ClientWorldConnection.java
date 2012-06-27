@@ -208,7 +208,8 @@ public class ClientWorldConnection {
    * Connects to the world model at the configured host and port.
    * 
    * @param timeout
-   *          the maximum time to attempt the connection or 0 for the configured timeout
+   *          the maximum time to attempt the connection or 0 for the configured
+   *          timeout
    * 
    * @return {@code true} if the connection succeeds, else {@code false}.
    */
@@ -221,7 +222,7 @@ public class ClientWorldConnection {
   }
 
   /**
-   * Permanently disconnects from the world model.  
+   * Permanently disconnects from the world model.
    */
   public void disconnect() {
     this.wmi.disconnect();
@@ -267,7 +268,7 @@ public class ClientWorldConnection {
    *          the attribute regular expressions to request
    * @return a {@code Response} for the request.
    */
-  public Response getSnapshot(final String idRegex, final long start,
+  public synchronized Response getSnapshot(final String idRegex, final long start,
       final long end, String... attributes) {
     SnapshotRequestMessage req = new SnapshotRequestMessage();
     req.setIdRegex(idRegex);
@@ -291,12 +292,13 @@ public class ClientWorldConnection {
       long reqId = this.wmi.sendMessage(req);
       resp.setTicketNumber(reqId);
       this.outstandingSnapshots.put(Long.valueOf(reqId), resp);
+
       WorldState ws = new WorldState();
       this.outstandingStates.put(Long.valueOf(reqId), ws);
-
+      log.info("Binding Tix #{} to {}", Long.valueOf(reqId), resp);
       return resp;
     } catch (Exception e) {
-      log.error("Unable to send " + req + ".",e);
+      log.error("Unable to send " + req + ".", e);
       resp.setError(e);
       return resp;
     }
@@ -312,7 +314,7 @@ public class ClientWorldConnection {
    *          regular expressions to match attributes.
    * @return a {@code Response} for the request.
    */
-  public Response getCurrentSnapshot(final String idRegex, String... attributes) {
+  public synchronized Response getCurrentSnapshot(final String idRegex, String... attributes) {
     return this.getSnapshot(idRegex, 0l, 0l, attributes);
   }
 
@@ -331,7 +333,7 @@ public class ClientWorldConnection {
    *          the attribute regular expressions to request
    * @return a {@code StepResponse} for the request.
    */
-  public StepResponse getRangeRequest(final String idRegex, final long start,
+  public synchronized StepResponse getRangeRequest(final String idRegex, final long start,
       final long end, String... attributes) {
     RangeRequestMessage req = new RangeRequestMessage();
     req.setIdRegex(idRegex);
@@ -355,6 +357,7 @@ public class ClientWorldConnection {
       long reqId = this.wmi.sendMessage(req);
       resp.setTicketNumber(reqId);
       this.outstandingSteps.put(Long.valueOf(reqId), resp);
+      log.info("Binding Tix #{} to {}", Long.valueOf(reqId), resp);
 
       return resp;
     } catch (Exception e) {
@@ -378,7 +381,7 @@ public class ClientWorldConnection {
    *          the attribute regular expressions to match.
    * @return a {@code StepResponse} for the request.
    */
-  public StepResponse getStreamRequest(final String idRegex, final long start,
+  public synchronized StepResponse getStreamRequest(final String idRegex, final long start,
       final long interval, String... attributes) {
     StreamRequestMessage req = new StreamRequestMessage();
     req.setIdRegex(idRegex);
@@ -426,14 +429,14 @@ public class ClientWorldConnection {
         log.warn("Attempted to search for a null URI regex. Not sending.");
         return new String[] {};
       }
-      while (this.uriSearchResponses.isEmpty()) {
+      do {
         log.debug("Waiting for response.");
         try {
           return this.uriSearchResponses.take();
         } catch (InterruptedException ie) {
           // Ignored
         }
-      }
+      } while (this.uriSearchResponses.isEmpty());
       log.error("Unable to retrieve matching URI values for {}.", idRegex);
       return new String[] {};
     }
@@ -514,7 +517,7 @@ public class ClientWorldConnection {
    * @param message
    *          the completed message.
    */
-  void requestCompleted(ClientWorldModelInterface worldModel,
+  synchronized void requestCompleted(ClientWorldModelInterface worldModel,
       AbstractRequestMessage message) {
     Long ticket = Long.valueOf(message.getTicketNumber());
     log.debug("Request {} completed.", ticket);
@@ -522,6 +525,7 @@ public class ClientWorldConnection {
     Response resp = this.outstandingSnapshots.remove(ticket);
     // Snapshot request
     if (resp != null) {
+      log.debug("Retrieved {} for Tix#{}", resp, ticket);
       WorldState ws = this.outstandingStates.get(ticket);
       if (ws == null) {
         log.error("Unknown ticket number {} for request.", ticket, message);
@@ -534,6 +538,7 @@ public class ClientWorldConnection {
     StepResponse sResp = this.outstandingSteps.remove(ticket);
     // Range/Streaming request
     if (sResp != null) {
+      log.debug("Retrieved {} for Tix#{}", resp, ticket);
       sResp.setComplete();
       return;
     }
@@ -550,7 +555,7 @@ public class ClientWorldConnection {
    * @param message
    *          the received data response message.
    */
-  void dataResponseReceived(ClientWorldModelInterface worldModel,
+  synchronized void dataResponseReceived(ClientWorldModelInterface worldModel,
       DataResponseMessage message) {
     // Check for snapshot request
     WorldState ws = null;

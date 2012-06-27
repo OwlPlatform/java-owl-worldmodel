@@ -20,117 +20,140 @@
 package com.owlplatform.worldmodel.solver.protocol.messages;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  * Expires all current Attribute values for an Identifier.
+ * 
  * @author Robert Moore
- *
+ * 
  */
 public class ExpireIdentifierMessage {
-	
-	/**
-	 * Logging facility for this class.
-	 */
-	private static final Logger log = LoggerFactory.getLogger(ExpireIdentifierMessage.class);
-	
-	/**
-	 * Message type value.
-	 */
-	public static final byte MESSAGE_TYPE = 6;
-	
-	/**
-	 * Identifier to expire.
-	 */
-	private String identifier;
-	
-	/**
-	 * Expiration timestamp.
-	 */
-	private long expirationTime;
-	
-	/**
-	 * Origin of the Identifier to expire.
-	 */
-	private String origin;
-	
-	/**
-   * The length of this message when encoded according to the Solver-World Model protocol.
+
+  /**
+   * Logging facility for this class.
+   */
+  private static final Logger log = LoggerFactory
+      .getLogger(ExpireIdentifierMessage.class);
+
+  /**
+   * Message type value.
+   */
+  public static final byte MESSAGE_TYPE = 6;
+
+  /**
+   * Identifier to expire.
+   */
+  private String identifier;
+
+  /**
+   * Expiration timestamp.
+   */
+  private long expirationTime;
+
+  /**
+   * Origin of the Identifier to expire.
+   */
+  private String origin;
+
+  /**
+   * The length of this message when encoded according to the Solver-World Model
+   * protocol.
+   * 
    * @return the length, in bytes, of the encoded form of this message.
    */
-	public int getMessageLength()
-	{
-		// Message type, uri length
-		int length = 1 + 4;
-		
-		if(this.identifier != null){
-			try {
-				length += this.identifier.getBytes("UTF-16BE").length;
-			} catch (UnsupportedEncodingException e) {
-				log.error("Unable to encode to UTF-16BE.");
-			}
-		}
-			
-		// Creation time
-		length += 8;
-		
-		if(this.origin != null){
-			try {
-				length += this.origin.getBytes("UTF-16BE").length;
-			} catch (UnsupportedEncodingException e) {
-				log.error("Unable to encode to UTF-16BE.");
-			}
-		}
-		
-		return length;
-	}
+  public int getMessageLength() {
+    // Message type, uri length
+    int length = 1 + 4;
 
-	/**
-	 * Gets the Identifier to expire.
-	 * @return the Identifier.
-	 */
-	public String getId() {
-		return this.identifier;
-	}
+    if (this.identifier != null) {
+      try {
+        length += this.identifier.getBytes("UTF-16BE").length;
+      } catch (UnsupportedEncodingException e) {
+        log.error("Unable to encode to UTF-16BE.");
+      }
+    }
 
-	/**
-	 * Sets the Identifier to expire.
-	 * @param identifier the new Identifier value.
-	 */
-	public void setId(String identifier) {
-		this.identifier = identifier;
-	}
+    // Creation time
+    length += 8;
 
-	/**
-	 * Gets the expiration timestamp for the Identifier.
-	 * @return the expiration timestamp.
-	 */
-	public long getExpirationTime() {
-		return this.expirationTime;
-	}
+    if (this.origin != null) {
+      try {
+        length += this.origin.getBytes("UTF-16BE").length;
+      } catch (UnsupportedEncodingException e) {
+        log.error("Unable to encode to UTF-16BE.");
+      }
+    }
 
-	/**
-	 * Sets the expiration timestamp for the Identifier.
-	 * @param expirationTime the new expiration timestamp.
-	 */
-	public void setExpirationTime(long expirationTime) {
-		this.expirationTime = expirationTime;
-	}
+    return length;
+  }
 
-	/**
-	 * Gets the Origin of the Identifier to expire.
-	 * @return the Origin
-	 */
-	public String getOrigin() {
-		return this.origin;
-	}
+  /**
+   * Gets the Identifier to expire.
+   * 
+   * @return the Identifier.
+   */
+  public String getId() {
+    return this.identifier;
+  }
 
-	/**
-	 * Sets the Origin of the Identifier to expire.
-	 * @param origin the new Origin value.
-	 */
-	public void setOrigin(String origin) {
-		this.origin = origin;
-	}
+  /**
+   * Sets the Identifier to expire.
+   * 
+   * @param identifier
+   *          the new Identifier value.
+   */
+  public void setId(String identifier) {
+    this.identifier = identifier;
+  }
+
+  /**
+   * Gets the expiration timestamp for the Identifier.
+   * 
+   * @return the expiration timestamp.
+   */
+  public long getExpirationTime() {
+    return this.expirationTime;
+  }
+
+  /**
+   * Sets the expiration timestamp for the Identifier.
+   * 
+   * @param expirationTime
+   *          the new expiration timestamp.
+   */
+  public void setExpirationTime(long expirationTime) {
+    this.expirationTime = expirationTime;
+  }
+
+  /**
+   * Gets the Origin of the Identifier to expire.
+   * 
+   * @return the Origin
+   */
+  public String getOrigin() {
+    return this.origin;
+  }
+
+  /**
+   * Sets the Origin of the Identifier to expire.
+   * 
+   * @param origin
+   *          the new Origin value.
+   */
+  public void setOrigin(String origin) {
+    this.origin = origin;
+  }
+
+  @Override
+  public String toString() {
+    DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM,
+        DateFormat.LONG);
+    return "Expire " + this.identifier + " @ "
+        + df.format(new Date(this.expirationTime)) + " from " + this.origin;
+  }
 }
