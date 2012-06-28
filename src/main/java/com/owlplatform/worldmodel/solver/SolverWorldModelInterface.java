@@ -424,12 +424,12 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
    * Disconnects from the world model.
    */
   protected void _disconnect() {
-    log.info("Disconnect called.");
-    if (this.session != null && !this.session.isClosing()) {
+    IoSession currentSession = this.session;
+    if (currentSession != null && !currentSession.isClosing()) {
       log.info(
           "Closing connection to World Model (solver) at {} (waiting {}ms).",
-          this.session.getRemoteAddress(), Long.valueOf(this.connectionTimeout));
-      while(!this.session.close(false).awaitUninterruptibly(this.connectionTimeout)){
+          currentSession.getRemoteAddress(), Long.valueOf(this.connectionTimeout));
+      while(!currentSession.close(false).awaitUninterruptibly(this.connectionTimeout)){
         log.error("Connection didn't close after {}ms.",Long.valueOf(this.connectionTimeout));
       }
       this.session = null;
