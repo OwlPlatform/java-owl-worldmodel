@@ -216,6 +216,7 @@ public class ClientWorldConnection {
   public boolean connect(long timeout) {
     if (this.wmi.connect(timeout)) {
       this.wmi.setStayConnected(true);
+      this.isConnected = true;
       return true;
     }
     return false;
@@ -268,8 +269,8 @@ public class ClientWorldConnection {
    *          the attribute regular expressions to request
    * @return a {@code Response} for the request.
    */
-  public synchronized Response getSnapshot(final String idRegex, final long start,
-      final long end, String... attributes) {
+  public synchronized Response getSnapshot(final String idRegex,
+      final long start, final long end, String... attributes) {
     SnapshotRequestMessage req = new SnapshotRequestMessage();
     req.setIdRegex(idRegex);
     req.setBeginTimestamp(start);
@@ -314,7 +315,8 @@ public class ClientWorldConnection {
    *          regular expressions to match attributes.
    * @return a {@code Response} for the request.
    */
-  public synchronized Response getCurrentSnapshot(final String idRegex, String... attributes) {
+  public synchronized Response getCurrentSnapshot(final String idRegex,
+      String... attributes) {
     return this.getSnapshot(idRegex, 0l, 0l, attributes);
   }
 
@@ -333,8 +335,8 @@ public class ClientWorldConnection {
    *          the attribute regular expressions to request
    * @return a {@code StepResponse} for the request.
    */
-  public synchronized StepResponse getRangeRequest(final String idRegex, final long start,
-      final long end, String... attributes) {
+  public synchronized StepResponse getRangeRequest(final String idRegex,
+      final long start, final long end, String... attributes) {
     RangeRequestMessage req = new RangeRequestMessage();
     req.setIdRegex(idRegex);
     req.setBeginTimestamp(start);
@@ -381,8 +383,8 @@ public class ClientWorldConnection {
    *          the attribute regular expressions to match.
    * @return a {@code StepResponse} for the request.
    */
-  public synchronized StepResponse getStreamRequest(final String idRegex, final long start,
-      final long interval, String... attributes) {
+  public synchronized StepResponse getStreamRequest(final String idRegex,
+      final long start, final long interval, String... attributes) {
     StreamRequestMessage req = new StreamRequestMessage();
     req.setIdRegex(idRegex);
     req.setBeginTimestamp(start);
