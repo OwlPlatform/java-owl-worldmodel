@@ -22,7 +22,6 @@ package com.owlplatform.worldmodel.client;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.RuntimeIoException;
@@ -243,8 +242,8 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
     this.connector = new NioSocketConnector();
     this.connector.getSessionConfig().setIdleTime(IdleStatus.WRITER_IDLE,
         ClientWorldModelInterface.TIMEOUT_PERIOD / 2);
-    this.connector.getSessionConfig().setIdleTime(IdleStatus.READER_IDLE,
-        (int) (ClientWorldModelInterface.TIMEOUT_PERIOD * 1.1f));
+//    this.connector.getSessionConfig().setIdleTime(IdleStatus.READER_IDLE,
+//        (int) (ClientWorldModelInterface.TIMEOUT_PERIOD * 1.1f));
     if (!this.connector.getFilterChain().contains(
         WorldModelClientProtocolCodecFactory.CODEC_NAME)) {
       this.connector.getFilterChain().addLast(
