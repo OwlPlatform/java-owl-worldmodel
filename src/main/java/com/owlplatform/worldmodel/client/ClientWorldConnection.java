@@ -467,7 +467,7 @@ public class ClientWorldConnection {
     for (Iterator<Long> iter = this.outstandingSnapshots.keySet().iterator(); iter
         .hasNext();) {
       Long tix = iter.next();
-      Response resp = this.outstandingSnapshots.get(tix);
+      Response resp = this.outstandingSnapshots.remove(tix);
       resp.setError(new RuntimeException("Connection to "
           + worldModel.toString() + " was closed."));
       iter.remove();
@@ -478,9 +478,13 @@ public class ClientWorldConnection {
     for (Iterator<Long> iter = this.outstandingSteps.keySet().iterator(); iter
         .hasNext();) {
       Long tix = iter.next();
-      StepResponse resp = this.outstandingSteps.get(tix);
-      resp.setError(new RuntimeException("Connection to "
-          + worldModel.toString() + " was closed."));
+      StepResponse resp = this.outstandingSteps.remove(tix);
+      if (resp == null) {
+        log.error("No step response found for {}", Long.valueOf(tix));
+      } else {
+        resp.setError(new RuntimeException("Connection to "
+            + worldModel.toString() + " was closed."));
+      } 
       iter.remove();
     }
   }

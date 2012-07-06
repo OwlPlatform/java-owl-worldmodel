@@ -148,4 +148,9 @@ public class DeleteAttributeMessage {
     this.origin = origin;
   }
 
+  
+  @Override
+  public String toString(){
+    return "Delete Attribute " + this.identifier + "/" + this.attributeName + ":" + this.origin;
+  }
 }

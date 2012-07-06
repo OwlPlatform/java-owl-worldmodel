@@ -22,6 +22,7 @@ package com.owlplatform.worldmodel.client;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.mina.core.RuntimeIoException;
@@ -151,7 +152,8 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
   /**
    * IOHandler for demultiplexing messages and events.
    */
-  private ClientWorldModelIoHandler ioHandler = new ClientWorldModelIoHandler(this);
+  private ClientWorldModelIoHandler ioHandler = new ClientWorldModelIoHandler(
+      this);
 
   /**
    * Worker threadpool for handling IO events.
@@ -284,7 +286,7 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
     long waitTime = timeout;
     do {
       long startAttempt = System.currentTimeMillis();
-      this.connector.setConnectTimeoutMillis(waitTime-5);
+      this.connector.setConnectTimeoutMillis(waitTime - 5);
       if (this._connect(waitTime)) {
         log.debug("Connection succeeded!");
         return true;
@@ -323,14 +325,19 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
    * when the connection is disconnected and reconnect is not desired.
    */
   void finishConnection() {
-    this.connector.dispose();
-    this.connector = null;
-    for (ConnectionListener listener : this.connectionListeners) {
-      listener.connectionEnded(this);
+    NioSocketConnector conn = this.connector;
+    if (conn != null) {
+      this.connector = null;
+      conn.dispose();
+      for (ConnectionListener listener : this.connectionListeners) {
+        listener.connectionEnded(this);
+      }
     }
-    if (this.executors != null) {
-      this.executors.destroy();
+    ExecutorFilter execs = this.executors;
+    if (execs != null) {
       this.executors = null;
+      execs.destroy();
+
     }
   }
 
@@ -383,21 +390,26 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
    */
   protected void _disconnect() {
     IoSession currentSession = this.session;
+    this.session = null;
+    this.sentHandshake = null;
+    this.receivedHandshake = null;
+    this.attributeAliasValues.clear();
+    this.originAliasValues.clear();
+
     if (currentSession != null && !currentSession.isClosing()) {
+
       log.info(
           "Closing connection to World Model (client) at {} (waiting {}ms).",
-          currentSession.getRemoteAddress(), Long.valueOf(this.connectionTimeout));
+          currentSession.getRemoteAddress(),
+          Long.valueOf(this.connectionTimeout));
       while (!currentSession.close(false).awaitUninterruptibly(
           this.connectionTimeout)) {
         log.error("Connection didn't close after {}ms.",
             Long.valueOf(this.connectionTimeout));
       }
+    }
 
-      this.session = null;
-      this.sentHandshake = null;
-      this.receivedHandshake = null;
-      this.attributeAliasValues.clear();
-      this.originAliasValues.clear();
+    if (currentSession != null) {
       for (ConnectionListener listener : this.connectionListeners) {
         listener.connectionInterrupted(this);
       }
@@ -438,16 +450,22 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
 
   @Override
   public void connectionClosed(IoSession session) {
+    log.info("Lost connection to World Model (C) {}:{}", this.host,
+        Integer.valueOf(this.port));
     this._disconnect();
     while (this.stayConnected) {
-      log.info("Reconnecting to World Model (C) {}:{}", this.host,
-          Integer.valueOf(this.port));
+      Exception e = new Exception();
+      e.printStackTrace();
+      log.info("Reconnecting after {}ms.",
+          Long.valueOf(this.connectionRetryDelay));
 
       try {
         Thread.sleep(this.connectionRetryDelay);
       } catch (InterruptedException ie) {
         // Ignored
       }
+      log.info("Reconnecting to World Model (C) {}:{}", this.host,
+          Integer.valueOf(this.port));
 
       if (this.connect(this.connectionTimeout)) {
         return;

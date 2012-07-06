@@ -87,6 +87,7 @@ public class DeleteIdentifierMessage {
 
   /**
    * Gets the Identifier to delete.
+   * 
    * @return the Identifier name.
    */
   public String getId() {
@@ -95,7 +96,9 @@ public class DeleteIdentifierMessage {
 
   /**
    * Sets the Identifier to delete.
-   * @param identifier the new Identifier name.
+   * 
+   * @param identifier
+   *          the new Identifier name.
    */
   public void setId(String identifier) {
     this.identifier = identifier;
@@ -103,6 +106,7 @@ public class DeleteIdentifierMessage {
 
   /**
    * Gets the Origin of the Identifier.
+   * 
    * @return the Origin of the Identifier.
    */
   public String getOrigin() {
@@ -111,9 +115,16 @@ public class DeleteIdentifierMessage {
 
   /**
    * Sets the Origin of the Identifier.
-   * @param origin the new Origin value.
+   * 
+   * @param origin
+   *          the new Origin value.
    */
   public void setOrigin(String origin) {
     this.origin = origin;
+  }
+
+  @Override
+  public String toString() {
+    return "Delete Identifier " + this.identifier + ":" + this.origin;
   }
 }
