@@ -16,9 +16,9 @@
     </license>
   </licenses>
   <scm>
-    <url>git@github.com:OwlPlatform/owl-worldmodel.git</url>
-    <connection>scm:git:git@github.com:OwlPlatform/owl-worldmodel.git</connection>
-    <developerConnection>scm:git:git@github.com:OwlPlatform/owl-worldmodel.git</developerConnection>
+    <url>git@github.com:OwlPlatform/java-owl-worldmodel.git</url>
+    <connection>scm:git:git@github.com:OwlPlatform/java-owl-worldmodel.git</connection>
+    <developerConnection>scm:git:git@github.com:OwlPlatform/java-owl-worldmodel.git</developerConnection>
   </scm>
   <developers>
     <developer>
