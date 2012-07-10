@@ -480,7 +480,7 @@ public class ClientWorldConnection {
       Long tix = iter.next();
       StepResponse resp = this.outstandingSteps.remove(tix);
       if (resp == null) {
-        log.error("No step response found for {}", Long.valueOf(tix));
+        log.error("No step response found for {}", tix);
       } else {
         resp.setError(new RuntimeException("Connection to "
             + worldModel.toString() + " was closed."));
