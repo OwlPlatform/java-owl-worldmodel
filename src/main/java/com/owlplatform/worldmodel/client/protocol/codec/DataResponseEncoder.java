@@ -51,13 +51,13 @@ public class DataResponseEncoder implements MessageEncoder<DataResponseMessage> 
 		// Message type
 		buffer.put(DataResponseMessage.MESSAGE_TYPE);
 
-		// Message URI (this really shouldn't be null)
+		// Message Identifier (this really shouldn't be null)
 		if (message.getId() != null) {
-			byte[] uriBytes = message.getId().getBytes("UTF-16BE");
-			buffer.putInt(uriBytes.length);
-			buffer.put(uriBytes);
+			byte[] idBytes = message.getId().getBytes("UTF-16BE");
+			buffer.putInt(idBytes.length);
+			buffer.put(idBytes);
 		} else {
-			log.error("Message URI is null!");
+			log.error("Message Identifier is null!");
 		}
 
 		// Ticket number

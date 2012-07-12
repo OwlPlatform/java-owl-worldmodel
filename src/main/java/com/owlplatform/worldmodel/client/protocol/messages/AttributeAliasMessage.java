@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 /**
  * The Attribute Alias message is sent from the World Model server to the client
  * to provide efficient representations of attribute names in Data Response
- * messages. Each UTF-16 URI value is bound to a 4-byte integer alias to avoid
+ * messages. Each UTF-16 Identifier value is bound to a 4-byte integer alias to avoid
  * repeatedly sending long Identifier values.
  * 
  * @author Robert Moore

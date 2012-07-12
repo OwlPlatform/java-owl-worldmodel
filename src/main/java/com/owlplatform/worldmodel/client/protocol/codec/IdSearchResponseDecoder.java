@@ -66,17 +66,17 @@ public class IdSearchResponseDecoder implements MessageDecoder {
 		--messageLength;
 
 		if (messageLength > 0) {
-			ArrayList<String> matchingUris = new ArrayList<String>();
+			ArrayList<String> matchingIds = new ArrayList<String>();
 			
 			while (messageLength > 0) {
-				int uriLength = buffer.getInt();
+				int idLength = buffer.getInt();
 				messageLength -= 4;
-				byte[] uriBytes = new byte[uriLength];
-				buffer.get(uriBytes);
-				messageLength -= uriLength;
-				matchingUris.add(new String(uriBytes, "UTF-16BE"));
+				byte[] idBytes = new byte[idLength];
+				buffer.get(idBytes);
+				messageLength -= idLength;
+				matchingIds.add(new String(idBytes, "UTF-16BE"));
 			}
-			message.setMatchingUris(matchingUris.toArray(new String[matchingUris.size()]));
+			message.setMatchingIds(matchingIds.toArray(new String[matchingIds.size()]));
 
 		}
 		

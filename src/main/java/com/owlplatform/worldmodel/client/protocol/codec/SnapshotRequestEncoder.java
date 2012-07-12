@@ -42,9 +42,9 @@ public class SnapshotRequestEncoder implements
 		buffer.put(SnapshotRequestMessage.MESSAGE_TYPE);
 		buffer.putInt((int)message.getTicketNumber());
 		
-		byte[] uriQueryByte = message.getIdRegex().getBytes("UTF-16BE");
-		buffer.putInt(uriQueryByte.length);
-		buffer.put(uriQueryByte);
+		byte[] idQueryByte = message.getIdRegex().getBytes("UTF-16BE");
+		buffer.putInt(idQueryByte.length);
+		buffer.put(idQueryByte);
 		
 		String[] attributes = message.getAttributeRegexes();
 		

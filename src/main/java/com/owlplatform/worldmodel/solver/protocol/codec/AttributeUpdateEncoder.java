@@ -47,7 +47,7 @@ public class AttributeUpdateEncoder implements
     // Message type
     buffer.put(AttributeUpdateMessage.MESSAGE_TYPE);
 
-    // Create URI boolean value
+    // Create Identifier boolean value
     buffer.put(message.getCreateId() ? (byte) 1 : (byte) 0);
 
     if (message.getAttributes() != null) {

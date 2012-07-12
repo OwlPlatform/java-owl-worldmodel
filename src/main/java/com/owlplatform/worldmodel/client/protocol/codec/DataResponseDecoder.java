@@ -74,19 +74,19 @@ public class DataResponseDecoder implements MessageDecoder {
 		buffer.get();
 		--messageLength;
 		
-		int uriLength = buffer.getInt();
+		int idLength = buffer.getInt();
 		messageLength -= 4;
 		
-		if(uriLength == 0){
-			log.error("URI length is 0!");
+		if(idLength == 0){
+			log.error("Identifier length is 0!");
 			return MessageDecoderResult.NOT_OK;
 		}
-		byte[] uriBytes = new byte[uriLength];
-		buffer.get(uriBytes);
-		messageLength -= uriLength;
+		byte[] idBytes = new byte[idLength];
+		buffer.get(idBytes);
+		messageLength -= idLength;
 		
-		String uri = new String(uriBytes,"UTF-16BE");
-		message.setId(uri);
+		String identifier = new String(idBytes,"UTF-16BE");
+		message.setId(identifier);
 		
 		int ticketNumber = buffer.getInt();
 		messageLength -= 4;

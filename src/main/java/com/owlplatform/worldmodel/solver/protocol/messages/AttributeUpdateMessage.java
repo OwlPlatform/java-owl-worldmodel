@@ -33,14 +33,14 @@ public class AttributeUpdateMessage {
   public static final byte MESSAGE_TYPE = 4;
 
   /**
-   * 1-byte boolean value (0 for false, 1 for true) that indicates whether URIs
-   * should be created when a solution is for a URI that is not present in the
+   * 1-byte boolean value (0 for false, 1 for true) that indicates whether Identifiers
+   * should be created when a solution is for a Identifier that is not present in the
    * world model.
    */
   private boolean createIdentifier = false;
 
   /**
-   * The attributes associated with this URI, if any.
+   * The attributes associated with this Identifier, if any.
    */
   private Attribute[] attributes;
 
@@ -51,7 +51,7 @@ public class AttributeUpdateMessage {
    * @return the length, in bytes, of the encoded form of this message.
    */
   public int getMessageLength() {
-    // Message Type, createUri
+    // Message Type, createIdentifier
     int length = 1 + 1;
 
     // Number of solutions

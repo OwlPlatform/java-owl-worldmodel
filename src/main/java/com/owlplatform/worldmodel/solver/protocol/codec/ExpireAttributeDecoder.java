@@ -66,13 +66,13 @@ public class ExpireAttributeDecoder implements MessageDecoder {
 		buffer.get();
 		--messageLength;
 		
-		int uriNameLength = buffer.getInt();
+		int nameLength = buffer.getInt();
 		messageLength -= 4;
 		
-		byte[] uriNameBytes = new byte[uriNameLength];
-		buffer.get(uriNameBytes);
-		messageLength -= uriNameLength;
-		message.setId(new String(uriNameBytes,"UTF-16BE"));
+		byte[] nameBytes = new byte[nameLength];
+		buffer.get(nameBytes);
+		messageLength -= nameLength;
+		message.setId(new String(nameBytes,"UTF-16BE"));
 		
 		int attributeNameLength = buffer.getInt();
 		messageLength -= 4;

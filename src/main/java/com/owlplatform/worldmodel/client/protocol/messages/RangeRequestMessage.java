@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The Range Request message is sent by a client to the World Model in order
- * to request all URIs created or modified in the World Model server during the specified
+ * to request all Identifiers created or modified in the World Model server during the specified
  * time range.
  * 
  * @author Robert Moore
@@ -81,7 +81,7 @@ public class RangeRequestMessage extends AbstractRequestMessage {
 		// Message type, ticket #
 		int messageLength = 1 + 4;
 		
-		// URI length prefix
+		// Identifier length prefix
 		messageLength += 4;
 		
 		if(this.identifierRegex != null){

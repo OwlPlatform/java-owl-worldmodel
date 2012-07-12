@@ -53,15 +53,15 @@ public class StartOnDemandEncoder implements
 				// Transient Alias
 				buffer.putInt(request.getAttributeAlias());
 				if(request.getIdPatterns()!= null){
-					// Number of URI patterns
+					// Number of Identifier patterns
 					buffer.putInt(request.getIdPatterns().length);
-					for(String uriPattern : request.getIdPatterns()){
-						byte[] uriPatternByte = uriPattern.getBytes("UTF-16BE");
-						buffer.putInt(uriPatternByte.length);
-						buffer.put(uriPatternByte);
+					for(String idPattern : request.getIdPatterns()){
+						byte[] idPatternByte = idPattern.getBytes("UTF-16BE");
+						buffer.putInt(idPatternByte.length);
+						buffer.put(idPatternByte);
 					}
 				}
-				// No URI patterns
+				// No Identifier patterns
 				else{
 					buffer.putInt(0);
 				}

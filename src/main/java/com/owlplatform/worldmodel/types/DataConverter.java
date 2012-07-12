@@ -113,10 +113,10 @@ public class DataConverter {
         .get(attributeName);
     if (converter == null) {
       log.warn(
-          "Unable to find a suitable data converter for attribute URI {}.",
+          "Unable to find a suitable data converter for attribute {}.",
           attributeName);
       throw new IllegalArgumentException(
-          "Unable to find a suitable data converter for attribute URI \""
+          "Unable to find a suitable data converter for attribute \""
               + attributeName + "\".");
     }
 
@@ -139,10 +139,10 @@ public class DataConverter {
         .get(attributeName);
     if (converter == null) {
       log.warn(
-          "Unable to find a suitable data converter for attribute URI {}.",
+          "Unable to find a suitable data converter for attribute {}.",
           attributeName);
       throw new IllegalArgumentException(
-          "Unable to find a suitable data converter for attribute URI \""
+          "Unable to find a suitable data converter for attribute \""
               + attributeName + "\".");
     }
 
@@ -213,7 +213,7 @@ public class DataConverter {
         .get(attributeName);
     if (converter == null) {
       log.warn(
-          "Unable to find a suitable data converter for attribute URI {}.",
+          "Unable to find a suitable data converter for attribute {}.",
           attributeName);
       return NumericUtils.toHexString(encodedBytes);
     }

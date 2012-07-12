@@ -43,10 +43,10 @@ public class DeleteIdentifierEncoder implements MessageEncoder<DeleteIdentifierM
 		// Message type
 		buffer.put(DeleteIdentifierMessage.MESSAGE_TYPE);
 		
-		// URI to delete
-		byte[] uriBytes = message.getId().getBytes("UTF-16BE");
-		buffer.putInt(uriBytes.length);
-		buffer.put(uriBytes);
+		// Identifier to delete
+		byte[] idBytes = message.getId().getBytes("UTF-16BE");
+		buffer.putInt(idBytes.length);
+		buffer.put(idBytes);
 		
 		// Origin
 		byte[] originBytes = message.getOrigin().getBytes("UTF-16BE");

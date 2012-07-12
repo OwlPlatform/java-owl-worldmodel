@@ -60,12 +60,12 @@ public class IdSearchDecoder implements MessageDecoder {
 		int messageLength = buffer.getInt();
 		buffer.get();
 		--messageLength;
-		byte[] uriBytes = new byte[messageLength];
-		buffer.get(uriBytes);
-		String uri = new String(uriBytes,"UTF-16BE");
+		byte[] idBytes = new byte[messageLength];
+		buffer.get(idBytes);
+		String identifier = new String(idBytes,"UTF-16BE");
 		
 		IdSearchMessage message = new IdSearchMessage();
-		message.setIdRegex(uri);
+		message.setIdRegex(identifier);
 		
 		out.write(message);
 		

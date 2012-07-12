@@ -162,9 +162,10 @@ public class ClientWorldConnection {
   private ClientWorldModelInterface wmi = new ClientWorldModelInterface();
 
   /**
-   * Flag to indicate whether the connection is established or not.
+   * Flag to indicate whether the connection is established and ready for
+   * requests to be made.
    */
-  private volatile boolean isConnected = false;
+  private volatile boolean isReady = false;
 
   /**
    * The private handler for events.
@@ -174,15 +175,24 @@ public class ClientWorldConnection {
   /**
    * A queue of search responses to store for the client.
    */
-  private final LinkedBlockingQueue<String[]> uriSearchResponses = new LinkedBlockingQueue<String[]>();
+  private final LinkedBlockingQueue<String[]> idSearchResponses = new LinkedBlockingQueue<String[]>();
 
   /**
    * Whether or not the world model is connected.
    * 
    * @return {@code true} if the world model is connected, else {@code false}.
+   * @deprecated replaced by isReady
    */
   public boolean isConnected() {
-    return this.isConnected;
+    return this.isReady;
+  }
+  
+  /**
+   * Whether or not this connection is ready to accept requests from the client.
+   * @return {@code true} if the connection is ready, else {@code false}. 
+   */
+  public boolean isReady(){
+    return this.isReady;
   }
 
   /**
@@ -216,7 +226,7 @@ public class ClientWorldConnection {
   public boolean connect(long timeout) {
     if (this.wmi.connect(timeout)) {
       this.wmi.setStayConnected(true);
-      this.isConnected = true;
+//      this.isReady = true;
       return true;
     }
     return false;
@@ -280,7 +290,7 @@ public class ClientWorldConnection {
     }
     Response resp = new Response(this, 0);
     try {
-      while (!this.isConnected) {
+      while (!this.isReady) {
         log.debug("Trying to wait until connection is ready.");
         synchronized (this) {
           try {
@@ -346,7 +356,7 @@ public class ClientWorldConnection {
     }
     StepResponse resp = new StepResponse(this, 0);
     try {
-      while (!this.isConnected) {
+      while (!this.isReady) {
         log.debug("Trying to wait until connection is ready.");
         synchronized (this) {
           try {
@@ -395,7 +405,7 @@ public class ClientWorldConnection {
 
     StepResponse resp = new StepResponse(this, 0);
     try {
-      while (!this.isConnected) {
+      while (!this.isReady) {
         log.debug("Trying to wait until connection is ready.");
         synchronized (this) {
           try {
@@ -426,20 +436,20 @@ public class ClientWorldConnection {
    * @return all matching Identifiers.
    */
   public String[] searchId(final String idRegex) {
-    synchronized (this.uriSearchResponses) {
+    synchronized (this.idSearchResponses) {
       if (!this.wmi.searchIdRegex(idRegex)) {
-        log.warn("Attempted to search for a null URI regex. Not sending.");
+        log.warn("Attempted to search for a null Identifier regex. Not sending.");
         return new String[] {};
       }
       do {
         log.debug("Waiting for response.");
         try {
-          return this.uriSearchResponses.take();
+          return this.idSearchResponses.take();
         } catch (InterruptedException ie) {
           // Ignored
         }
-      } while (this.uriSearchResponses.isEmpty());
-      log.error("Unable to retrieve matching URI values for {}.", idRegex);
+      } while (this.idSearchResponses.isEmpty());
+      log.error("Unable to retrieve matching Identifier values for {}.", idRegex);
       return new String[] {};
     }
 
@@ -463,7 +473,7 @@ public class ClientWorldConnection {
    *          the source of the connection interruption.
    */
   void connectionInterrupted(ClientWorldModelInterface worldModel) {
-    this.isConnected = false;
+    this.isReady = false;
     for (Iterator<Long> iter = this.outstandingSnapshots.keySet().iterator(); iter
         .hasNext();) {
       Long tix = iter.next();
@@ -497,6 +507,7 @@ public class ClientWorldConnection {
    *          the source of the connection.
    */
   void connectionEnded(ClientWorldModelInterface worldModel) {
+    this.isReady = false;
     this.connectionInterrupted(worldModel);
   }
 
@@ -508,7 +519,7 @@ public class ClientWorldConnection {
    *          the source of the connection.
    */
   void connectionEstablished(ClientWorldModelInterface worldModel) {
-    this.isConnected = true;
+    this.isReady = true;
     synchronized (this) {
       this.notifyAll();
     }
@@ -606,12 +617,12 @@ public class ClientWorldConnection {
    */
   void idSearchResponseReceived(ClientWorldModelInterface worldModel,
       IdSearchResponseMessage message) {
-    log.debug("Got a URI search response: {}", message);
+    log.debug("Got an Identifier search response: {}", message);
     String[] matching = message.getMatchingIds();
     if (matching == null) {
-      this.uriSearchResponses.add(new String[] {});
+      this.idSearchResponses.add(new String[] {});
     } else {
-      this.uriSearchResponses.add(matching);
+      this.idSearchResponses.add(matching);
     }
   }
 

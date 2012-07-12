@@ -43,10 +43,10 @@ public class ExpireIdentifierEncoder implements MessageEncoder<ExpireIdentifierM
 		// Message type
 		buffer.put(ExpireIdentifierMessage.MESSAGE_TYPE);
 		
-		// URI to expire
-		byte[] uriBytes = message.getId().getBytes("UTF-16BE");
-		buffer.putInt(uriBytes.length);
-		buffer.put(uriBytes);
+		// Identifier to expire
+		byte[] idBytes = message.getId().getBytes("UTF-16BE");
+		buffer.putInt(idBytes.length);
+		buffer.put(idBytes);
 		
 		// Creation time
 		buffer.putLong(message.getExpirationTime());

@@ -45,10 +45,10 @@ public class DeleteAttributeEncoder implements
 		// Message type
 		buffer.put(DeleteAttributeMessage.MESSAGE_TYPE);
 		
-		// Target URI
-		byte[] uriBytes = message.getId().getBytes("UTF-16BE");
-		buffer.putInt(uriBytes.length);
-		buffer.put(uriBytes);
+		// Identifier
+		byte[] idBytes = message.getId().getBytes("UTF-16BE");
+		buffer.putInt(idBytes.length);
+		buffer.put(idBytes);
 		
 		// Attribute name
 		byte[] attributeNameByte = message.getAttributeName().getBytes("UTF-16BE");

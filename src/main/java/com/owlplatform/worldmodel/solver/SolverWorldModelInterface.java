@@ -991,7 +991,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
     }
 
     if (this.originString == null) {
-      log.error("Origin has not been set.  Cannot expire URIs without a valid origin.");
+      log.error("Origin has not been set.  Cannot expire Ids without a valid origin.");
       return false;
     }
     ExpireIdentifierMessage message = new ExpireIdentifierMessage();

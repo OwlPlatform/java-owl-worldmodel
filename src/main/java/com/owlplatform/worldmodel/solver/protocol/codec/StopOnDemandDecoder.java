@@ -70,18 +70,18 @@ public class StopOnDemandDecoder implements MessageDecoder {
 			for (int i = 0; i < numTransients; ++i) {
 				OnDemandRequest request = new OnDemandRequest();
 				request.setAttributeAlias(buffer.getInt());
-				int numUriPatterns = buffer.getInt();
-				if (numUriPatterns > 0) {
-					String[] uriPatterns = new String[numUriPatterns];
+				int numIdPatterns = buffer.getInt();
+				if (numIdPatterns > 0) {
+					String[] idPatterns = new String[numIdPatterns];
 
-					for (int j = 0; j < numUriPatterns; ++j) {
-						int uriLength = buffer.getInt();
-						byte[] uriBytes = new byte[uriLength];
-						buffer.get(uriBytes);
-						uriPatterns[j] = new String(uriBytes, "UTF-16BE");
+					for (int j = 0; j < numIdPatterns; ++j) {
+						int idLength = buffer.getInt();
+						byte[] idBytes = new byte[idLength];
+						buffer.get(idBytes);
+						idPatterns[j] = new String(idBytes, "UTF-16BE");
 					}
 
-					request.setIdPatterns(uriPatterns);
+					request.setIdPatterns(idPatterns);
 				}
 
 			}

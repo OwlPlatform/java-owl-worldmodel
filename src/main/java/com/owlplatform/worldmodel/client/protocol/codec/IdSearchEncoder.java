@@ -40,8 +40,8 @@ public class IdSearchEncoder implements MessageEncoder<IdSearchMessage> {
 		buffer.putInt(message.getMessageLength());
 		buffer.put(IdSearchMessage.MESSAGE_TYPE);
 		if (message.getIdRegex() != null) {
-			byte[] uriRegexByte = message.getIdRegex().getBytes("UTF-16BE");
-			buffer.put(uriRegexByte);
+			byte[] idRegexByte = message.getIdRegex().getBytes("UTF-16BE");
+			buffer.put(idRegexByte);
 		}
 
 		

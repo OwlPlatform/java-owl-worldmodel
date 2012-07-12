@@ -76,12 +76,12 @@ public class AttributeAnnounceDecoder implements MessageDecoder {
 				messageLength -= 4;
 				spec.setAlias(alias);
 				
-				int uriLength = buffer.getInt();
+				int idLength = buffer.getInt();
 				messageLength -= 4;
-				byte[] uriBytes = new byte[uriLength];
-				buffer.get(uriBytes);
-				messageLength -= uriLength;
-				spec.setAttributeName(new String(uriBytes,"UTF-16BE"));
+				byte[] idBytes = new byte[idLength];
+				buffer.get(idBytes);
+				messageLength -= idLength;
+				spec.setAttributeName(new String(idBytes,"UTF-16BE"));
 				
 				spec.setIsOnDemand(buffer.get() == (byte)0 ?  false : true);
 				--messageLength;

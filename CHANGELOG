@@ -4,6 +4,9 @@
 Owl Platform: <http://www.owlplatform.com>
 Project Website: <https://github.com/OwlPlatform/java-owl-worldmodel>
 
+Version 1.0.2 - TBD
+ + Fixing code internals to use "Identifier" instead of "URI".
+
 Version 1.0.1 - July 10, 2012
  + Initial version ported from GRAIL RTLS at SourceForge.net.
    <http://www.sf.net/projects/grailrtls/>

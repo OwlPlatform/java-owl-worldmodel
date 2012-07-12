@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A World Model-Client message used to search the World Model for matching URI values.
+ * A World Model-Client message used to search the World Model for matching Identifier values.
  * @author Robert Moore
  *
  */
@@ -37,7 +37,7 @@ public class IdSearchMessage {
 	private static final Logger log = LoggerFactory.getLogger(IdSearchMessage.class);
 	
 	/**	
-	 * Message Type value for the URI Search message.
+	 * Message Type value for the Identifier Search message.
 	 */
 	public static final byte MESSAGE_TYPE = 9;
 	
@@ -82,7 +82,7 @@ public class IdSearchMessage {
 	public String toString(){
 		StringBuffer sb = new StringBuffer();
 		
-		sb.append("URI Search (").append(this.identifierRegex).append(")");
+		sb.append("Identifier Search (").append(this.identifierRegex).append(")");
 		
 		return sb.toString();
 	}

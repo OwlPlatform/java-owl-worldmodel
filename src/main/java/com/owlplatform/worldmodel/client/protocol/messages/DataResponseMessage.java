@@ -54,7 +54,7 @@ public class DataResponseMessage {
 	private long ticketNumber;
 
 	/**
-	 * The attributes associated with this URI, if any.
+	 * The attributes associated with this Identifier, if any.
 	 */
 	private Attribute[] attributes;
 
@@ -63,7 +63,7 @@ public class DataResponseMessage {
 	 * @return the length, in bytes, of the encoded form of this message.
 	 */
 	public int getMessageLength() {
-		// Message Type, URI length
+		// Message Type, Identifier length
 		int length = 1 + 4;
 
 		// Identifier bytes

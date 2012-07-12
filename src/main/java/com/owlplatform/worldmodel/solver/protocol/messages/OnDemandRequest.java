@@ -74,9 +74,9 @@ public class OnDemandRequest {
 
   /**
    * Sets the Identifier patterns for this request.
-   * @param uriPatterns the new Identifier pattern values.
+   * @param idPatterns the new Identifier pattern values.
    */
-  public void setIdPatterns(String[] uriPatterns) {
-    this.identifierPatterns = uriPatterns;
+  public void setIdPatterns(String[] idPatterns) {
+    this.identifierPatterns = idPatterns;
   }
 }

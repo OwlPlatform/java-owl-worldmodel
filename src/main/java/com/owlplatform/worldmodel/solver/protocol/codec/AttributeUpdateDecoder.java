@@ -63,8 +63,8 @@ public class AttributeUpdateDecoder implements MessageDecoder {
 		buffer.getInt();
 		
 		buffer.get();
-		byte createUris = buffer.get();
-		message.setCreateId(createUris == (byte)0? false : true);
+		byte createIds = buffer.get();
+		message.setCreateId(createIds == (byte)0? false : true);
 		
 		int numSolutions = buffer.getInt();
 		Attribute[] attributes = new Attribute[numSolutions];

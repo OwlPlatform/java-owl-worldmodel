@@ -44,10 +44,10 @@ public class IdSearchResponseEncoder implements
 		buffer.put(IdSearchResponseMessage.MESSAGE_TYPE);
 		
 		if(message.getMatchingIds() != null){
-			for(String uri : message.getMatchingIds()){
-				byte[] uriByte = uri.getBytes("UTF-16BE");
-				buffer.putInt(uriByte.length);
-				buffer.put(uriByte);
+			for(String identifier : message.getMatchingIds()){
+				byte[] idByte = identifier.getBytes("UTF-16BE");
+				buffer.putInt(idByte.length);
+				buffer.put(idByte);
 			}
 		}
 		

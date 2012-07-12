@@ -65,13 +65,13 @@ public class DeleteIdentifierDecoder implements MessageDecoder {
 		buffer.get();
 		--messageLength;
 		
-		int uriLength = buffer.getInt();
+		int idLength = buffer.getInt();
 		messageLength -= 4;
-		byte[] uriBytes = new byte[uriLength];
-		buffer.get(uriBytes);
-		messageLength -= uriBytes.length;
+		byte[] idBytes = new byte[idLength];
+		buffer.get(idBytes);
+		messageLength -= idBytes.length;
 		
-		message.setId(new String(uriBytes,"UTF-16BE"));
+		message.setId(new String(idBytes,"UTF-16BE"));
 				
 		byte[] originBytes = new byte[messageLength];
 		message.setOrigin(new String(originBytes,"UTF-16BE"));

@@ -53,13 +53,13 @@ public class AttributeAnnounceEncoder implements MessageEncoder<AttributeAnnounc
 				// Type alias 
 				buffer.putInt(spec.getAlias());
 				
-				// Solution URI name
+				// Solution attribute name
 				if(spec.getAttributeName() != null){
-					byte[] uriNameByte = spec.getAttributeName().getBytes("UTF-16BE");
-					buffer.putInt(uriNameByte.length);
-					buffer.put(uriNameByte);
+					byte[] nameByte = spec.getAttributeName().getBytes("UTF-16BE");
+					buffer.putInt(nameByte.length);
+					buffer.put(nameByte);
 				}
-				// No solution URI name
+				// No attribute name
 				else{
 					buffer.putInt(0);
 				}

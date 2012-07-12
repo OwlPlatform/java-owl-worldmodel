@@ -86,7 +86,7 @@ public class SnapshotRequestMessage extends AbstractRequestMessage {
     // Message type, ticket #
     int messageLength = 1 + 4;
 
-    // URI length prefix
+    // Identifier length prefix
     messageLength += 4;
 
     if (this.identifierRegex != null) {

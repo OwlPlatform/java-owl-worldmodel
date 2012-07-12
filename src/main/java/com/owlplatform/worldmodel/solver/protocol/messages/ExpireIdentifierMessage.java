@@ -67,7 +67,7 @@ public class ExpireIdentifierMessage {
    * @return the length, in bytes, of the encoded form of this message.
    */
   public int getMessageLength() {
-    // Message type, uri length
+    // Message type, Id length
     int length = 1 + 4;
 
     if (this.identifier != null) {

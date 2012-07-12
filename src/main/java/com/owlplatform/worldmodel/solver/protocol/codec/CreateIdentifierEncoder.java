@@ -44,10 +44,10 @@ public class CreateIdentifierEncoder implements MessageEncoder<CreateIdentifierM
 		// Message type
 		buffer.put(CreateIdentifierMessage.MESSAGE_TYPE);
 		
-		// URI to create
-		byte[] uriBytes = message.getId().getBytes("UTF-16BE");
-		buffer.putInt(uriBytes.length);
-		buffer.put(uriBytes);
+		// Identifier to create
+		byte[] idBytes = message.getId().getBytes("UTF-16BE");
+		buffer.putInt(idBytes.length);
+		buffer.put(idBytes);
 		
 		// Creation time
 		buffer.putLong(message.getCreationTime());

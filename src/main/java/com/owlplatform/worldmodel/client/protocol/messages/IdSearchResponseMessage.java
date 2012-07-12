@@ -24,8 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The message sent in response to a URI Search Request. It may contain zero or
- * more URI String values that matched the requested URI regular expression.
+ * The message sent in response to a Identifier Search Request. It may contain zero or
+ * more Identifier String values that matched the requested Identifier regular expression.
  * 
  * @author Robert Moore
  * 
@@ -39,12 +39,12 @@ public class IdSearchResponseMessage {
 			.getLogger(IdSearchResponseMessage.class);
 
 	/**
-	 * Message Type byte value for the URI Search Response message.
+	 * Message Type byte value for the Identifier Search Response message.
 	 */
 	public static final byte MESSAGE_TYPE = 10;
 
 	/**
-	 * Array of URIs that matched the URI Search message's regular expression.
+	 * Array of Ids that matched the Identifier Search message's regular expression.
 	 */
 	private String[] matchingIds = null;
 
@@ -80,13 +80,13 @@ public class IdSearchResponseMessage {
 	 * Sets the Identifier values that matched the search request.
 	 * @param matchingIds the matching identifiers.
 	 */
-	public void setMatchingUris(String[] matchingIds) {
+	public void setMatchingIds(String[] matchingIds) {
 		this.matchingIds = matchingIds;
 	}
 
 	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer("URI Search Response:");
+		StringBuffer sb = new StringBuffer("Identifier Search Response:");
 		if (this.matchingIds != null) {
 			for (String s : this.matchingIds) {
 				sb.append(s).append("\n");

@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The Stream Request message is sent by a client to the World Model in order to
- * request all URIs and attributes created or updated after a specified point in time.
+ * request all Identifiers and attributes created or updated after a specified point in time.
  * The World Model server will then stream all requested data to the requesting client
  * as it arrives from solvers.
  * 
@@ -104,7 +104,7 @@ public class StreamRequestMessage extends AbstractRequestMessage {
 		// Message type, ticket #
 		int messageLength = 1 + 4;
 
-		// URI length prefix
+		// Identifiers length prefix
 		messageLength += 4;
 
 		if (this.identifierRegex != null) {
