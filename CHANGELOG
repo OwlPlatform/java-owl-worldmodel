@@ -6,6 +6,10 @@ Project Website: <https://github.com/OwlPlatform/java-owl-worldmodel>
 
 Version 1.0.2 - TBD
  + Fixing code internals to use "Identifier" instead of "URI".
+ + Fixed Issue #2 - ClientWorldConnection.connect() not behaving
+   correctly.
+   [https://github.com/OwlPlatform/java-owl-worldmodel/issues/2]
+ + Adding Attribute equality comparisons.
 
 Version 1.0.1 - July 10, 2012
  + Initial version ported from GRAIL RTLS at SourceForge.net.
