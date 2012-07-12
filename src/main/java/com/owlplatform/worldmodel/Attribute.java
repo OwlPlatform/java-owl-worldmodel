@@ -19,6 +19,7 @@
 package com.owlplatform.worldmodel;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.Date;
 
 import com.owlplatform.common.util.NumericUtils;
@@ -308,5 +309,85 @@ public class Attribute {
     }
 
     return sb.toString();
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o instanceof Attribute) {
+      return this.equals((Attribute) o);
+    }
+    return super.equals(o);
+  }
+
+  /**
+   * Compares this Attribute to another for equality based on attribute name, origin, timestamps, and data.
+   * @param a another Attribute
+   * @return {@code true} if they are equal, else {@code false}.
+   */
+  public boolean equals(Attribute a) {
+
+ // Timestamps
+    if(this.creationDate != a.creationDate || this.expirationDate != a.expirationDate){
+      return false;
+    }
+    
+    // Name
+    if (this.attributeName != null) {
+      if (!this.attributeName.equals(a.attributeName)) {
+        return false;
+      }
+    } else if (a.attributeName != null) {
+      return false;
+    }
+
+    // Origin
+    if (this.originName != null) {
+      if (!this.originName.equals(a.originName)) {
+        return false;
+      }
+    } else if (a.originName != null) {
+      return false;
+    }
+    
+    // Data
+    if(this.data != null){
+      if(a.data == null){
+        return false;
+      }
+      if(!Arrays.equals(this.data,a.data)){
+        return false;
+      }
+    }else if(a.data != null){
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode() {
+    int hashcode = 0;
+
+    // if (this.identifier != null) {
+    // hashcode ^= this.identifier.hashCode();
+    // }
+
+    if (this.attributeName != null) {
+      hashcode ^= this.attributeName.hashCode();
+    }
+
+    hashcode ^= (int) (this.creationDate >> 8);
+    hashcode ^= (int) (this.creationDate);
+    hashcode ^= (int) (this.expirationDate >> 8);
+    hashcode ^= (int) (this.expirationDate);
+
+    if (this.originName != null) {
+      hashcode ^= this.originName.hashCode();
+    }
+
+    if (this.data != null) {
+      hashcode ^= Arrays.hashCode(this.data);
+    }
+    return hashcode;
   }
 }
