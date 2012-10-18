@@ -4,6 +4,9 @@
 Owl Platform: <http://www.owlplatform.com>
 Project Website: <https://github.com/OwlPlatform/java-owl-worldmodel>
 
+Version 1.0.3 - October 17, 2012
+ + Updating project dependencies.
+
 Version 1.0.2 - July 13, 2012
  + Fixing code internals to use "Identifier" instead of "URI".
  + Fixed Issue #2 - ClientWorldConnection.connect() not behaving
