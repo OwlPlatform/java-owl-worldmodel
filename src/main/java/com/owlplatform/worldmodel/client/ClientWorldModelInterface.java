@@ -277,9 +277,9 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
       }
     }
 
-    if (this.session != null) {
-      log.error("Already connected!");
-      return false;
+    if (this.session != null && this.session.isConnected() && !this.session.isClosing()) {
+      log.info("Already connected!");
+      return true;
     }
 
     long waitTime = timeout;
@@ -313,6 +313,8 @@ public class ClientWorldModelInterface implements ClientIoAdapter {
       }
     } while (this.stayConnected && waitTime > 0);
 
+    log.warn("Giving-up on connection to {}:{}",this.host,this.port);
+    
     this._disconnect();
     this.finishConnection();
 
