@@ -287,7 +287,7 @@ public class SolverWorldModelInterface implements SolverIoAdapter {
 		}
 		this.connector = new NioSocketConnector();
 		this.connector.getSessionConfig().setWriterIdleTime(
-				(int) Math.ceil(SolverWorldModelInterface.TIMEOUT_PERIOD * .9));
+				SolverWorldModelInterface.TIMEOUT_PERIOD /2);
 		this.connector.getSessionConfig().setReaderIdleTime(
 				(int) Math.ceil(TIMEOUT_PERIOD * 1.1));
 		if (!this.connector.getFilterChain().contains(
