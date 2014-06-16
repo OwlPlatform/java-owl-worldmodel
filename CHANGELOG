@@ -4,7 +4,8 @@
 Owl Platform: <http://www.owlplatform.com>
 Project Website: <https://github.com/OwlPlatform/java-owl-worldmodel>
 
-Version 1.0.6 - TBD
+Version 1.0.6 - June 16, 2014
+ + Updating to fix "Already connected!" bug.
 
 Version 1.0.5 - May 29, 2013
  + Changed mina-core dependency from 'bundle' to 'jar' type.
