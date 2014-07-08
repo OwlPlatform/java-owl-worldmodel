@@ -4,6 +4,10 @@
 Owl Platform: <http://www.owlplatform.com>
 Project Website: <https://github.com/OwlPlatform/java-owl-worldmodel>
 
+Version 1.0.7 - July 7, 2014
+ + Correcting initial setting in SolverWorldConnection to auto-reconnect
+   to the World Model.
+
 Version 1.0.6 - June 16, 2014
  + Updating to fix "Already connected!" bug.
 

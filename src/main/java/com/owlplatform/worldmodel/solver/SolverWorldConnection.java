@@ -178,7 +178,7 @@ public class SolverWorldConnection {
     this.wmi.setConnectionTimeout(5000l);
     this.wmi.setCreateIds(true);
     this.wmi.setDisconnectOnException(true);
-    this.wmi.setStayConnected(false);
+    this.wmi.setStayConnected(true);
 
     this.wmi.addConnectionListener(this.handler);
     this.wmi.addDataListener(this.handler);
